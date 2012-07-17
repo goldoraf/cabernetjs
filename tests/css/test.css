@@ -1,0 +1,309 @@
+
+#main .table-header {
+  margin: 0;
+  padding: 10px;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  border: 1px solid #b5d2e3;
+  border-bottom: none;
+  overflow: auto;
+  background: #d7e7f0 url(../images/table-header-separator.png) bottom center repeat-X;
+  line-height: 18px;
+}
+#main .table-header form {
+  margin: 0;
+}
+#main .table-header form .input, #main .table-header form .input-append {
+  margin-left: 220px;
+}
+#main table {
+  width: 100%;
+  border-collapse: separate;
+  border: 1px solid #b5d2e3;
+  margin-bottom: 0;
+}
+#main table thead {
+  font-weight: 600;
+  background-color: #b9d6e6;
+  background-repeat: repeat-x;
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#e2edf4), to(#b9d6e6));
+  background-image: -moz-linear-gradient(top, #e2edf4, #b9d6e6);
+  background-image: -ms-linear-gradient(top, #e2edf4, #b9d6e6);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #e2edf4), color-stop(100%, #b9d6e6));
+  background-image: -webkit-linear-gradient(top, #e2edf4, #b9d6e6);
+  background-image: -o-linear-gradient(top, #e2edf4, #b9d6e6);
+  background-image: linear-gradient(top, #e2edf4, #b9d6e6);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e2edf4', endColorstr='#b9d6e6', GradientType=0);
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  border-color: #b9d6e6 #b9d6e6 #81b5d2;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  text-shadow: 0 1px 0 white;
+  text-align: center;
+  line-height: 100%;
+  padding: 15px 5px;
+  font-size: 12px;
+  border-bottom: 1px solid #b5d2e3;
+}
+#main table thead th {
+  background: url(../images/table-th-separator.png) 0px center no-repeat;
+  text-align: center;
+  padding: 5px;
+  color: #00517e;
+}
+#main table thead th:first-child {
+  background: none;
+}
+#main table thead th a {
+  color: #00517e;
+  font-weight: 500;
+}
+#main table thead th.headerSortUp span.sort {
+  background: url(../images/sort.png) top center no-repeat;
+  height: 11px;
+  width: 8px;
+  display: inline-block;
+  margin-top: 3px;
+}
+#main table thead th.headerSortDown span.sort {
+  background: url(../images/sort.png) center bottom no-repeat;
+  height: 11px;
+  width: 8px;
+  display: inline-block;
+  margin-top: 3px;
+}
+#main table td {
+  padding: 5px;
+  border-right: 1px solid white;
+  border-left: 1px solid #d1e2ed;
+  border-bottom: 1px solid #d1e2ed;
+  border-top: 1px solid white;
+  background: white;
+  vertical-align: middle;
+}
+#main table tbody tr:hover td {
+  background: #e6e6e6;
+}
+#main table tr:last-child td {
+  border-bottom-width: 0px;
+}
+#main .with-table-header table {
+  border-top: none;
+}
+#main table.list-table {
+  table-layout: fixed;
+}
+#main table.list-table tr td, #main table.list-table tr:last-child td {
+  border-width: 0 0 1px;
+}
+.table-header-add-on {
+  display: inline-block;
+  float: right;
+  margin: 0;
+  margin-top: 3px;
+}
+.table-header-add-on a.columns-selection-toggle {
+  text-indent: -5000px;
+  display: inline-block;
+  width: 20px;
+  outline: none;
+  background-image: url(../images/columnPicker.png);
+  background-repeat: no-repeat;
+  background-position: center center;
+  height: 25px;
+  width: 27px;
+  margin: 0;
+  background-position: top center;
+}
+.table-header-add-on a.columns-selection-toggle:hover {
+  background-position: bottom center;
+}
+
+#filterbar-wrapper {
+  margin-right: 40px;
+}
+#filterbar-wrapper h5 {
+  line-height: 25px;
+  float: left;
+  color: #004b73;
+  text-shadow: 0 1px 0 #ffffff;
+  margin-right: 10px;
+  font-size: 13px;
+}
+#filterbar {
+  clear: both;
+  display: inline-block;
+  margin-right: 10px;
+}
+#filterbar #main-filter-form {
+  display: inline-block;
+}
+#filterbar div.filter-item {
+  margin-right: -5px;
+  display: inline-block;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -ms-transition: none;
+  -o-transition: none;
+  transition: none;
+}
+#filterbar div.filter-item a {
+  cursor: pointer;
+  display: inline-block;
+  background-color: #e6e6e6;
+  background-repeat: no-repeat;
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), color-stop(25%, #ffffff), to(#e6e6e6));
+  background-image: -webkit-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  background-image: -moz-linear-gradient(top, #ffffff, #ffffff 25%, #e6e6e6);
+  background-image: -ms-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  background-image: -o-linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  background-image: linear-gradient(#ffffff, #ffffff 25%, #e6e6e6);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e6e6e6', GradientType=0);
+  padding: 5px 14px 6px;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+  color: #333;
+  font-size: 13px;
+  line-height: normal;
+  border: 1px solid #ccc;
+  border-bottom-color: #bbb;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -webkit-transition: 0.1s linear all;
+  -moz-transition: 0.1s linear all;
+  -ms-transition: 0.1s linear all;
+  -o-transition: 0.1s linear all;
+  transition: 0.1s linear all;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  border-radius: 0px;
+  border-right-width: 0px;
+}
+#filterbar div.filter-item a .close {
+  font-family: Arial, sans-serif;
+  line-height: 18px;
+}
+#filterbar div.filter-item a:hover {
+  background-position: 0 -15px;
+  color: #333;
+  text-decoration: none;
+}
+#filterbar div.filter-item a:focus {
+  outline: 1px dotted #666;
+}
+#filterbar div.filter-item a.active, #filterbar div.filter-item a:active {
+  -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+#filterbar div.filter-item:first-child a {
+  -webkit-border-radius: 4px 0 0 4px;
+  -moz-border-radius: 4px 0 0 4px;
+  border-radius: 4px 0 0 4px;
+}
+#filterbar div.filter-item:last-child a {
+  border-right-width: 1px;
+  -webkit-border-radius: 0 4px 4px 0;
+  -moz-border-radius: 0 4px 4px 0;
+  border-radius: 0 4px 4px 0;
+}
+#filterbar .filter-form-wrapper {
+  display: block;
+  top: 10px;
+}
+#filterbar .filter-form-wrapper .inner {
+  background: #eeeeee;
+  border: 1px solid #949494;
+  width: 307px;
+  -webkit-box-shadow: 2px 2px 5px #949494;
+  -moz-box-shadow: 2px 2px 5px #949494;
+  box-shadow: 2px 2px 5px #949494;
+}
+#filterbar .filter-form-wrapper .inner form {
+  margin: 10px;
+}
+#filterbar .filter-form-wrapper .inner form input[type=submit] {
+  margin-left: 5px;
+  width: 60px;
+}
+#filterbar .filter-form-wrapper .arrow {
+  border-bottom-color: #949494 !important;
+  border-width: 0px 10px 10px 10px;
+  left: 50px !important;
+  top: -4px;
+}
+#filterbar .filter-form-wrapper .arrow:after {
+  content: "";
+  border-color: transparent;
+  border-bottom-color: #eeeeee !important;
+  border-width: 0px 9px 9px 9px;
+  border-style: solid;
+  display: block;
+  background: transparent;
+  position: absolute;
+  left: -9px;
+  top: 1px;
+}
+#main-filter-form {
+  display: inline-block;
+}
+#main-filter-form span.filter {
+  display: inline-block;
+  text-decoration: none;
+  line-height: 18px;
+  padding: 0px 1px 0px 3px;
+  margin: 1px;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+  -webkit-transition: 0s none;
+  -moz-transition: 0s none;
+  -ms-transition: 0s none;
+  -o-transition: 0s none;
+  transition: 0s none;
+  text-shadow: 0 1px 0 #ffffff;
+  border: 1px solid #949494;
+  color: #949494;
+  background: #eeeeee;
+}
+#main-filter-form span.filter a {
+  margin-top: 1px;
+  display: block;
+  float: right;
+  margin-left: 5px;
+}
+#main-filter-form span.filter:hover {
+  color: #e46548;
+}
+#main-filter-form span.filter:hover a {
+  background-position: bottom center;
+}
+.yui3-columnpicker {
+  float: right;
+  margin-right: 10px;
+}
+.picker-form-wrapper {
+  display: block;
+}
+.picker-form-wrapper .inner {
+  background: #ffffff;
+  border: 2px solid #0064cd;
+  width: 200px;
+}
+.picker-form-wrapper .inner form {
+  margin: 10px;
+}
+.picker-form-wrapper .inner form input[type=submit] {
+  margin-left: 5px;
+}
+.picker-form-wrapper .inner form .input {
+  margin-left: 5px;
+}
+.picker-form-wrapper .arrow {
+  border-bottom-color: #0064cd !important;
+  left: 90% !important;
+}
+

@@ -1,0 +1,33 @@
+require "rake-pipeline-web-filters"
+require "uglifier"
+require "json"
+
+output "dist"
+
+input "src" do
+  match "main.js" do
+    neuter(
+      "cabernet.js",
+      :additional_dependencies => proc { |input|
+        Dir.glob(File.join(File.dirname(input.fullpath),'**','*.js'))
+      },
+      :path_transform => proc { |path, input|
+        "#{path}.js"
+      },
+      :closure_wrap => true
+    ) 
+  end
+end
+
+input "tests/src" do
+  match "**/*.js" do
+    concat "cabernet-tests.js"
+  end
+end
+
+input "dist" do
+  match "cabernet.js" do
+    uglify { "cabernet.min.js" }
+  end
+end
+

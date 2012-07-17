@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Datagrid test</title>
+        <meta charset="utf-8">
+		<script src="vendor/jquery-1.7.1.min.js"></script>
+		<script src="vendor/jquery.ba-outside-events.js"></script>
+		<script src="vendor/jquery-ui-1.8.19.custom.min.js"></script>
+		<script src="vendor/ember-0.9.8.js"></script>
+		<script src="vendor/syrah.js"></script>
+        <script src="../dist/cabernet.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
+		<link rel="stylesheet" type="text/css" href="css/test.css"/>
+    </head>
+    <body>
+		<div class="container-fluid" id="main">
+            <div id="content">
+			    <h1>
+			        Datagrid Test
+			    </h1>
+            </div>
+        </div>
+        
+		<script>
+            Ember.STRINGS = {
+                'firstname': 'First Name'
+            };
+
+            Test = Ember.Application.create({
+                ready: function() {
+                    Test.store = Syrah.Store.create({});
+
+                    var contacts = Test.store.loadMany(Test.Contact, Ember.A([]), [
+                        {firstname: 'John', lastname: 'Doe', city: 'New York'},
+                        {firstname: 'Jane', lastname: 'Doe', city: 'Los Angeles'},
+                        {firstname: 'Jack', lastname: 'Ryan', city: 'Washington'},
+                        {firstname: 'Jack', lastname: 'Bauer', city: 'Los Angeles'},
+                    ]);
+
+                    var grid = Cabernet.Datagrid.create({
+                        data: contacts,
+                        modelType: Test.Contact,
+                        custom: {
+                            firstname: function(row) {
+                                return '<a href="#">' + row.get('firstname') + '</a>';
+                            }
+                        }
+                    });
+                    grid.appendTo('#content');
+                }
+            });
+
+            Test.Contact = Syrah.Model.define({
+                firstname: String,
+                lastname: String,
+                city: String
+            });
+        </script>
+    </body>
+</html>
