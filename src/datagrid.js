@@ -19,7 +19,7 @@ Cabernet.Datagrid = Ember.View.extend({
             <thead> \
                 {{view Cabernet.Datagrid.Head itemViewClass="Cabernet.Datagrid.ColumnHeader" contentBinding="displayedColumns"}} \
             </thead> \
-            {{view Cabernet.Datagrid.Body dataBinding="displayedData" columnsBinding="columnsForDisplay"}} \
+            {{view Cabernet.Datagrid.Body itemViewClass="Cabernet.Datagrid.Row" contentBinding="displayedData" columnsBinding="columnsForDisplay"}} \
         </table>'),
 
 	data: [],
@@ -85,32 +85,48 @@ Cabernet.Datagrid = Ember.View.extend({
     }
 });
 
-Cabernet.Datagrid.Body = Ember.View.extend({
+Cabernet.Datagrid.Body = Ember.CollectionView.extend({
     tagName: 'tbody',
+    rowTemplate: null,
 
-    _columnsDidChange: function() {
-        this.rerender();
+    init: function() {
+        this.refreshRowTemplate();
+        this._super();
+    },
+
+    columnsDidChange: function() {
+        this.refreshRowTemplate();
+        this.refreshContent();
     }.observes('parentView.displayedColumns'),
 
-    _dataDidChange: function() {
-        this.rerender();
-    }.observes('parentView.displayedData'),
+    refreshContent: function() {console.log('rerender');
+        var content = this.get('content'),
+            length = content.get('length');
+        this.arrayWillChange(content, 0, length);
+        this.arrayDidChange(content, 0, null, length);
+    },
 
-    render: function(buffer) {
-        var custom, value;
+    refreshRowTemplate: function() {
+        this.set('rowTemplate', this.generateRowTemplate());
+    },
 
-        this.get('data').forEach(function(row) {
-            buffer.begin('tr');
-            this.get('columns').forEach(function(col) {
-                custom = this.get('parentView').getCustomDisplay(col.name);
-                value = (custom !== null) ? custom(row) : row.get(col.name);
-                if (col.get('displayed') === true) buffer.push('<td>' + value + '</td>');
-            }, this);
-            buffer.end();
+    generateRowTemplate: function() {console.log('regenerate row template');
+        var html = [];
+        this.get('parentView').get('displayedColumns').forEach(function(col) {
+            //custom = this.get('parentView').getCustomDisplay(col.name);
+            //value = (custom !== null) ? custom(row) : row.get(col.name);
+            if (col.get('displayed') === true) html.push('<td>{{content.'+col.name+'}}</td>');
         }, this);
-        
+        return Ember.Handlebars.compile(html.join(''));
     }
 });
+
+Cabernet.Datagrid.Row = Ember.View.extend({
+    init: function() {
+        this.set('template', this.get('parentView').get('rowTemplate'));
+        this._super();
+    }
+})
 
 Cabernet.Datagrid.Head = Ember.CollectionView.extend({
     tagName: 'tr',
