@@ -42,9 +42,7 @@
                         data: contacts,
                         modelType: Test.Contact,
                         custom: {
-                            firstname: function(row) {
-                                return '<a href="#">' + row.get('firstname') + '</a>';
-                            }
+                            firstname: '<a href="#">{{content.firstname}}</a>'
                         }
                     });
                     grid.appendTo('#content');

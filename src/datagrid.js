@@ -99,7 +99,7 @@ Cabernet.Datagrid.Body = Ember.CollectionView.extend({
         this.refreshContent();
     }.observes('parentView.displayedColumns'),
 
-    refreshContent: function() {console.log('rerender');
+    refreshContent: function() {
         var content = this.get('content'),
             length = content.get('length');
         this.arrayWillChange(content, 0, length);
@@ -110,12 +110,12 @@ Cabernet.Datagrid.Body = Ember.CollectionView.extend({
         this.set('rowTemplate', this.generateRowTemplate());
     },
 
-    generateRowTemplate: function() {console.log('regenerate row template');
-        var html = [];
+    generateRowTemplate: function() {
+        var custom, inner, html = [];
         this.get('parentView').get('displayedColumns').forEach(function(col) {
-            //custom = this.get('parentView').getCustomDisplay(col.name);
-            //value = (custom !== null) ? custom(row) : row.get(col.name);
-            if (col.get('displayed') === true) html.push('<td>{{content.'+col.name+'}}</td>');
+            custom = this.get('parentView').getCustomDisplay(col.name);
+            inner = (custom !== null) ? custom : '{{content.'+col.name+'}}';
+            if (col.get('displayed') === true) html.push('<td>'+inner+'</td>');
         }, this);
         return Ember.Handlebars.compile(html.join(''));
     }
