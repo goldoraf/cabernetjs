@@ -8,41 +8,30 @@ if (Em.I18n !== undefined) {
 Cabernet.Datagrid = Ember.View.extend({
 	
     template: Ember.Handlebars.compile(
-        '<div class="with-table-header"> \
-            <div class="row-pane table-header"> \
-                {{view Cabernet.Datagrid.Columnpicker columnsBinding="columnsForDisplay"}} \
-                <div id="filterbar-wrapper"> \
-                    <h5>Filter by</h5> \
-                    {{view Cabernet.Datagrid.Filterbar filterableColumnsBinding="columnsForDisplay"}} \
-                </div> \
+        '<div class="row-pane table-header"> \
+            {{view Cabernet.Datagrid.Columnpicker columnsBinding="columnsForDisplay"}} \
+            <div id="filterbar-wrapper"> \
+                <h5>Filter by</h5> \
+                {{view Cabernet.Datagrid.Filterbar filterableColumnsBinding="columnsForDisplay"}} \
             </div> \
-            <div class="content"> \
-                <table> \
-                    <thead> \
-                        <tr> \
-                        {{#each columnsForDisplay}} \
-                            {{#with this as column}} \
-                                {{#if column.displayed}} \
-                                    {{#view Cabernet.Datagrid.ColumnHeader columnNameBinding="column.name" columnLabelBinding="column.label" classBinding="sortClass"}} \
-                                        <span class="sort"></span> \
-                                        <a {{action "sort"}}>{{columnLabel}}</a> \
-                                    {{/view}} \
-                                {{/if}} \
-                            {{/with}} \
-                        {{/each}} \
-                        </tr> \
-                    </thead> \
-                    {{view Cabernet.Datagrid.Body dataBinding="displayedData" columnsBinding="columnsForDisplay"}} \
-                </table> \
-            </div> \
-        </div>'),
+        </div> \
+        <table class="bordered-table"> \
+            <thead> \
+                {{view Cabernet.Datagrid.Head itemViewClass="Cabernet.Datagrid.ColumnHeader" contentBinding="displayedColumns"}} \
+            </thead> \
+            {{view Cabernet.Datagrid.Body dataBinding="displayedData" columnsBinding="columnsForDisplay"}} \
+        </table>'),
 
 	data: [],
 	modelType: null,
 	columns: null,
-    displayedData: [],
-    columnsForDisplay: null,
     custom: {},
+
+    columnsForDisplay: null,
+    displayedData: [],
+    displayedColumns: function() {
+        return this.get('columnsForDisplay').filterProperty('displayed');
+    }.property('columnsForDisplay.@each.displayed'),
 
 	init: function() {
 		this._super();
@@ -58,14 +47,6 @@ Cabernet.Datagrid = Ember.View.extend({
         return this.get('custom')[columnName];
     },
 
-	sortDesc: function(columnName) {
-		this.sort(columnName, 'desc');
-	},
-
-	sortAsc: function(columnName) {
-		this.sort(columnName, 'asc');
-	},
-
 	sort: function(columnName, direction) {
 		var sorted = this.get('displayedData').toArray().sort(function(a, b) {
             var aValue, bValue, ret = 0;
@@ -75,7 +56,7 @@ Cabernet.Datagrid = Ember.View.extend({
             ret = Ember.compare(aValue, bValue);
             return ret;
 		});
-        if (direction === 'desc') sorted.reverse();
+        if (direction === 'up') sorted.reverse();
 		this.set('displayedData', sorted);
 	},
 
@@ -96,7 +77,8 @@ Cabernet.Datagrid = Ember.View.extend({
             cols.pushObject(Ember.Object.create({
                 name: columnName,
                 label: Cabernet.translate(columnName),
-                displayed: true
+                displayed: true,
+                sort: false
             }));
         });
         this.set('columnsForDisplay', cols);
@@ -108,7 +90,7 @@ Cabernet.Datagrid.Body = Ember.View.extend({
 
     _columnsDidChange: function() {
         this.rerender();
-    }.observes('parentView.columnsForDisplay.@each.displayed'),
+    }.observes('parentView.displayedColumns'),
 
     _dataDidChange: function() {
         this.rerender();
@@ -130,26 +112,32 @@ Cabernet.Datagrid.Body = Ember.View.extend({
     }
 });
 
+Cabernet.Datagrid.Head = Ember.CollectionView.extend({
+    tagName: 'tr',
+
+    sort: function(columnName) {
+        var actualSort = this.get('content').findProperty('name', columnName).get('sort');
+        var sortDir = (actualSort === 'down') ? 'up' : 'down';
+        this.get('content').setEach('sort', false);
+        this.get('content').findProperty('name', columnName).set('sort', sortDir);
+        this.get('parentView').sort(columnName, sortDir);
+    }
+});
+
 Cabernet.Datagrid.ColumnHeader = Ember.View.extend({
 	tagName: 'th',
-	sortDirection: null,
-	sortClass: function() {
-		var sortDir = this.get('sortDirection');
+    template: Ember.Handlebars.compile('<a {{action "sort"}}>{{content.label}}</a>'),
+	
+	classNameBindings: ['sortClass'],
+    sortClass: function() {
+		var sortDir = this.get('content').get('sort');
 		if (sortDir === 'up') return 'headerSortUp';
 		if (sortDir === 'down') return 'headerSortDown';
 		return '';
-	}.property('sortDirection'),
+	}.property('content.sort'),
 
 	sort: function() {
-		var sortDir = this.get('sortDirection');
-		if (sortDir === 'up' || sortDir === null) {
-			newSortDir = 'down';
-			this.get('parentView').sortDesc(this.get('columnName'));
-		} else {
-			newSortDir = 'up';
-			this.get('parentView').sortAsc(this.get('columnName'));
-		}
-		this.set('sortDirection', newSortDir);
+		this.get('parentView').sort(this.get('content').get('name'));
 	}
 });
 

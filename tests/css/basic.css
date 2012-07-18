@@ -1,0 +1,6 @@
+table .headerSortDown a:after {
+    content: " \2228";
+}
+table .headerSortUp a:after {
+    content: " \2227";
+}
