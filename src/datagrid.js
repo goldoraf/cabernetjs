@@ -239,7 +239,23 @@ Cabernet.Datagrid.AppliedFilter = Ember.View.extend({
 	}
 });
 
-Cabernet.Datagrid.Columnpicker = Ember.View.extend({
+Cabernet.Datagrid.Columnpicker = Cabernet.Popover.extend({
+    placement: 'below left',
+    linkTemplate: '<div class="table-header-add-on"> \
+                    <a class="columns-selection-toggle" {{action "toggle"}}>Select columns</a> \
+                </div>',
+    contentTemplate: '<ul class="inputs-list"> \
+                            {{#each columns}} \
+                                <li> \
+                                    <label> \
+                                        {{#with this as column}} \
+                                            {{view Ember.Checkbox checkedBinding="column.displayed"}} \
+                                            <span>{{column.label}}</span> \
+                                        {{/with}} \
+                                    </label> \
+                                </li> \
+                            {{/each}} \
+                        </ul>'/*,
     template : Ember.Handlebars.compile(
         '<div class="table-header-add-on"> \
             <a class="columns-selection-toggle" {{action "togglePicker"}}>Select columns</a> \
@@ -264,21 +280,6 @@ Cabernet.Datagrid.Columnpicker = Ember.View.extend({
                     </div> \
                 </div> \
             </div> \
-        </div>'),
-
-    didInsertElement: function() {
-        this.$('div.picker-form-wrapper').hide();
-    },
-
-    togglePicker: function() {
-        var wrapper = this.$('div.picker-form-wrapper');
-        wrapper.toggle();
-        wrapper.addClass('active');
-        wrapper.position({
-                of: this.$('a.columns-selection-toggle'),
-                my: 'left top',
-                at: 'left bottom'
-            });
-    }
+        </div>')*/
 });
 

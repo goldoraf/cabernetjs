@@ -23,9 +23,9 @@ Cabernet.Popover = Ember.View.extend({
                 of: this.$('a'),
                 my : params.my,
                 at: params.at,
-                //offset: '20'
+                offset: params.offset
             });
-            if (params.left !== undefined) popover.children('div.arrow').css('left', params.left);
+            if (params.arrowLeft !== undefined) popover.children('div.arrow').css('left', params.arrowLeft);
             
             popover.bind('clickoutside', function(e) {
                 $(this).removeClass('active').hide().unbind('clickoutside');
@@ -53,13 +53,15 @@ Cabernet.Popover = Ember.View.extend({
     },
 
     getPositionParams: function(popoverElt) {console.log(popoverElt.css('width'));
+        var width = popoverElt.css('width').replace(/px/, '');console.log(width);
         var params = {
-            'right': { my: 'left', at: 'right' },
-            'below': { my: 'top', at: 'bottom' },
-            'above': { my: 'bottom', at: 'center' },
-            'left': { my: 'right', at: 'left' },
-            'below right': { my: 'left top', at: 'center bottom', left: '20px' },
-            'above right': { my: 'left bottom', at: 'center top', left: '20px' },
+            'right': { my: 'left', at: 'right', offset: '0' },
+            'below': { my: 'top', at: 'bottom', offset: '0' },
+            'above': { my: 'bottom', at: 'center', offset: '0' },
+            'left': { my: 'right', at: 'left', offset: '0' },
+            'below right': { my: 'left top', at: 'center bottom', offset: '0', arrowLeft: '20px' },
+            'below left' : { my: 'right top', at: 'right bottom', offset: '20 0', arrowLeft: width - 20 + 'px' },
+            'above right': { my: 'left bottom', at: 'center top', offset: '0', arrowLeft: '20px' },
         }
         return params[this.get('placement')];
     }
