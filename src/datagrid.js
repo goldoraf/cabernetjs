@@ -27,6 +27,7 @@ Cabernet.Datagrid = Ember.View.extend({
 	columns: null,
     custom: {},
 
+    classNames: ['datagrid'],
     columnsForDisplay: null,
     displayedData: [],
     displayedColumns: function() {
@@ -240,46 +241,18 @@ Cabernet.Datagrid.AppliedFilter = Ember.View.extend({
 });
 
 Cabernet.Datagrid.Columnpicker = Cabernet.Popover.extend({
+    classNames: ['columnpicker'],
     placement: 'below left',
-    linkTemplate: '<div class="table-header-add-on"> \
-                    <a class="columns-selection-toggle" {{action "toggle"}}>Select columns</a> \
-                </div>',
-    contentTemplate: '<ul class="inputs-list"> \
-                            {{#each columns}} \
-                                <li> \
-                                    <label> \
-                                        {{#with this as column}} \
-                                            {{view Ember.Checkbox checkedBinding="column.displayed"}} \
-                                            <span>{{column.label}}</span> \
-                                        {{/with}} \
-                                    </label> \
-                                </li> \
-                            {{/each}} \
-                        </ul>'/*,
-    template : Ember.Handlebars.compile(
-        '<div class="table-header-add-on"> \
-            <a class="columns-selection-toggle" {{action "togglePicker"}}>Select columns</a> \
-        </div> \
-        <div id="column-picker"> \
-            <div id="column-picker-wrapper" class="picker-form-wrapper popover below"> \
-                <div class="filter-form-arrow arrow"></div> \
-                <div class="filter-form inner"> \
-                    <div class="input"> \
-                        <ul class="inputs-list"> \
-                            {{#each columns}} \
-                                <li> \
-                                    <label> \
-                                        {{#with this as column}} \
-                                            {{view Ember.Checkbox checkedBinding="column.displayed"}} \
-                                            <span>{{column.label}}</span> \
-                                        {{/with}} \
-                                    </label> \
-                                </li> \
-                            {{/each}} \
-                        </ul> \
-                    </div> \
-                </div> \
-            </div> \
-        </div>')*/
+    linkTemplate: '<a class="columns-selection-toggle" {{action "toggle"}}>Select columns</a>',
+    contentTemplate: '{{view Ember.CollectionView tagName="ul" class="inputs-list" \
+                        itemViewClass="Cabernet.Datagrid.Columnpicker.Element" contentBinding="columns"}}'
 });
 
+Cabernet.Datagrid.Columnpicker.Element = Ember.View.extend({
+    template: Ember.Handlebars.compile(
+        '<label> \
+            {{view Ember.Checkbox checkedBinding="content.displayed"}} \
+            <span>{{content.label}}</span> \
+        </label>'
+    )
+})

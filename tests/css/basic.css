@@ -1,6 +1,11 @@
-table .headerSortDown a:after {
+div.datagrid table .headerSortDown a:after {
     content: " \2228";
 }
-table .headerSortUp a:after {
+div.datagrid table .headerSortUp a:after {
     content: " \2227";
+}
+div.datagrid div.columnpicker {
+    display: inline-block;
+    float: right;
+    margin: 3px 0 0;
 }
