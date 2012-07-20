@@ -145,6 +145,10 @@ div.filterbar {
             a {
                 .btn();
                 .border-radius(0px);
+                border-right-width: 1px;
+            }
+
+            a + a:before {
                 border-right-width: 0px;
             }
             
@@ -153,7 +157,6 @@ div.filterbar {
             }
             
             &:last-child a {
-                border-right-width: 1px;
                 .border-radius(0 4px 4px 0);
             }
             
@@ -207,16 +210,11 @@ div.popover.below {
         padding: 0;
         .box-shadow(2px 2px 5px @darkGray);
         border: 1px solid @darkGray;
-        width: 307px;
 
         .content {
             background: @lightGray;
             input[type=text] {
-                 width: 200px;
-            }
-            input[type=submit] {
-                margin-left: @marginSmall;
-                width: 60px;
+                 width: 95%;
             }
         }
     }

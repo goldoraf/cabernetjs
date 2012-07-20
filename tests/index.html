@@ -41,12 +41,19 @@
 
                     Test.store = Syrah.Store.create({});
 
-                    var contacts = Test.store.loadMany(Test.Contact, Ember.A([]), [
+                    var data = [
                         {firstname: 'John', lastname: 'Doe', city: 'New York'},
                         {firstname: 'Jane', lastname: 'Doe', city: 'Los Angeles'},
                         {firstname: 'Jack', lastname: 'Ryan', city: 'Washington'},
                         {firstname: 'Jack', lastname: 'Bauer', city: 'Los Angeles'},
-                    ]);
+                    ];
+
+                    var data = [];
+                    for (var i=1; i<=100; i++) {
+                        data.push({firstname: 'John'+i, lastname: 'Doe', city: 'New York'})
+                    }
+
+                    var contacts = Test.store.loadMany(Test.Contact, Ember.A([]), data);
 
                     var grid = Cabernet.Datagrid.create({
                         data: contacts,

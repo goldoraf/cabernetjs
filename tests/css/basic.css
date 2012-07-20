@@ -2910,7 +2910,7 @@ div.filterbar div.filters div.filter a {
   -webkit-border-radius: 0px;
   -moz-border-radius: 0px;
   border-radius: 0px;
-  border-right-width: 0px;
+  border-right-width: 1px;
 }
 div.filterbar div.filters div.filter a.danger,
 div.filterbar div.filters div.filter a.danger:hover,
@@ -3038,13 +3038,15 @@ div.filterbar div.filters div.filter a.small {
   padding: 7px 9px 7px;
   font-size: 11px;
 }
+div.filterbar div.filters div.filter a + a:before {
+  border-right-width: 0px;
+}
 div.filterbar div.filters div.filter:first-child a {
   -webkit-border-radius: 4px 0 0 4px;
   -moz-border-radius: 4px 0 0 4px;
   border-radius: 4px 0 0 4px;
 }
 div.filterbar div.filters div.filter:last-child a {
-  border-right-width: 1px;
   -webkit-border-radius: 0 4px 4px 0;
   -moz-border-radius: 0 4px 4px 0;
   border-radius: 0 4px 4px 0;
@@ -3099,17 +3101,12 @@ div.popover.below .inner {
   -moz-box-shadow: 2px 2px 5px #949494;
   box-shadow: 2px 2px 5px #949494;
   border: 1px solid #949494;
-  width: 307px;
 }
 div.popover.below .inner .content {
   background: #eeeeee;
 }
 div.popover.below .inner .content input[type=text] {
-  width: 200px;
-}
-div.popover.below .inner .content input[type=submit] {
-  margin-left: 5px;
-  width: 60px;
+  width: 95%;
 }
 div.popover.below .arrow {
   border-bottom-color: #949494 !important;
