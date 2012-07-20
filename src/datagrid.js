@@ -26,6 +26,7 @@ Cabernet.Datagrid = Ember.View.extend({
 	modelType: null,
 	columns: null,
     custom: {},
+    defaultSort: null,
 
     classNames: ['datagrid'],
     columnsForDisplay: null,
@@ -41,7 +42,20 @@ Cabernet.Datagrid = Ember.View.extend({
         }
         this._initColumnsForDisplay();
 		this.set('displayedData', this.get('data'));
+        this.applyDefaultSort();
 	},
+
+    applyDefaultSort: function() {
+        if (Ember.none(this.get('defaultSort'))) return;
+        var col = this.get('defaultSort'),
+            dir = 'up';
+        if (col.indexOf('-') === 0) {
+            dir = 'down';
+            col = col.substr(1);
+        }
+        this.sort(col, dir);
+        this.get('columnsForDisplay').findProperty('name', col).set('sort', dir);
+    },
 
     getCustomDisplay: function(columnName) {
         if (!this.get('custom').hasOwnProperty(columnName)) return null;
@@ -57,7 +71,7 @@ Cabernet.Datagrid = Ember.View.extend({
             ret = Ember.compare(aValue, bValue);
             return ret;
 		});
-        if (direction === 'up') sorted.reverse();
+        if (direction === 'down') sorted.reverse();
 		this.set('displayedData', sorted);
 	},
 

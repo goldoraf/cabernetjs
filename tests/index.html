@@ -51,6 +51,7 @@
                     var grid = Cabernet.Datagrid.create({
                         data: contacts,
                         modelType: Test.Contact,
+                        defaultSort: '-lastname',
                         custom: {
                             firstname: '<a href="#">{{content.firstname}}</a>'
                         }
