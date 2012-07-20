@@ -1,0 +1,161 @@
+/******************************/
+/* DIVERS */
+.custom-box-shadow {
+	.box-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
+}
+
+.box() {
+    background: #fff;
+   
+    // h3 is the box title
+    h3 {
+        .box-header();
+    }
+}
+
+.box-header() {
+    border-bottom: 1px solid @darkBlue;
+    line-height: 30px;
+    text-indent: @space;
+    margin: 0;
+    margin-left: 4px;
+    
+    &.collapsable-toggle {
+        .transition(all 0.5s);
+        
+        .toggle-button {
+            float: left;
+            height: 31px;
+            width: 28px;
+            margin-left: -4px;
+            display: block;
+            
+            .transition(all 0.5s);
+            
+            background: @darkBlue url(../../images/fleche_bloc.png) no-repeat top left;
+            .box-shadow(inset 0 5px 5px #00476e);
+            .border-radius(4px);
+            
+            &.collapsed {
+                background: @gray url(../../images/fleche_bloc.png) no-repeat bottom left;
+                .box-shadow(inset 0 5px 5px #9c9c9c);
+            }
+            
+        }
+    }
+    
+    &.collapsed {
+        border-color: @gray;
+    }
+}
+/******************************/
+
+/******************************/
+/* Radio button */
+.buttonGroupItem() {
+    .btn();
+    .border-radius(0);
+    margin: 0px;
+    margin-right: -5px;
+    text-align: center !important;
+    border-left-width: 0px;
+    display: inline-block;
+    min-width:80px;
+    padding: 2px 14px 3px;
+    
+    input[type="radio"] {
+        display: none;
+    }
+    
+    &:first-child {
+        .border-radius(4px 0 0 4px);
+        border-left-width: 1px;
+    }
+    
+    &:last-child {
+        .border-radius(0  4px 4px 0);
+    }
+    
+    &.active, &.selected {
+        .btn.disabled();
+    }
+    
+    &.disabled {
+        .opacity(80);
+        
+        &:hover {
+            background-position:0 0;
+        }
+    }
+    
+    label {
+        width: 100% !important;
+        padding: 0;
+        text-indent: 0 !important;
+        text-align: center !important;
+    }
+    
+    a {
+        color: @black;
+        text-decoration: none;
+    }
+}
+/******************************/
+
+/******************************/
+/* Multi column layout mixins */
+.row-pane-layout(@nbColumns: 2) {
+    overflow: auto;
+    clear: both;
+    margin-bottom: 20px;
+    
+    .cell-pane {
+       overflow: auto;
+       float: left;
+       @width: 100% / @nbColumns - 1;
+       width: @width;
+       margin-right: 1%;
+       
+        &:last-child {
+            margin-right: 0;
+            margin-left: 1%;
+        }
+    }   
+}
+
+.menu-pane {
+    overflow: auto;
+    clear: both;
+    display: table;
+    width: 100%;
+    
+    .cell-pane {
+        display: table-cell;
+        padding-right: 20px;       
+       
+        &:last-child {
+            margin-right: 0;
+            margin-left: 1%;
+            padding-right: 0;
+        }
+    }   
+}
+/******************************/
+
+/******************************/
+/* Float right */
+.pullRight() {
+    float: right;
+    margin-right: @space;
+}
+/******************************/
+
+.iconLink(@icon) {
+    text-indent: -5000px;
+    display: inline-block;
+    width: 20px;
+    outline: none;
+    background-image: @icon;
+    background-repeat: no-repeat;
+    background-position: center center;
+}

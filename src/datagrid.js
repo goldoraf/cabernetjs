@@ -8,14 +8,14 @@ if (Em.I18n !== undefined) {
 Cabernet.Datagrid = Ember.View.extend({
 	
     template: Ember.Handlebars.compile(
-        '<div class="row-pane table-header"> \
+        '<div class="row-pane datagrid-header"> \
             {{view Cabernet.Datagrid.Columnpicker columnsBinding="columnsForDisplay"}} \
-            <div id="filterbar-wrapper"> \
+            <div class="filterbar"> \
                 <h5>Filter by</h5> \
                 {{view Cabernet.Datagrid.Filterbar filterableColumnsBinding="columnsForDisplay"}} \
             </div> \
         </div> \
-        <table class="bordered-table"> \
+        <table> \
             <thead> \
                 {{view Cabernet.Datagrid.Head itemViewClass="Cabernet.Datagrid.ColumnHeader" contentBinding="displayedColumns"}} \
             </thead> \
@@ -161,19 +161,9 @@ Cabernet.Datagrid.ColumnHeader = Ember.View.extend({
 Cabernet.Datagrid.Filterbar = Ember.View.extend({
 	appliedFilters: [],
     template: Ember.Handlebars.compile(
-        '<div id="filterbar"> \
-            {{#each filterableColumns}} \
-                {{view Cabernet.Datagrid.Filter class="filter-item" columnBinding="this"}} \
-            {{/each}} \
-        </div> \
-        <div id="main-filter-form"> \
-            {{#each appliedFilters}} \
-                {{#view Cabernet.Datagrid.AppliedFilter tagName="span" class="filter" filterBinding="this"}} \
-                    {{filter.column.label}} : {{filter.term}} \
-                    <a {{action "removeFilter"}} class="icon-delete"></a> \
-                    <br> \
-                {{/view}} \
-            {{/each}} \
+        '<div class="filters"> \
+            {{view Ember.CollectionView itemViewClass="Cabernet.Datagrid.Filter" class="filter-links" contentBinding="filterableColumns"}} \
+            {{view Ember.CollectionView itemViewClass="Cabernet.Datagrid.AppliedFilter" class="applied-filters" contentBinding="appliedFilters"}} \
         </div>'),
 
 	applyFilter: function(column, term) {
@@ -187,63 +177,51 @@ Cabernet.Datagrid.Filterbar = Ember.View.extend({
 	}
 });
 
-Cabernet.Datagrid.Filter = Ember.View.extend({
+Cabernet.Datagrid.Filter = Cabernet.Popover.extend({
 	term: '',
-    template: Ember.Handlebars.compile(
-        '<a {{action "toggleForm"}} class="filter">{{column.label}}</a> \
-        <div class="filter-form-wrapper popover below"> \
-            <div class="filter-form-arrow arrow"></div> \
-            <div class="filter-form inner"> \
-                <form class="temporary-filter-form"> \
-                    {{view Ember.TextField valueBinding="term"}} \
-                    <input type="submit" value="Chercher" {{action "applyFilter"}}> \
-                </form> \
-            </div> \
-        </div>'),
-
-	didInsertElement: function() {
-		this.$('div.filter-form-wrapper').hide();
-	},
-
+    classNames: ['filter'],
+    placement: 'below right',
+    linkTemplate: '<a {{action "toggle"}} class="toggle">{{content.label}}</a>',
+    contentTemplate: '{{view Cabernet.Datagrid.FilterTermField valueBinding="term"}}',
+    
 	applyFilter: function() {
-		this.get('parentView').applyFilter(this.get('column'), this.get('term'));
+		this.get('parentView').get('parentView').applyFilter(this.get('content'), this.get('term'));
 		this.set('term', '');
-		this.toggleForm();
+		this.toggle();
 		return false;
 	},
 
-	toggleForm: function(e) {
-        if (e) e.stopPropagation();
+    toggle: function(e) {
+        this._super(e);
+        var field = this.$('input');
+        if (field.is(':visible')) field.focus();
+    },
+});
 
-        var formWrapper = this.$('div.filter-form-wrapper');
-		formWrapper.toggle();
-		if (formWrapper.is(':visible')) {
-			$('div.filter-form-wrapper.active').removeClass('active').hide();
-            formWrapper.addClass('active');
-            formWrapper.position({
-				of: this.$('a.filter'),
-				my: 'left top',
-				at: 'left bottom'
-			});
-            formWrapper.bind('clickoutside', function(e) {
-                $(this).removeClass('active').hide().unbind('clickoutside');
-            });
-		} else {
-            formWrapper.removeClass('active').hide().unbind('clickoutside');
-        }
-	}
+Cabernet.Datagrid.FilterTermField = Ember.TextField.extend({
+    insertNewline: function() {
+        this.get('parentView').applyFilter();
+    }
 });
 
 Cabernet.Datagrid.AppliedFilter = Ember.View.extend({
-	removeFilter: function() {
-		this.get('parentView').removeFilter(this.get('filter'));
+	tagName: 'span',
+    classNames: ['applied-filter'],
+    template: Ember.Handlebars.compile(
+        '{{content.column.label}} : {{content.term}} \
+        <a {{action "removeFilter"}} class="delete"></a> \
+        <br>'
+    ),
+
+    removeFilter: function() {
+		this.get('parentView').get('parentView').removeFilter(this.get('content'));
 	}
 });
 
 Cabernet.Datagrid.Columnpicker = Cabernet.Popover.extend({
     classNames: ['columnpicker'],
     placement: 'below left',
-    linkTemplate: '<a class="columns-selection-toggle" {{action "toggle"}}>Select columns</a>',
+    linkTemplate: '<a class="toggle" {{action "toggle"}}>Select columns</a>',
     contentTemplate: '{{view Ember.CollectionView tagName="ul" class="inputs-list" \
                         itemViewClass="Cabernet.Datagrid.Columnpicker.Element" contentBinding="columns"}}'
 });

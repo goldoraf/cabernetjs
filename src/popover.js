@@ -52,8 +52,8 @@ Cabernet.Popover = Ember.View.extend({
             </div>');
     },
 
-    getPositionParams: function(popoverElt) {console.log(popoverElt.css('width'));
-        var width = popoverElt.css('width').replace(/px/, '');console.log(width);
+    getPositionParams: function(popoverElt) {
+        var width = popoverElt.css('width').replace(/px/, '');
         var params = {
             'right': { my: 'left', at: 'right', offset: '0' },
             'below': { my: 'top', at: 'bottom', offset: '0' },

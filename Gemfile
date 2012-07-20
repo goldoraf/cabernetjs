@@ -7,3 +7,4 @@ gem "rake-pipeline-web-filters", :git => "https://github.com/wycats/rake-pipelin
 gem "colored"
 gem "uglifier", "~> 1.0.3"
 gem "therubyracer", :require => 'v8'
+gem "less"

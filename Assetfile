@@ -1,5 +1,6 @@
 require "rake-pipeline-web-filters"
 require "uglifier"
+require "less"
 require "json"
 
 output "dist"
@@ -29,5 +30,14 @@ input "dist" do
   match "cabernet.js" do
     uglify { "cabernet.min.js" }
   end
+end
+
+output "tests"
+
+input "tests/less" do
+    match "basic.less" do
+        less :paths => ['tests/less', 'tests/vendor']
+        copy "css/basic.css"
+    end
 end
 

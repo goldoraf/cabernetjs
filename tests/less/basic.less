@@ -1,0 +1,241 @@
+@import "twitter-bootstrap-1.4.0/lib/bootstrap.less";
+
+@import "_variables.less";
+@import "_font.less";
+@import "_mixins.less";
+
+div.datagrid div.datagrid-header {
+    margin: 0;
+    padding: @space;
+    .border-radius(0);
+    border: 1px solid @lightBlue;
+    border-bottom: none;
+    overflow: auto;
+    background-color: @activeTabColor;
+    line-height: 18px;
+    
+    form {
+        margin: 0;
+        
+        .input, .input-append {
+            margin-left: 220px;
+        }
+    }
+}
+
+div.datagrid table {
+    width: 100%;
+    border-collapse: separate;
+    border: 1px solid @lightBlue;
+    border-top: 1px solid @tabsColor;
+    margin-bottom: 0;
+    
+    td.checkbox, 
+    th.checkbox {
+        width: 15px;
+    }
+    
+    thead {
+        font-weight: 600;
+        .gradientBar(@startGradient, @endGradient);
+        text-shadow: 0 1px 0 white;
+        text-align: center;
+        line-height: 100%;
+        padding: 15px 5px;
+        font-size: 12px;
+        border-bottom: 1px solid @lightBlue;
+        
+        th {
+            background: url(../../images/table-th-separator.png) 0px center no-repeat;
+            text-align: center;
+            padding: 5px;
+            color: @darkBlue;
+            
+            &:first-child {
+                background: none;
+            }
+            
+            a {
+                color: @darkBlue;
+                font-weight: 500;
+                padding-right: 15px;
+            }
+            &.headerSortUp a {
+                background: url(../../images/sort.png) right bottom no-repeat;   
+            }
+            &.headerSortDown a {              
+                background: url(../../images/sort.png) right top no-repeat;
+            }
+        }
+    }
+    
+    td {
+        padding: 5px;
+        border-right: 1px solid white;
+        border-left: 1px solid #d1e2ed;
+        border-bottom: 1px solid #d1e2ed;
+        border-top: 1px solid white;
+        background: white;
+        vertical-align: middle;
+    }
+    
+    tbody tr {
+        &:hover td {
+            background: @grayLighter;
+        }
+    }
+    
+    tr:last-child {
+        td {
+            border-bottom-width: 0px;
+        }
+    }
+}
+
+div.datagrid div.columnpicker {
+    display:inline-block;
+    float: right;
+    margin: 0;
+    margin-top: 3px;
+    
+    a.toggle {
+        .iconLink(url(../../images/columnPicker.png));
+        height: 25px;
+        width: 27px;
+        margin: 0;
+        
+        background-position: top center;
+        
+        &:hover {
+            background-position: bottom center;
+        }
+    }
+}
+
+div.filterbar {
+    margin-right: 40px;
+    
+    h5 {
+        line-height: @lineHeight;
+        float: left;
+        color: #004b73;
+        text-shadow: 0 1px 0 @white;
+        margin-right: 10px;
+        font-size: 13px;
+    }
+
+    div.filters {
+        clear: both;
+        display:inline-block;        
+
+        div.filter-links {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        div.applied-filters {
+            display: inline-block;
+        }
+
+        div.filter {
+            margin-right: -5px;
+            display: inline-block;
+            .transition(none);
+            
+            a {
+                .btn();
+                .border-radius(0px);
+                border-right-width: 0px;
+            }
+            
+            &:first-child a {
+                .border-radius(4px 0 0 4px);
+            }
+            
+            &:last-child a {
+                border-right-width: 1px;
+                .border-radius(0 4px 4px 0);
+            }
+            
+            &.selected a.selected, &.selected a.selected:hover {
+                background: @white;
+                color: @darkBlue;
+            }
+        }
+
+        span.applied-filter {
+            display: inline-block;
+            text-decoration: none;
+            line-height: 18px;
+            padding: 0px 1px 0px 3px; 
+            margin: 1px;
+            
+            .border-radius(2px);
+            .transition(0s none);
+            text-shadow: 0 1px 0 @white;
+            
+            border: 1px solid @darkGray;
+            color: @darkGray;
+            background: @lightGray;
+            
+            a.delete {
+                margin-top: 1px;
+                display: block;
+                float: right;
+                margin-left: 5px;
+                background:url('../images/delete.png') no-repeat left top;
+                width: 16px;
+                height: 16px;
+                text-indent: -5000px;
+            }
+            
+            &:hover {
+                color: @error;
+                
+                a.delete {
+                    background-position: bottom center;
+                }
+            }
+        }
+    }
+}
+
+div.popover.below {
+    padding: 9px;
+
+    .inner {
+        padding: 0;
+        .box-shadow(2px 2px 5px @darkGray);
+        border: 1px solid @darkGray;
+        width: 307px;
+
+        .content {
+            background: @lightGray;
+            input[type=text] {
+                 width: 200px;
+            }
+            input[type=submit] {
+                margin-left: @marginSmall;
+                width: 60px;
+            }
+        }
+    }
+    
+    .arrow {
+        border-bottom-color: @darkGray !important;
+        border-width: 0px 10px 10px 10px;
+        
+        &:after {
+            content: "";
+            border-color: transparent;
+            border-bottom-color: @lightGray !important;
+            border-width: 0px 9px 9px 9px;
+            border-style: solid;
+            display: block;
+            background: transparent;
+            position: absolute;
+            left: -9px;
+            top: 1px;
+        }
+    }
+}
