@@ -103,6 +103,9 @@ Cabernet.Datagrid = Ember.View.extend({
 Cabernet.Datagrid.Body = Ember.CollectionView.extend({
     tagName: 'tbody',
     rowTemplate: null,
+    emptyView: Ember.View.extend({
+      template: Ember.Handlebars.compile("The collection is empty")
+    }),
 
     init: function() {
         this.refreshRowTemplate();
