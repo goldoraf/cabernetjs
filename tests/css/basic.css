@@ -2754,6 +2754,15 @@ div.datagrid div.datagrid-header form .input,
 div.datagrid div.datagrid-header form .input-append {
   margin-left: 220px;
 }
+div.datagrid div.datagrid-empty {
+  border: 1px solid #b5d2e3;
+}
+div.datagrid div.datagrid-empty p {
+  margin: 100px auto;
+  text-align: center;
+  font-size: 15px;
+  font-weight: bold;
+}
 div.datagrid table {
   width: 100%;
   border-collapse: separate;

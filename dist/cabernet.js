@@ -98,12 +98,16 @@ Cabernet.Datagrid = Ember.View.extend({
                 {{view Cabernet.Datagrid.Filterbar appliedFiltersBinding="appliedFilters" filterableColumnsBinding="columnsForDisplay"}} \
             </div> \
         </div> \
-        <table> \
-            <thead> \
-                {{view Cabernet.Datagrid.Head itemViewClass="Cabernet.Datagrid.ColumnHeader" contentBinding="displayedColumns"}} \
-            </thead> \
-            {{view Cabernet.Datagrid.Body itemViewClass="Cabernet.Datagrid.Row" contentBinding="displayedData" columnsBinding="columnsForDisplay"}} \
-        </table>'),
+        {{#if emptyData}} \
+            <div class="datagrid-empty"><p>{{emptyText}}</p></div> \
+        {{else}} \
+            <table> \
+                <thead> \
+                    {{view Cabernet.Datagrid.Head itemViewClass="Cabernet.Datagrid.ColumnHeader" contentBinding="displayedColumns"}} \
+                </thead> \
+                {{view Cabernet.Datagrid.Body itemViewClass="Cabernet.Datagrid.Row" contentBinding="displayedData" columnsBinding="columnsForDisplay"}} \
+            </table> \
+        {{/if}}'),
 
 	data: [],
 	modelType: null,
@@ -111,12 +115,18 @@ Cabernet.Datagrid = Ember.View.extend({
     custom: {},
     defaultSort: null,
     filtersText: 'Filter by',
+    emptyText: 'No results found',
     sessionBucket: null,
 
     classNames: ['datagrid'],
     columnsForDisplay: null,
     appliedFilters: [],
     displayedData: [],
+
+    emptyData: function() {
+        return this.get('displayedData').get('length') === 0;
+    }.property('displayedData'),
+
     displayedColumns: function() {
         return this.get('columnsForDisplay').filterProperty('displayed');
     }.property('columnsForDisplay.@each.displayed'),
@@ -249,9 +259,6 @@ Cabernet.Datagrid = Ember.View.extend({
 Cabernet.Datagrid.Body = Ember.CollectionView.extend({
     tagName: 'tbody',
     rowTemplate: null,
-    emptyView: Ember.View.extend({
-      template: Ember.Handlebars.compile("The collection is empty")
-    }),
 
     init: function() {
         this.refreshRowTemplate();
