@@ -22,7 +22,7 @@ Cabernet.Datagrid = Ember.View.extend({
                 <thead> \
                     {{view Cabernet.Datagrid.Head itemViewClass="Cabernet.Datagrid.ColumnHeader" contentBinding="displayedColumns"}} \
                 </thead> \
-                {{view Cabernet.Datagrid.Body itemViewClass="Cabernet.Datagrid.Row" contentBinding="displayedData" columnsBinding="columnsForDisplay"}} \
+                <tbody /> \
             </table> \
         {{/if}}'),
 
@@ -40,6 +40,24 @@ Cabernet.Datagrid = Ember.View.extend({
     appliedFilters: [],
     displayedData: [],
 
+    didInsertElement: function() {
+        this.renderGrid();
+    },
+
+    renderGrid: function() {
+        this.$('tbody').replaceWith(this.get('gridTemplate')({ data: this.get('displayedData') }));
+    },
+
+    gridTemplate: function() {
+        var custom, inner, html = [];
+        this.get('displayedColumns').forEach(function(col) {
+            custom = this.getCustomDisplay(col.name);
+            inner = (custom !== null) ? custom : '{{this.'+col.name+'}}';
+            if (col.get('displayed') === true) html.push('<td>'+inner+'</td>');
+        }, this);
+        return Handlebars.compile('<tbody>{{#list data}}<tr>'+html.join('')+'</tr>{{/list}}</tbody>');
+    }.property('displayedColumns').cacheable(),
+
     emptyData: function() {
         return this.get('displayedData').get('length') === 0;
     }.property('displayedData'),
@@ -53,16 +71,17 @@ Cabernet.Datagrid = Ember.View.extend({
         if (this.shouldPersistParams()) this.persistFilters();
     }.observes('appliedFilters.@each'),
 
-    displayedColumnsChanged: function() {
-        this.saveParam('columns', this.get('displayedColumns').mapProperty('name'));
-    }.observes('displayedColumns'),
-
 	init: function() {
 		this._super();
         if (this.get('columns') === null) {
             this.set('columns', Ember.keys(this.get('modelType').__metadata__.definedProperties));
         }
         this.initColumnsForDisplay();
+        this.addObserver('displayedColumns', function displayedColumnsChanged() {
+            this.saveParam('columns', this.get('displayedColumns').mapProperty('name'));
+            this.renderGrid();
+        });
+
 		this.set('displayedData', this.get('data'));
         if (this.shouldPersistParams()) {
             this.set('appliedFilters', this.getPreviouslyAppliedFilters());
@@ -70,6 +89,9 @@ Cabernet.Datagrid = Ember.View.extend({
             if (!Ember.none(persistedSort)) this.set('defaultSort', persistedSort);
         }
         this.applyDefaultSort();
+        this.addObserver('displayedData', function displayedDataChanged() {
+            this.renderGrid();
+        });
 	},
 
     applyDefaultSort: function() {
@@ -172,49 +194,6 @@ Cabernet.Datagrid = Ember.View.extend({
         this.set('columnsForDisplay', cols);
     }
 });
-
-Cabernet.Datagrid.Body = Ember.CollectionView.extend({
-    tagName: 'tbody',
-    rowTemplate: null,
-
-    init: function() {
-        this.refreshRowTemplate();
-        this._super();
-    },
-
-    columnsDidChange: function() {
-        this.refreshRowTemplate();
-        this.refreshContent();
-    }.observes('parentView.displayedColumns'),
-
-    refreshContent: function() {
-        var content = this.get('content'),
-            length = content.get('length');
-        this.arrayWillChange(content, 0, length);
-        this.arrayDidChange(content, 0, null, length);
-    },
-
-    refreshRowTemplate: function() {
-        this.set('rowTemplate', this.generateRowTemplate());
-    },
-
-    generateRowTemplate: function() {
-        var custom, inner, html = [];
-        this.get('parentView').get('displayedColumns').forEach(function(col) {
-            custom = this.get('parentView').getCustomDisplay(col.name);
-            inner = (custom !== null) ? custom : '{{content.'+col.name+'}}';
-            if (col.get('displayed') === true) html.push('<td>'+inner+'</td>');
-        }, this);
-        return Ember.Handlebars.compile(html.join(''));
-    }
-});
-
-Cabernet.Datagrid.Row = Ember.View.extend({
-    init: function() {
-        this.set('template', this.get('parentView').get('rowTemplate'));
-        this._super();
-    }
-})
 
 Cabernet.Datagrid.Head = Ember.CollectionView.extend({
     tagName: 'tr',

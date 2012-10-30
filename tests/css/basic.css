@@ -2743,7 +2743,6 @@ div.datagrid div.datagrid-header {
   border-radius: 0;
   border: 1px solid #b5d2e3;
   border-bottom: none;
-  overflow: auto;
   background-color: #d7e7f0;
   line-height: 18px;
 }
