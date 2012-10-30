@@ -36,6 +36,7 @@ Cabernet.Datagrid = Ember.View.extend({
     sessionBucket: null,
 
     classNames: ['datagrid'],
+    columnsClassNames: {},
     columnsForDisplay: null,
     appliedFilters: [],
     displayedData: [],
@@ -49,11 +50,13 @@ Cabernet.Datagrid = Ember.View.extend({
     },
 
     gridTemplate: function() {
-        var custom, inner, html = [];
+        var custom, inner, css, html = [];
+        var cssClasses = this.get('columnsClassNames');
         this.get('displayedColumns').forEach(function(col) {
             custom = this.getCustomDisplay(col.name);
             inner = (custom !== null) ? custom : '{{this.'+col.name+'}}';
-            if (col.get('displayed') === true) html.push('<td>'+inner+'</td>');
+            css = (cssClasses[col.name] !== undefined) ? ' class="'+cssClasses[col.name]+'"' : '';
+            if (col.get('displayed') === true) html.push('<td'+css+'>'+inner+'</td>');
         }, this);
         return Handlebars.compile('<tbody>{{#list data}}<tr>'+html.join('')+'</tr>{{/list}}</tbody>');
     }.property('displayedColumns').cacheable(),
@@ -74,6 +77,7 @@ Cabernet.Datagrid = Ember.View.extend({
 	init: function() {
 		this._super();
         if (this.get('columns') === null) {
+            // TODO : add a check on 'modelType'
             this.set('columns', Ember.keys(this.get('modelType').__metadata__.definedProperties));
         }
         this.initColumnsForDisplay();

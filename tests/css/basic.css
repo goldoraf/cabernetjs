@@ -2735,6 +2735,9 @@ html body textarea {
 /******************************/
 /* Float right */
 /******************************/
+.bold {
+  font-weight: bold;
+}
 div.datagrid div.datagrid-header {
   margin: 0;
   padding: 10px;
