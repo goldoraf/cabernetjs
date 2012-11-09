@@ -34,7 +34,6 @@ div.datagrid div.datagrid-empty {
         text-align: center;
         font-size: 15px;
         font-weight: bold;
-        
     }
 }
 
@@ -62,7 +61,7 @@ div.datagrid table {
         
         th {
             background: url(../../images/table-th-separator.png) 0px center no-repeat;
-            text-align: center;
+            text-align: left;
             padding: 5px;
             color: @darkBlue;
             
@@ -70,16 +69,38 @@ div.datagrid table {
                 background: none;
             }
             
-            a {
+            a.sortlink {
                 color: @darkBlue;
                 font-weight: 500;
-                padding-right: 15px;
             }
-            &.headerSortUp a {
+            &.headerSortUp {
                 background: url(../../images/sort.png) right bottom no-repeat;   
             }
-            &.headerSortDown a {              
+            &.headerSortDown a.sortlink {              
                 background: url(../../images/sort.png) right top no-repeat;
+            }
+
+            div.filter {
+                float: right;
+                padding-left: 5px;
+            }
+
+            a.filterlink {
+                margin: 0;
+                text-indent: -5000px;
+                display: inline-block;
+                outline: none;
+                background: url(../../images/filters_small.png) center -16px no-repeat;
+                height: 16px;
+                width: 16px;
+            }
+
+            a.filterlink:hover {
+                background-position: center 0px;
+            }
+
+            a.filterlink.active {
+                background-position: center -32px;
             }
         }
     }

@@ -2800,23 +2800,41 @@ div.datagrid table thead {
 }
 div.datagrid table thead th {
   background: url(../../images/table-th-separator.png) 0px center no-repeat;
-  text-align: center;
+  text-align: left;
   padding: 5px;
   color: #00517e;
 }
 div.datagrid table thead th:first-child {
   background: none;
 }
-div.datagrid table thead th a {
+div.datagrid table thead th a.sortlink {
   color: #00517e;
   font-weight: 500;
-  padding-right: 15px;
 }
-div.datagrid table thead th.headerSortUp a {
+div.datagrid table thead th.headerSortUp {
   background: url(../../images/sort.png) right bottom no-repeat;
 }
-div.datagrid table thead th.headerSortDown a {
+div.datagrid table thead th.headerSortDown a.sortlink {
   background: url(../../images/sort.png) right top no-repeat;
+}
+div.datagrid table thead th div.filter {
+  float: right;
+  padding-left: 5px;
+}
+div.datagrid table thead th a.filterlink {
+  margin: 0;
+  text-indent: -5000px;
+  display: inline-block;
+  outline: none;
+  background: url(../../images/filters_small.png) center -16px no-repeat;
+  height: 16px;
+  width: 16px;
+}
+div.datagrid table thead th a.filterlink:hover {
+  background-position: center 0px;
+}
+div.datagrid table thead th a.filterlink.active {
+  background-position: center -32px;
 }
 div.datagrid table td {
   padding: 5px;
