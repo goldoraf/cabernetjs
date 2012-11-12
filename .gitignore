@@ -2,4 +2,5 @@
 .settings/*
 .idea/*
 tmp/*
-
+dist/*
+tests/test*.html

@@ -11,83 +11,27 @@ module("Datagrid tests", {
     }
 });
 
-test("Column definition expanding from a Syrah model", function() {
-    var grid = Cabernet.Datagrid.create({
-        modelType: Foo.User,
-        sessionBucket: 'users'
-    });
-    deepEqual(grid.get('columnsForDisplay'), [
-        Ember.Object.create({
-            name: 'login',
-            label: 'login',
-            type: String,
-            displayed: true,
-            sort: false,
-            filterable: true,
-            filterType: 'free'
-        }),
-        Ember.Object.create({
-            name: 'name',
-            label: 'name',
-            type: String,
-            displayed: true,
-            sort: false,
-            filterable: true,
-            filterType: 'free'
-        })
-    ]);
+test("Filter object creation from object", function() {
+    var filter = Cabernet.Datagrid.Filter.createFromOptions({ type: 'text' });
+    ok(filter instanceof Cabernet.Datagrid.TextFilter);
 });
 
-test("Column definition expanding from a column array", function() {
-    var grid = Cabernet.Datagrid.create({
-        columns: ['login', 'name'],
-        sessionBucket: 'users'
-    });
-    deepEqual(grid.get('columnsForDisplay'), [
-        Ember.Object.create({
-            name: 'login',
-            label: 'login',
-            type: String,
-            displayed: true,
-            sort: false,
-            filterable: true,
-            filterType: 'free'
-        }),
-        Ember.Object.create({
-            name: 'name',
-            label: 'name',
-            type: String,
-            displayed: true,
-            sort: false,
-            filterable: true,
-            filterType: 'free'
-        })
-    ]);
+test("PickFilter should derive its pickable values from the grid data", function() {
+    var filter = Cabernet.Datagrid.Filter.createFromOptions({ type: 'pick', column: 'usertype' }, [
+            { login: 'jdoe', usertype: 'admin' }, { login: 'jane', usertype: 'admin' },
+            { login: 'jack', usertype: 'user' }, { login: 'joe', usertype: 'root' }
+        ]
+    );
+    deepEqual(filter.get('values'), ['admin', 'user', 'root']);
 });
 
-test("Column definition expanding with column's objects", function() {
-    var grid = Cabernet.Datagrid.create({
-        columns: [{ name: 'login', label: 'Login', displayed: false, type: 'email' }, 'name'],
-        sessionBucket: 'users'
-    });
-    deepEqual(grid.get('columnsForDisplay'), [
-        Ember.Object.create({
-            name: 'login',
-            label: 'Login',
-            type: 'email',
-            displayed: false,
-            sort: false,
-            filterable: true,
-            filterType: 'free'
-        }),
-        Ember.Object.create({
-            name: 'name',
-            label: 'name',
-            type: String,
-            displayed: true,
-            sort: false,
-            filterable: true,
-            filterType: 'free'
-        })
-    ]);
+test("RangeFilter should derive various options from the grid data", function() {
+    var filter = Cabernet.Datagrid.Filter.createFromOptions({ type: 'range', column: 'balance' }, [
+            { account: '123456', balance: 500 }, { account: '123456', balance: 1000 },
+            { account: '123456', balance: 100 }, { account: '123456', balance: 1200 }
+        ]
+    );
+    equal(filter.get('min'), 100);
+    equal(filter.get('max'), 1200);
+    equal(filter.get('step'), 1);
 });

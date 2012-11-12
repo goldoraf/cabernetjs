@@ -67,10 +67,8 @@ Cabernet.Datagrid = Ember.View.extend({
     }.property('columnsForDisplay.@each.filter'),
 
     appliedFilters: function() {
-        return this.get('filters').filter(function(item) {
-            return !Ember.empty(item.get('value'));
-        });
-    }.property('filters.@each.value'),
+        return this.get('filters').filterProperty('applied');
+    }.property('filters.@each.applied'),
 
     appliedFiltersChanged: function() {console.log('appliedFiltersChanged');
         this.applyFilters();
@@ -80,7 +78,6 @@ Cabernet.Datagrid = Ember.View.extend({
     init: function() {
         this._super();
         
-        //this.set('columnsForDisplay', this.expandColumnsDefinition());
         this.addObserver('displayedColumns', function displayedColumnsChanged() {
             this.saveParam('displayedColumns', this.get('displayedColumns').mapProperty('name'));
             this.renderGrid();
@@ -191,31 +188,19 @@ Cabernet.Datagrid = Ember.View.extend({
     },
 
     expandColumnsDefinition: function() {
-        if (this.shouldPersistParams()) {
+        /*if (this.shouldPersistParams()) {
             var previouslyDisplayed = this.retrieveParam('displayedColumns');
-        }
+        }*/
 
         if (this.get('columns') === null) {
             // TODO : add a check on 'modelType'
            this.set('columns', this.getColumnsFromModel());
         }
 
-        var cols = [];
-        this.get('columns').forEach(function(columnName) {
-            var colDef = (Ember.typeOf(columnName) == 'string') ? { name: columnName } : columnName;
-            Ember.assert("Column objects must have a 'name' property", colDef.hasOwnProperty('name'));
-            cols.pushObject(Cabernet.Datagrid.Column.create({
-                name:  colDef.name,
-                label: (colDef.label !== undefined) ? colDef.label : Cabernet.translate(colDef.name),
-                type:  (colDef.type !== undefined) ? colDef.type : String,
-                displayed: (!Ember.none(previouslyDisplayed)) ? previouslyDisplayed.contains(colDef.name) 
-                                                              : ((colDef.displayed !== undefined) ? colDef.displayed : true),
-                sort: false,
-                filterable: (colDef.filterable !== undefined) ? colDef.filterable : true,
-                filterType: (colDef.filterType !== undefined) ? colDef.filterType : 'text',
-                filterValues: (colDef.filterType === 'pick') ? this.getDistinctValues(colDef.name) : null
-            }));
-        }, this);
+        var cols = [], data = this.get('data');
+        this.get('columns').forEach(function(column) {
+            cols.pushObject(Cabernet.Datagrid.Column.createFromOptions(column, data));
+        });
         return cols;
     },
 
@@ -224,10 +209,6 @@ Cabernet.Datagrid = Ember.View.extend({
             props = this.get('modelType').__metadata__.definedProperties;
         for (var propName in props) { cols.pushObject({ name: propName, type: props[propName].type }); }
         return cols;
-    },
-
-    getDistinctValues: function(columnName) {
-        return this.get('data').mapProperty(columnName).uniq();
     }
 });
 
@@ -238,24 +219,7 @@ Cabernet.Datagrid.Column = Ember.Object.extend({
     displayed: true,
     sort: false,
     filterable: true,
-    filterType: 'text',
-    filterValues: null,
     filter: null,
-
-    init: function() {
-        this._super();
-        switch (this.get('filterType')) {
-            case 'pick':
-                this.set('filter', Cabernet.Datagrid.PickFilter.create({ column: this.get('name'), values: this.get('filterValues') }));
-                break;
-            case 'range':
-                this.set('filter', Cabernet.Datagrid.RangeFilter.create({ column: this.get('name') }));
-                break;
-            default:
-                this.set('filter', Cabernet.Datagrid.TextFilter.create({ column: this.get('name') }));
-                break;
-        }
-    },
 
     sortClass: function() {
         var sortDir = this.get('sort');
@@ -263,6 +227,24 @@ Cabernet.Datagrid.Column = Ember.Object.extend({
         if (sortDir === 'down') return 'headerSortDown';
         return '';
     }.property('sort')
+});
+
+Cabernet.Datagrid.Column.reopenClass({
+    createFromOptions: function(options, data) {
+        if (typeof options === 'string') options = { name: options };
+        Ember.assert("Column objects must have a 'name' property", options.hasOwnProperty('name'));
+
+        options.label = options.label || Cabernet.translate(options.name);
+        options.type = options.type || String;
+
+        var filterOpts = options.filter || { type: 'text' };
+        if (typeof filterOpts === 'string') filterOpts = { type: filterOpts };
+        filterOpts.column = options.name;
+        
+        options.filter = Cabernet.Datagrid.Filter.createFromOptions(filterOpts, data);
+
+        return this.create(options);
+    }
 });
 
 Cabernet.Datagrid.Filter = Ember.Object.extend({
@@ -282,11 +264,18 @@ Cabernet.Datagrid.Filter = Ember.Object.extend({
         return this.get('type') === 'range';
     }.property('type'),
 
-    linkClass: function() {
-        var klass = 'filterlink';
-        if (this.get('applied')) klass+= ' active';
-        return klass;
-    }.property('applied')
+    getValueFor: function(item) {
+        return item instanceof Ember.Object ? item.get(this.get('column')) : item[this.get('column')];
+    }
+});
+
+Cabernet.Datagrid.Filter.reopenClass({
+    createFromOptions: function(options, data) {
+        var klassName = options.type.charAt(0).toUpperCase() + options.type.slice(1) + 'Filter',
+            klass = Cabernet.Datagrid[klassName];
+        if (klass.hasOwnProperty('expandOptions')) options = klass.expandOptions(options, data);
+        return klass.create(options);
+    }
 });
 
 Cabernet.Datagrid.TextFilter = Cabernet.Datagrid.Filter.extend({
@@ -296,21 +285,37 @@ Cabernet.Datagrid.TextFilter = Cabernet.Datagrid.Filter.extend({
     apply: function(data) {
         var regex = new RegExp(this.get('value'), 'i', 'g');
         return data.filter(function(item) {
-            return (item instanceof Ember.Object ? item.get(this.get('column')) : item[this.get('column')]).toString().match(regex);
+            return this.getValueFor(item).toString().match(regex);
         }, this);
-    }
+    },
+
+    applied: function() {
+        return !Ember.empty(this.get('value'));
+    }.property('value'),
 });
 
 Cabernet.Datagrid.PickFilter = Cabernet.Datagrid.Filter.extend({
     type: 'pick',
     view: Cabernet.Datagrid.PickFilterView,
+    values: null,
 
     apply: function(data) {
         var value;
         return data.filter(function(item) {
-            value = (item instanceof Ember.Object ? item.get(this.get('column')) : item[this.get('column')]).toString();
-            return this.get('value').contains(value);
+            return this.get('value').contains(this.getValueFor(item));
         }, this);
+    },
+
+    applied: function() {
+        return Ember.isArray(this.get('value')) 
+            && this.get('values').get('length') != this.get('value').get('length');
+    }.property('value'),
+});
+
+Cabernet.Datagrid.PickFilter.reopenClass({
+    expandOptions: function(options, data) {
+        options.values = options.values || data.mapProperty(options.column).uniq();
+        return options;
     }
 });
 
@@ -318,27 +323,46 @@ Cabernet.Datagrid.RangeFilter = Cabernet.Datagrid.Filter.extend({
     type: 'range',
     view: Cabernet.Datagrid.RangeFilterView,
 
-    max: function() {
-        return !Ember.empty(this.get('value')) ? this.get('value')[1] : null;
+    selectedMax: function() {
+        return !Ember.empty(this.get('value')) ? this.get('value')[1] : this.get('max');
     }.property('value'),
 
-    min: function() {
-        return !Ember.empty(this.get('value')) ? this.get('value')[0] : null;
+    selectedMin: function() {
+        return !Ember.empty(this.get('value')) ? this.get('value')[0] : this.get('min');
     }.property('value'),
 
     apply: function(data) {
         var value, min = this.get('value')[0], max = this.get('value')[1];
         return data.filter(function(item) {
-            value = (item instanceof Ember.Object ? item.get(this.get('column')) : item[this.get('column')]).toString();
+            value = this.getValueFor(item);
             return value >= min && value <= max;
         }, this);
+    },
+
+    applied: function() {
+        return this.get('selectedMin') != this.get('min') || this.get('selectedMax') != this.get('max');
+    }.property('value'),
+});
+
+Cabernet.Datagrid.RangeFilter.reopenClass({
+    expandOptions: function(options, data) {
+        options.max = options.max || Math.max.apply(Math, data.mapProperty(options.column));
+        options.min = options.min || Math.min.apply(Math, data.mapProperty(options.column));
+        options.step = options.step || 1;
+        return options;
     }
 });
 
 Cabernet.Datagrid.FilterView = Cabernet.Popover.extend({
     classNames: ['filter'],
     placement: 'below',
-    linkTemplate: '<a {{bindAttr class="filter.linkClass"}} {{action "toggle"}}>U</a>'
+    linkTemplate: '<a {{bindAttr class="linkClass"}} {{action "toggle"}}>U</a>',
+
+    linkClass: function() {
+        var klass = 'filterlink';
+        if (this.get('filter').get('applied') === true) klass+= ' active';
+        return klass;
+    }.property('filter.applied'),
 });
 
 Cabernet.Datagrid.PickFilterView = Cabernet.Datagrid.FilterView.extend({
@@ -355,35 +379,37 @@ Cabernet.Datagrid.PickFilterView = Cabernet.Datagrid.FilterView.extend({
 
     distinctValues: function() {
         var distinct = [];
-        this.get('filter').get('values').forEach(function(v) { distinct.pushObject(Ember.Object.create({ value: v, checked: true })); });
+        this.get('filter').get('values').forEach(function(v) { 
+            distinct.pushObject(Ember.Object.create({ value: v, checked: true })); 
+        });
         return distinct;
     }.property().cacheable(),
 
     didInsertElement: function() {
         this.addObserver('distinctValues.@each.checked', function checkedValuesChanged() {
             var checkedValues = this.get('distinctValues').filterProperty('checked').mapProperty('value');
-            this.get('filter').set('value', checkedValues).set('applied', true);
+            this.get('filter').set('value', checkedValues);
         });
     }
 });
 
 Cabernet.Datagrid.RangeFilterView = Cabernet.Datagrid.FilterView.extend({
-    contentTemplate: '<p>From {{filter.min}} to {{filter.max}}</p><div class="slider-range"></div>',
+    contentTemplate: '<p>From {{filter.selectedMin}} to {{filter.selectedMax}}</p><div class="slider-range"></div>',
 
     applyFilter: function(value) {
-        this.get('filter').set('value', value).set('applied', true);
+        this.get('filter').set('value', value);
     },
 
     didInsertElement: function() {
         var that = this;
         this.$('div.slider-range').slider({
             range: true,
-            min: 0,
-            max: 200,
-            values: [0, 200],
-            step: 6,
+            min: this.get('filter').get('min'),
+            max: this.get('filter').get('max'),
+            values: [this.get('filter').get('min'), this.get('filter').get('max')],
+            step: this.get('filter').get('step'),
             slide: function(event, ui) {
-                that.get('filter').set('value', ui.values).set('applied', true);
+                that.get('filter').set('value', ui.values);
             }
         });
     }
@@ -393,7 +419,7 @@ Cabernet.Datagrid.TextFilterView = Cabernet.Datagrid.FilterView.extend({
     contentTemplate: '{{view Cabernet.Datagrid.FilterTextField}}',
 
     applyFilter: function(value) {
-        this.get('filter').set('value', value).set('applied', true);
+        this.get('filter').set('value', value);
     },
 
     toggle: function(e) {
