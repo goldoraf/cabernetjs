@@ -26,17 +26,6 @@ div.datagrid div.datagrid-header {
     }
 }
 
-div.datagrid div.datagrid-empty {
-    border: 1px solid @lightBlue;
-
-    p {
-        margin: 100px auto;
-        text-align: center;
-        font-size: 15px;
-        font-weight: bold;
-    }
-}
-
 div.datagrid table {
     width: 100%;
     border-collapse: separate;
@@ -113,6 +102,12 @@ div.datagrid table {
         border-top: 1px solid white;
         background: white;
         vertical-align: middle;
+
+        &.datagrid-empty {
+            vertical-align: center;
+            font-weight: bold;
+            text-align: center;
+        }
     }
     
     tbody tr {

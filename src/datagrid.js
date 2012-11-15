@@ -8,10 +8,7 @@ if (Em.I18n !== undefined) {
 Cabernet.Datagrid = Ember.View.extend({
     
     template: Ember.Handlebars.compile(
-        '{{#if emptyData}} \
-            <div class="datagrid-empty"><p>{{emptyText}}</p></div> \
-        {{else}} \
-            <table> \
+        '   <table> \
                 <thead> \
                     <tr> \
                         {{#each column in displayedColumns}} \
@@ -38,7 +35,7 @@ Cabernet.Datagrid = Ember.View.extend({
                 </thead> \
                 <tbody /> \
             </table> \
-        {{/if}}'),
+        '),
 
     data: [],
     modelType: null,
@@ -51,10 +48,6 @@ Cabernet.Datagrid = Ember.View.extend({
     classNames: ['datagrid'],
     columnsClassNames: {},
     displayedData: [],
-
-    emptyData: function() {
-        return this.get('displayedData').get('length') === 0;
-    }.property('displayedData'),
 
     columnsForDisplay: function() {
         return this.expandColumnsDefinition();
@@ -101,8 +94,19 @@ Cabernet.Datagrid = Ember.View.extend({
     },
 
     renderGrid: function() {
-        this.$('tbody').replaceWith(this.get('gridTemplate')({ data: this.get('displayedData') }));
+        if (this.get('displayedData').get('length') === 0) {
+            console.log(this.get('displayedColumns').get('length'));
+            this.$('tbody').replaceWith(this.get('emptyTemplate')({ 
+                columnCount: this.get('displayedColumns').get('length'),
+                emptyText: this.get('emptyText')
+            }));
+        } else
+            this.$('tbody').replaceWith(this.get('gridTemplate')({ data: this.get('displayedData') }));
     },
+
+    emptyTemplate: function() {
+        return Handlebars.compile('<tbody><tr><td class="datagrid-empty" colspan="{{columnCount}}">{{emptyText}}</td></tr></tbody>');
+    }.property(),
 
     gridTemplate: function() {
         var custom, inner, css, html = [],
@@ -115,6 +119,7 @@ Cabernet.Datagrid = Ember.View.extend({
             css = (cssClasses[col.name] !== undefined) ? ' class="'+cssClasses[col.name]+'"' : '';
             if (col.get('displayed') === true) html.push('<td'+css+(index === (columnCount - 1) ? ' colspan="2">' : '>')+inner+'</td>');
         }, this);
+        
         return Handlebars.compile('<tbody>{{#list data}}<tr>'+html.join('')+'</tr>{{/list}}</tbody>');
     }.property('displayedColumns').cacheable(),
 
