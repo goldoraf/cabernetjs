@@ -97,7 +97,7 @@ test("No Filterable datas", function() {
     ok(Ember.empty(grid.get('columnsForDisplay')[0].filter));
 });
 
-test("Filter datas by text)", function() {
+test("Filter datas by text", function() {
 
     var grid = Cabernet.Datagrid.create({
         data: [{"textColumn":"aa"},{"textColumn":"ab"},{"textColumn":"bb"},{"textColumn":"bc"}],
@@ -129,7 +129,7 @@ test("Filter datas by text)", function() {
     equal(grid.get('displayedData')[1].textColumn, "bc");
 });
 
-test("Filter datas by picker(enum))", function() {
+test("Filter datas by picker(enumerated values)", function() {
 
     var grid = Cabernet.Datagrid.create({
         data: [{"pickColumn":"A"},{"pickColumn":"B"},{"pickColumn":"A"},{"pickColumn":"C"}],
@@ -163,7 +163,7 @@ test("Filter datas by picker(enum))", function() {
     equal(grid.get('displayedData').get('length'), 0);
 });
 
-test("Filter datas by range)", function() {
+test("Filter datas by range", function() {
 
     var grid = Cabernet.Datagrid.create({
         data: [{"rangeColumn":1},{"rangeColumn":"2"},{"rangeColumn":"3"},{"rangeColumn":"4"}],
@@ -196,7 +196,7 @@ test("Filter datas by range)", function() {
     equal(grid.get('displayedData')[2].rangeColumn, "3");
 });
 
-test("Filter datas by daterange)", function() {
+test("Filter datas by daterange", function() {
 
     var grid = Cabernet.Datagrid.create({
         data: [ {"daterangeColumn": "2012-01-01"},
@@ -230,4 +230,43 @@ test("Filter datas by daterange)", function() {
     equal(grid.get('displayedData')[0].daterangeColumn, "2012-01-01");
     equal(grid.get('displayedData')[1].daterangeColumn, "2012-02-01");
         
+});
+
+test("Display/hide standard columns", function() {
+
+    var grid = Cabernet.Datagrid.create({
+        data: [],
+        columns: ['First', 'Second', 'Third']
+    });
+    equal(grid.get('columnsForDisplay').get('length'), 3);
+    equal(grid.get('displayedColumns').get('length'), 3);
+   
+    //Hide 2 columns
+    grid.get('columnsForDisplay')[0].set('displayed', false);
+    grid.get('columnsForDisplay')[2].set('displayed', false);
+    equal(grid.get('displayedColumns').get('length'), 1);
+
+    // Display 1 column
+    grid.get('columnsForDisplay')[2].set('displayed', true);
+    equal(grid.get('displayedColumns').get('length'), 2);
+});
+
+test("Try to display/hide non hideable columns", function() {
+
+    var grid = Cabernet.Datagrid.create({
+        data: [],
+        columns: [  'First', 
+                    {name: 'Second', hideable: false}, 
+                    'Third']
+    });
+    equal(grid.get('columnsForDisplay').get('length'), 3);
+    equal(grid.get('displayedColumns').get('length'), 3);
+   
+    // Hide non hideable column
+    grid.get('columnsForDisplay')[1].set('displayed', false); // Useless
+    equal(grid.get('displayedColumns').get('length'), 3);
+
+    // Hide hideable column
+    grid.get('columnsForDisplay')[2].set('displayed', false); // Yes we can
+    equal(grid.get('displayedColumns').get('length'), 2);
 });

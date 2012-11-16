@@ -54,12 +54,16 @@ Cabernet.Datagrid = Ember.View.extend({
     }.property().cacheable(),
 
     displayedColumns: function() {
-        return this.get('columnsForDisplay').filterProperty('displayed');
+        return this.get('columnsForDisplay').filter(function(columnForDisplay) {
+            if (columnForDisplay.get('hideable') === true)
+                return columnForDisplay.get('displayed');
+            return true;
+        });
     }.property('columnsForDisplay.@each.displayed'),
 
     filters: function() {
         return this.get('columnsForDisplay').map(function(columnForDisplay) {
-            if (columnForDisplay.get('filterable'))
+            if (columnForDisplay.get('filterable') === true)
                 return columnForDisplay.get('filter');
             return null;
         }).without(null);
@@ -120,7 +124,8 @@ Cabernet.Datagrid = Ember.View.extend({
             custom = this.getCustomDisplay(col.name);
             inner = (custom !== null) ? custom : '{{this.'+col.name+'}}';
             css = (cssClasses[col.name] !== undefined) ? ' class="'+cssClasses[col.name]+'"' : '';
-            if (col.get('displayed') === true) html.push('<td'+css+(index === (columnCount - 1) ? ' colspan="2">' : '>')+inner+'</td>');
+            if (col.get('displayed') === true || col.get('hideable') === false) 
+                html.push('<td'+css+(index === (columnCount - 1) ? ' colspan="2">' : '>')+inner+'</td>');
         }, this);
         
         return Handlebars.compile('<tbody>{{#list data}}<tr>'+html.join('')+'</tr>{{/list}}</tbody>');
@@ -230,6 +235,7 @@ Cabernet.Datagrid.Column = Ember.Object.extend({
     sort: false,
     filterable: true,
     filter: null,
+    hideable: true,
 
     sortClass: function() {
         var sortDir = this.get('sort');
@@ -526,7 +532,11 @@ Cabernet.Datagrid.Columnpicker = Cabernet.Popover.extend({
 Cabernet.Datagrid.Columnpicker.Element = Ember.View.extend({
     template: Ember.Handlebars.compile(
         '<label> \
-            {{view Ember.Checkbox checkedBinding="content.displayed"}} \
+            {{#if content.hideable}} \
+                {{view Ember.Checkbox checkedBinding="content.displayed"}} \
+            {{else}} \
+                {{view Ember.Checkbox checkedBinding="content.displayed" disabled="disabled"}} \
+            {{/if}} \
             <span>{{content.label}}</span> \
         </label>'
     )
