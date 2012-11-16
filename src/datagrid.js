@@ -58,7 +58,11 @@ Cabernet.Datagrid = Ember.View.extend({
     }.property('columnsForDisplay.@each.displayed'),
 
     filters: function() {
-        return this.get('columnsForDisplay').mapProperty('filter');
+        return this.get('columnsForDisplay').map(function(columnForDisplay) {
+            if (columnForDisplay.get('filterable'))
+                return columnForDisplay.get('filter');
+            return null;
+        }).without(null);
     }.property('columnsForDisplay.@each.filter'),
 
     appliedFilters: function() {
@@ -224,7 +228,7 @@ Cabernet.Datagrid.Column = Ember.Object.extend({
     type: String,
     displayed: true,
     sort: false,
-    filterable: true, //TODO not used for the moment
+    filterable: true,
     filter: null,
 
     sortClass: function() {
@@ -243,11 +247,13 @@ Cabernet.Datagrid.Column.reopenClass({
         options.label = options.label || Cabernet.translate(options.name);
         options.type = options.type || String;
 
-        var filterOpts = options.filter || { type: 'text' };
-        if (typeof filterOpts === 'string') filterOpts = { type: filterOpts };
-        filterOpts.column = options.name;
-        
-        options.filter = Cabernet.Datagrid.Filter.createFromOptions(filterOpts, data);
+        if (!options.hasOwnProperty('filterable') || options.filterable === true) {
+            var filterOpts = options.filter || { type: 'text' };
+            if (typeof filterOpts === 'string') filterOpts = { type: filterOpts };
+            filterOpts.column = options.name;
+            
+            options.filter = Cabernet.Datagrid.Filter.createFromOptions(filterOpts, data);
+        } 
 
         return this.create(options);
     }

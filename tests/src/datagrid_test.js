@@ -83,8 +83,6 @@ test("Filters on columns", function() {
     for(var i=0; i<grid.get('columnsForDisplay').get('length'); i++) {
         deepEqual(grid.get('filters')[i], grid.get('columnsForDisplay')[i].filter);
     }
-
-
 });
 
 test("No Filterable datas", function() {
@@ -94,15 +92,15 @@ test("No Filterable datas", function() {
         columns: [{name: 'headerColumn', filterable: false} ]
     });
     equal(grid.get('columnsForDisplay').get('length'), 1);
-    console.log(grid.get('filters'));
-    //equal(grid.get('filters').get('length'), 0); // No filter because of 'filterable: false' 
+    
+    equal(grid.get('filters').get('length'), 0); // No filter because of 'filterable: false' 
+    ok(Ember.empty(grid.get('columnsForDisplay')[0].filter));
 });
 
 test("Filter datas by text)", function() {
 
     var grid = Cabernet.Datagrid.create({
         data: [{"textColumn":"aa"},{"textColumn":"ab"},{"textColumn":"bb"},{"textColumn":"bc"}],
-        //modelType: Test.User,
         columns: ['textColumn']
     });
     equal(grid.get('data').get('length'), 4);
@@ -131,11 +129,44 @@ test("Filter datas by text)", function() {
     equal(grid.get('displayedData')[1].textColumn, "bc");
 });
 
+test("Filter datas by picker(enum))", function() {
+
+    var grid = Cabernet.Datagrid.create({
+        data: [{"pickColumn":"A"},{"pickColumn":"B"},{"pickColumn":"A"},{"pickColumn":"C"}],
+        columns: [{ name: 'pickColumn', filter: { type: 'pick' }}]
+    });
+    equal(grid.get('data').get('length'), 4);
+    equal(grid.get('displayedData').get('length'), 4);
+    
+    var filter = grid.get('filters')[0];
+    var filterValues = filter.get('values');
+    equal(filterValues.get('length'), 3);
+    ok(filterValues.contains("A"));
+    ok(filterValues.contains("B"));
+    ok(filterValues.contains("C"));
+
+    // Filtering
+    filter.set('value', ['A']); 
+    equal(grid.get('data').get('length'), 4); // unchanged
+    equal(grid.get('displayedData').get('length'), 2); 
+    equal(grid.get('displayedData')[0].pickColumn, "A");
+    equal(grid.get('displayedData')[1].pickColumn, "A");
+    
+    filter.set('value', ['A', 'B']); 
+    equal(grid.get('displayedData').get('length'), 3); 
+    equal(grid.get('displayedData')[0].pickColumn, "A");
+    equal(grid.get('displayedData')[1].pickColumn, "B");
+    equal(grid.get('displayedData')[2].pickColumn, "A");
+
+    // Filter by different value (possible ?)
+    filter.set('value', ['D']); 
+    equal(grid.get('displayedData').get('length'), 0);
+});
+
 test("Filter datas by range)", function() {
 
     var grid = Cabernet.Datagrid.create({
         data: [{"rangeColumn":1},{"rangeColumn":"2"},{"rangeColumn":"3"},{"rangeColumn":"4"}],
-        //modelType: Test.User,
         columns: [{ name: 'rangeColumn', filter: { type: 'range' }}]
     });
     equal(grid.get('data').get('length'), 4);
@@ -172,7 +203,6 @@ test("Filter datas by daterange)", function() {
                 {"daterangeColumn": "2012-02-01"},
                 {"daterangeColumn": "2012-04-30"},
                 {"daterangeColumn": "2012-07-01"}],
-        //modelType: Test.User,
         columns: [{ name: 'daterangeColumn', filter: { type: 'daterange' }}]
     });
     equal(grid.get('data').get('length'), 4);
