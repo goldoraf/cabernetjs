@@ -344,8 +344,16 @@ Cabernet.Datagrid.RangeFilter = Cabernet.Datagrid.Filter.extend({
         var value, min = this.get('value')[0], max = this.get('value')[1];
         return data.filter(function(item) {
             value = this.getValueFor(item);
-            //TODO null value ??? (min only or max only)
-            return value >= min && value <= max;
+
+            var isValueCorrect = true;
+            if (!Ember.empty(min)) {
+                isValueCorrect = (value >= min);
+            }
+            if (!Ember.empty(max)) {
+                isValueCorrect = (isValueCorrect && value <= max);
+            }
+            
+            return isValueCorrect;
         }, this);
     },
 
