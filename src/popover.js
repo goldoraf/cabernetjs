@@ -1,6 +1,6 @@
 Cabernet.Popover = Ember.View.extend({
     linkText: '',
-    defaultLinkTemplate: '<a {{action "toggle"}}>{{linkText}}</a>',
+    defaultLinkTemplate: '<a {{action "toggle" target="view"}}>{{linkText}}</a>',
     linkTemplate: null,
     contentTemplate: '',
     placement: 'below',

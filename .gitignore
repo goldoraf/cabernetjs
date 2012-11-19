@@ -4,3 +4,4 @@
 tmp/*
 dist/*
 tests/test*.html
+src/datagrid_old.js

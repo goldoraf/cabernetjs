@@ -13,3 +13,10 @@ Handlebars.registerHelper('list', function(context, options) {
   }
   return ret;
 });
+
+Ember.ENV.RAISE_ON_DEPRECATION = false;
+if (Em.I18n !== undefined) {
+    Cabernet.translate = Em.I18n.t;
+} else {
+    Cabernet.translate = Ember.String.loc;
+}

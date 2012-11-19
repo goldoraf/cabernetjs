@@ -4,10 +4,13 @@
     <head>
         <title>Components test</title>
         <meta charset="utf-8">
-		<script src="vendor/jquery-1.7.1.min.js"></script>
-		<script src="vendor/jquery.ba-outside-events.js"></script>
-		<script src="vendor/jquery-ui-1.9.1.custom.min.js"></script>
-		<script src="vendor/ember-0.9.8.js"></script>
+		<script src="vendor/jquery-1.8.2.js"></script>
+        <script src="vendor/jquery.ba-outside-events.js"></script>
+        <script src="vendor/jquery-ui-1.9.1.custom.min.js"></script>
+        <script src="vendor/moment.min.js"></script>
+        <script src="vendor/handlebars-1.0.rc.1.js"></script>
+        <script src="vendor/ember-1.0.0-pre2.js"></script>
+
 		<script src="vendor/syrah.js"></script>
         <script src="vendor/twitter-bootstrap-1.4.0/js/bootstrap-twipsy.js"></script>
         <script src="vendor/twitter-bootstrap-1.4.0/js/bootstrap-popover.js"></script>
@@ -39,7 +42,7 @@
                         popover.appendTo('#content');
                     });
 
-                    Test.store = Syrah.Store.create({});
+                    //Test.store = Syrah.Store.create({});
 
                     /*var data = [
                         {firstname: 'John', lastname: 'Doe', city: 'New York'},
@@ -48,7 +51,7 @@
                         {firstname: 'Jack', lastname: 'Bauer', city: 'Los Angeles'},
                     ];*/
 
-                    var data = [];
+                    /*var data = [];
                     for (var i=1; i<=100; i++) {
                         data.push({firstname: 'John'+i, lastname: 'Doe', city: 'New York'})
                     }
@@ -65,7 +68,7 @@
                             firstname: '<a href="#">{{this.firstname}}</a>'
                         }
                     });
-                    grid.appendTo('#content');
+                    grid.appendTo('#content');*/
                 }
             });
 
