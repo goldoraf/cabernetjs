@@ -8,7 +8,7 @@ if (Em.I18n !== undefined) {
 Cabernet.Datagrid = Ember.View.extend({
     
     template: Ember.Handlebars.compile(
-        '   <div><div class="table-header">\
+        '   <div><div class="datagrid-header">\
                     {{view Cabernet.Datagrid.Columnpicker columnsBinding="columnsForDisplay"}}\
                 </div>\
                 <div><table> \
