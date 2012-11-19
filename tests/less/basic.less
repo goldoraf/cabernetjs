@@ -8,22 +8,16 @@
     font-weight: bold;
 }
 
-div.datagrid div.datagrid-header {
-    margin: 0;
-    padding: @space;
-    .border-radius(0);
-    border: 1px solid @lightBlue;
-    border-bottom: none;
-    background-color: @activeTabColor;
-    line-height: 18px;
-    
-    form {
-        margin: 0;
-        
-        .input, .input-append {
-            margin-left: 220px;
-        }
-    }
+div.table-header {
+  margin: 0;
+  padding: @space;
+  .border-radius(0);
+  border: 1px solid @lightBlue;
+  border-bottom: none;
+  background-color: @activeTabColor;
+  line-height: 18px;
+  overflow:auto;
+
 }
 
 div.datagrid table {
@@ -47,31 +41,40 @@ div.datagrid table {
         padding: 15px 5px;
         font-size: 12px;
         border-bottom: 1px solid @lightBlue;
-        
+
         th {
             background: url(../../images/table-th-separator.png) 0px center no-repeat;
-            text-align: left;
+            text-align: center;
             padding: 5px;
             color: @darkBlue;
-            
+
             &:first-child {
                 background: none;
+
             }
-            
+
             a.sortlink {
                 color: @darkBlue;
                 font-weight: 500;
+                padding-left: 10px;
+                display: inline-block;
             }
+
             &.headerSortUp {
-                background: url(../../images/sort.png) right bottom no-repeat;   
+               a.sortlink {
+                  background: url(../../images/sort.png) no-repeat  left 3px transparent;
+               }
             }
-            &.headerSortDown a.sortlink {              
-                background: url(../../images/sort.png) right top no-repeat;
+            &.headerSortDown {
+              a.sortlink {
+                  background: url(../../images/sort.png) no-repeat  left -10px transparent;
+                }
             }
 
             div.filter {
                 float: right;
-                padding-left: 5px;
+                display: inline-block;
+                padding: 0 10px;
             }
 
             a.filterlink {

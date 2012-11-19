@@ -61,7 +61,7 @@ Cabernet.Popover = Ember.View.extend({
             'left': { my: 'right', at: 'left', offset: '0' },
             'below right': { my: 'left top', at: 'center bottom', offset: '0', arrowLeft: '20px' },
             'below left' : { my: 'right top', at: 'right bottom', offset: '20 0', arrowLeft: width - 20 + 'px' },
-            'above right': { my: 'left bottom', at: 'center top', offset: '0', arrowLeft: '20px' },
+            'above right': { my: 'left bottom', at: 'center top', offset: '0', arrowLeft: '20px' }
         }
         return params[this.get('placement')];
     }
