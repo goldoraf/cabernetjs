@@ -4,79 +4,120 @@
     <head>
         <title>Components test</title>
         <meta charset="utf-8">
-		<script src="vendor/jquery-1.8.2.js"></script>
+        <script src="vendor/jquery-1.8.2.js"></script>
         <script src="vendor/jquery.ba-outside-events.js"></script>
         <script src="vendor/jquery-ui-1.9.1.custom.min.js"></script>
         <script src="vendor/moment.min.js"></script>
         <script src="vendor/handlebars-1.0.rc.1.js"></script>
         <script src="vendor/ember-1.0.0-pre2.js"></script>
-
-		<script src="vendor/syrah.js"></script>
+        
+        <script src="vendor/syrah.js"></script>
         <script src="vendor/twitter-bootstrap-1.4.0/js/bootstrap-twipsy.js"></script>
         <script src="vendor/twitter-bootstrap-1.4.0/js/bootstrap-popover.js"></script>
         <script src="../dist/cabernet.js"></script>
         <link rel="stylesheet" type="text/css" href="css/basic.css"/>
+        <link rel="stylesheet" type="text/css" href="css/jquery-ui-1.9.1.custom.min.css"/>
+
+        <script type="text/x-handlebars" data-template-name="application">
+            <div class="container-fluid" id="main">
+                <div id="content">
+                    <h1>
+                        {{title}}
+                    </h1>
+                    <a {{action goHome href=true}}>Simple datagrid</a> | <a {{action goToHeavy href=true}}>Heavy datagrid</a>
+                     | <a {{action goToPopovers href=true}}>Popovers</a>
+                    {{outlet main}}
+                </div>
+            </div>
+        </script>
     </head>
     <body>
-		<div class="container-fluid" id="main">
-            <div id="content">
-			    <h1>
-			        Components Test
-			    </h1>
-            </div>
-        </div>
-        
 		<script>
             Ember.STRINGS = {
                 'firstname': 'First Name'
             };
 
+            var lightData = [
+                {firstname: 'John', lastname: 'Doe', city: 'New York'},
+                {firstname: 'Jane', lastname: 'Doe', city: 'Los Angeles'},
+                {firstname: 'Jack', lastname: 'Ryan', city: 'Washington'},
+                {firstname: 'Jack', lastname: 'Bauer', city: 'Los Angeles'},
+            ];
+
+            var heavyData = [];
+            for (var i=1; i<=100; i++) {
+                heavyData.push({firstname: 'John'+i, lastname: 'Doe', city: 'New York'})
+            }
+
             Test = Ember.Application.create({
-                ready: function() {
-                    ['right', 'below', 'above', 'left', 'below right', 'above right'].forEach(function(placement) {
-                        var popover = Cabernet.Popover.create({
-                            linkText: "Popover " + placement,
-                            contentTemplate: "<p>Lorem ipsum</p>",
-                            placement: placement
-                        });
-                        popover.appendTo('#content');
-                    });
+                ApplicationView: Ember.View.extend({
+                    templateName:  'application'
+                }),
+                ApplicationController: Ember.Controller.extend({
+                    title: 'Components test'
+                }),
 
-                    //Test.store = Syrah.Store.create({});
-
-                    /*var data = [
-                        {firstname: 'John', lastname: 'Doe', city: 'New York'},
-                        {firstname: 'Jane', lastname: 'Doe', city: 'Los Angeles'},
-                        {firstname: 'Jack', lastname: 'Ryan', city: 'Washington'},
-                        {firstname: 'Jack', lastname: 'Bauer', city: 'Los Angeles'},
-                    ];*/
-
-                    /*var data = [];
-                    for (var i=1; i<=100; i++) {
-                        data.push({firstname: 'John'+i, lastname: 'Doe', city: 'New York'})
+                TestDatagridView: Cabernet.DatagridView.extend(),
+                TestDatagridController: Cabernet.DatagridController.extend({
+                    modelType: 'Test.Contact',
+                    defaultSort: '-lastname',
+                    sessionBucket: 'test',
+                    columnsClassNames: { lastname: 'bold' },
+                    custom: {
+                        firstname: '<a href="#">{{this.firstname}}</a>'
                     }
+                }),
 
-                    var contacts = Test.store.loadMany(Test.Contact, Ember.A([]), data);
+                TestPopoverController: Ember.Controller.extend({
+                    placements: ['right', 'below', 'above', 'left', 'below right', 'above right']
+                }),
+                TestPopoverView: Ember.View.extend({
+                    template: Ember.Handlebars.compile('{{#each placement in placements}} \
+                        {{placement}}{{view Cabernet.Popover placementBinding="placement" contentTemplate="<p>Lorem ipsum</p>"}} \
+                        {{/each}}')
+                }),
 
-                    var grid = Cabernet.Datagrid.create({
-                        data: contacts,
-                        modelType: Test.Contact,
-                        defaultSort: '-lastname',
-                        sessionBucket: 'test',
-                        columnsClassNames: { lastname: 'bold' },
-                        custom: {
-                            firstname: '<a href="#">{{this.firstname}}</a>'
-                        }
-                    });
-                    grid.appendTo('#content');*/
+                Router: Ember.Router.extend({
+                    goToHeavy:  Ember.Route.transitionTo('root.heavyGrid'),
+                    goToPopovers:  Ember.Route.transitionTo('root.popovers'),
+                    goHome:  Ember.Route.transitionTo('root.index'),
+                    root: Ember.Route.extend({
+                        index: Ember.Route.extend({
+                            route: '/',
+                            connectOutlets: function(router, context) {
+                                router.get('applicationController').connectOutlet('main', 'testDatagrid', { data: Test.store.loadMany(Test.Contact, Ember.A([]), lightData) });
+                            }
+                        }),
+                        heavyGrid: Ember.Route.extend({
+                            route: '/heavyGrid',
+                            connectOutlets: function(router, context) {
+                                router.get('applicationController').connectOutlet('main', 'testDatagrid', { data: Test.store.loadMany(Test.Contact, Ember.A([]), heavyData) });
+                            }
+                        }),
+                        popovers: Ember.Route.extend({
+                            route: '/popovers',
+                            connectOutlets: function(router, context) {
+                                router.get('applicationController').connectOutlet('main', 'testPopover');
+                            }
+                        })
+                    })
+                }),
+
+                ready: function() {
+                    console.log('Created app namespace');
                 }
             });
+
+            Test.store = Syrah.Store.create({});
 
             Test.Contact = Syrah.Model.define({
                 firstname: String,
                 lastname: String,
                 city: String
             });
+
+            Test.initialize();
+
         </script>
     </body>
 </html>

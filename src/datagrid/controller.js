@@ -50,6 +50,8 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
 
     init: function() {
         this._super();
+
+        this.set('displayedData', this.get('data'));
         
         this.addObserver('displayedColumns', function displayedColumnsChanged() {
             this.saveParam('displayedColumns', this.get('displayedColumns').mapProperty('name'));
@@ -146,7 +148,7 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
 
     getColumnsFromModel: function() {
         var cols = [],
-            props = this.get('modelType').__metadata__.definedProperties;
+            props = Ember.get(this.get('modelType')).__metadata__.definedProperties;
         for (var propName in props) { cols.pushObject({ name: propName, type: props[propName].type }); }
         return cols;
     }

@@ -32,7 +32,6 @@ Cabernet.DatagridFilter.reopenClass({
     createFromOptions: function(options, controller) {
         var klassName = 'Datagrid' + options.type.charAt(0).toUpperCase() + options.type.slice(1) + 'Filter',
             klass = Cabernet[klassName];
-        if (klass.hasOwnProperty('expandOptions')) options = klass.expandOptions(options);
         options.controller = controller;
         return klass.create(options);
     }
@@ -54,14 +53,10 @@ Cabernet.DatagridPickFilter = Cabernet.DatagridFilter.extend({
     type: 'pick',
     //view: Cabernet.DatagridPickFilterView,
 
-    init: function() {
-        this._super();
-        if (this.get('values') === null) {
-            this.addObserver('controller.data', function controllerDataChanged() {
-                this.set('values', this.get('controller').get('data').mapProperty(this.get('column')).uniq());
-            });
-        }
-    },
+    values: function() {
+        if (Ember.none(this.get('controller').get('data'))) return [];
+        return this.get('controller').get('data').mapProperty(this.get('column')).uniq();
+    }.property('controller.data'),
 
     apply: function(data) {
         var value;
@@ -76,26 +71,21 @@ Cabernet.DatagridPickFilter = Cabernet.DatagridFilter.extend({
     }.property('value'),
 });
 
-Cabernet.DatagridPickFilter.reopenClass({
-    expandOptions: function(options) {
-        options.values = options.values || null;
-        return options;
-    }
-});
-
 Cabernet.DatagridRangeFilter = Cabernet.DatagridFilter.extend({
     type: 'range',
     //view: Cabernet.DatagridRangeFilterView,
 
-    init: function() {
-        this._super();
-        if (this.get('max') === null && this.get('max') === null) {
-            this.addObserver('controller.data', function controllerDataChanged() {
-                this.set('max', Math.max.apply(Math, this.get('controller').get('data').mapProperty(this.get('column'))));
-                this.set('min', Math.min.apply(Math, this.get('controller').get('data').mapProperty(this.get('column'))));
-            });
-        }
-    },
+    step: 1,
+
+    max: function() {
+        if (Ember.none(this.get('controller').get('data'))) return null;
+        return Math.max.apply(Math, this.get('controller').get('data').mapProperty(this.get('column')));
+    }.property('controller.data'),
+
+    min: function() {
+        if (Ember.none(this.get('controller').get('data'))) return null;
+        return Math.min.apply(Math, this.get('controller').get('data').mapProperty(this.get('column')));
+    }.property('controller.data'),
 
     selectedMax: function() {
         return !Ember.empty(this.get('value')) ? this.get('value')[1] : this.get('max');
@@ -125,15 +115,6 @@ Cabernet.DatagridRangeFilter = Cabernet.DatagridFilter.extend({
     applied: function() {
         return this.get('selectedMin') != this.get('min') || this.get('selectedMax') != this.get('max');
     }.property('value'),
-});
-
-Cabernet.DatagridRangeFilter.reopenClass({
-    expandOptions: function(options) {
-        options.max = options.max || null;
-        options.min = options.min || null;
-        options.step = options.step || 1;
-        return options;
-    }
 });
 
 Cabernet.DatagridDaterangeFilter = Cabernet.DatagridFilter.extend({
