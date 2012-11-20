@@ -3,7 +3,7 @@ Cabernet.DatagridFilter = Ember.Object.extend({
     value: '',
     controller: null,
 
-    viewClass: function() {console.log(this.constructor + 'View');
+    viewClass: function() {
         return this.constructor + 'View';
     }.property(),
 

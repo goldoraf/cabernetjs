@@ -30,6 +30,10 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
         });
     }.property('columnsForDisplay.@each.displayed'),
 
+    displayedColumnsChanged: function() {
+        this.saveParam('displayedColumns', this.get('displayedColumns').mapProperty('name'));
+    }.observes('displayedColumns'),
+
     filters: function() {
         return this.get('columnsForDisplay').map(function(columnForDisplay) {
             if (columnForDisplay.get('filterable') === true)
@@ -51,15 +55,11 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
         this._super();
 
         this.set('displayedData', this.get('data'));
-        
-        this.addObserver('displayedColumns', function displayedColumnsChanged() {
-            this.saveParam('displayedColumns', this.get('displayedColumns').mapProperty('name'));
-        });
 
-        /*if (this.shouldPersistParams()) {
+        if (this.shouldPersistParams()) {
             var persistedSort = this.retrieveParam('sort');
             if (!Ember.none(persistedSort)) this.set('defaultSort', persistedSort);
-        }*/
+        }
         this.applyDefaultSort();
     },
 
@@ -86,7 +86,7 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
         });
         if (direction === 'down') sorted.reverse();
         this.set('displayedData', sorted);
-        //if (this.shouldPersistParams()) this.persistSort(columnName, direction);
+        if (this.shouldPersistParams()) this.persistSort(columnName, direction);
     },
 
     applyFilters: function() {
@@ -129,19 +129,22 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
     },
 
     expandColumnsDefinition: function() {
-        /*if (this.shouldPersistParams()) {
-            var previouslyDisplayed = this.retrieveParam('displayedColumns');
-        }*/
-
         if (this.get('columns') === null) {
             // TODO : add a check on 'modelType'
            this.set('columns', this.getColumnsFromModel());
         }
 
-        var cols = [], data = this.get('data'), colsDef = this.get('columns');
+        var col, cols = [], data = this.get('data'), colsDef = this.get('columns'),
+            previouslyDisplayed = this.shouldPersistParams() ? this.retrieveParam('displayedColumns') : null;
+        
         colsDef.forEach(function(column) {
-            cols.pushObject(Cabernet.DatagridColumn.createFromOptions(column, this));
+            col = Cabernet.DatagridColumn.createFromOptions(column, this);
+            if (!Ember.none(previouslyDisplayed) && !previouslyDisplayed.contains(col.get('name'))) {
+                col.set('displayed', false);
+            }
+            cols.pushObject(col);
         }, this);
+
         return cols;
     },
 
