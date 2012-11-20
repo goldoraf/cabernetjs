@@ -336,5 +336,5 @@ test("Column sorting error handling", function() {
     raises(function() {
             return grid.sort('unknownValue', 'down');
         }, 
-        /column is undefined/, "error expected with message 'column is undefined'");   
+        /undefined/, "error expected with message containing 'undefined'");   
 });
