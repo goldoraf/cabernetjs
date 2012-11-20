@@ -3,21 +3,9 @@ Cabernet.DatagridFilter = Ember.Object.extend({
     value: '',
     controller: null,
 
-    isText: function() {
-        return this.get('type') === 'text';
-    }.property('type'),
-
-    isPick: function() {
-        return this.get('type') === 'pick';
-    }.property('type'),
-
-    isRange: function() {
-        return this.get('type') === 'range';
-    }.property('type'),
-
-    isDaterange: function() {
-        return this.get('type') === 'daterange';
-    }.property('type'),
+    viewClass: function() {console.log(this.constructor + 'View');
+        return this.constructor + 'View';
+    }.property(),
 
     getValueFor: function(item) {
         return item instanceof Ember.Object ? item.get(this.get('column')) : item[this.get('column')];
@@ -38,9 +26,6 @@ Cabernet.DatagridFilter.reopenClass({
 });
 
 Cabernet.DatagridTextFilter = Cabernet.DatagridFilter.extend({
-    type: 'text',
-    //view: Cabernet.DatagridTextFilterView,
-
     apply: function(data) {
         var regex = new RegExp(this.get('value'), 'i', 'g');
         return data.filter(function(item) {
@@ -50,9 +35,6 @@ Cabernet.DatagridTextFilter = Cabernet.DatagridFilter.extend({
 });
 
 Cabernet.DatagridPickFilter = Cabernet.DatagridFilter.extend({
-    type: 'pick',
-    //view: Cabernet.DatagridPickFilterView,
-
     values: function() {
         if (Ember.none(this.get('controller').get('data'))) return [];
         return this.get('controller').get('data').mapProperty(this.get('column')).uniq();
@@ -72,9 +54,6 @@ Cabernet.DatagridPickFilter = Cabernet.DatagridFilter.extend({
 });
 
 Cabernet.DatagridRangeFilter = Cabernet.DatagridFilter.extend({
-    type: 'range',
-    //view: Cabernet.DatagridRangeFilterView,
-
     step: 1,
 
     max: function() {
@@ -118,8 +97,6 @@ Cabernet.DatagridRangeFilter = Cabernet.DatagridFilter.extend({
 });
 
 Cabernet.DatagridDaterangeFilter = Cabernet.DatagridFilter.extend({
-    type: 'datarange',
-    //view: Cabernet.DatagridDaterangeFilterView,
     selectedMin: '',
     selectedMax: '',
 

@@ -6,23 +6,7 @@ Cabernet.DatagridView = Ember.View.extend({
             <thead> \
                 <tr> \
                     {{#each column in displayedColumns}} \
-                        <th {{bindAttr class="column.sortClass"}}> \
-                            {{#if column.filterable}} \
-                                {{#if column.filter.isText}} \
-                                    {{view Cabernet.DatagridTextFilterView filterBinding="column.filter"}} \
-                                {{/if}} \
-                                {{#if column.filter.isPick}} \
-                                    {{view Cabernet.DatagridPickFilterView filterBinding="column.filter"}} \
-                                {{/if}} \
-                                {{#if column.filter.isRange}} \
-                                    {{view Cabernet.DatagridRangeFilterView filterBinding="column.filter"}} \
-                                {{/if}} \
-                                {{#if column.filter.isDaterange}} \
-                                    {{view Cabernet.DatagridDaterangeFilterView filterBinding="column.filter"}} \
-                                {{/if}} \
-                            {{/if}} \
-                            <a class="sortlink" {{action sort column.name target="controller"}}>{{column.label}}</a> \
-                        </th> \
+                        {{view Cabernet.DatagridHeaderView columnBinding="column"}} \
                     {{/each}} \
                     <th class="columnpicker">{{view Cabernet.DatagridColumnpicker columnsBinding="columnsForDisplay"}}</th> \
                 </tr> \
@@ -77,6 +61,29 @@ Cabernet.DatagridView = Ember.View.extend({
         /*if (!this.get('custom').hasOwnProperty(columnName)) return null;
         return this.get('custom')[columnName];*/
     },
+});
+
+Cabernet.DatagridHeaderView = Ember.View.extend({
+    tagName: 'th',
+    classNameBindings: ['sortClass'],
+
+    sortClass: function() {
+        var sortDir = this.get('column').get('sort');
+        if (sortDir === 'up') return 'headerSortUp';
+        if (sortDir === 'down') return 'headerSortDown';
+        return '';
+    }.property('column.sort'),
+
+    filterViewClass: function() {
+        return Ember.get(this.get('column').get('filter').get('viewClass'));
+    }.property('column.filter'),
+
+    template: Ember.Handlebars.compile(
+        '{{#if view.column.filterable}} \
+            {{view "view.filterViewClass" filterBinding="view.column.filter"}} \
+        {{/if}} \
+        <a class="sortlink" {{action sort view.column.name target="controller"}}>{{view.column.label}}</a>'
+    )
 });
 
 Cabernet.DatagridFilterView = Cabernet.Popover.extend({

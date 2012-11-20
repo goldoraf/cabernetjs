@@ -6,14 +6,7 @@ Cabernet.DatagridColumn = Ember.Object.extend({
     sort: false,
     filterable: true,
     filter: null,
-    hideable: true,
-
-    sortClass: function() {
-        var sortDir = this.get('sort');
-        if (sortDir === 'up') return 'headerSortUp';
-        if (sortDir === 'down') return 'headerSortDown';
-        return '';
-    }.property('sort')
+    hideable: true
 });
 
 Cabernet.DatagridColumn.reopenClass({
