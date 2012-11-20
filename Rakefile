@@ -23,24 +23,24 @@ task :clean do
   puts "Done"
 end
 
-desc "Run tests with phantomjs"
-task :test, [:suite] => :dist do |t, args|
-  unless system("which phantomjs > /dev/null 2>&1")
-    abort "PhantomJS is not installed. Download from http://phantomjs.org"
-  end
+#desc "Run tests with phantomjs"
+#task :test, [:suite] => :dist do |t, args|
+#  unless system("which phantomjs > /dev/null 2>&1")
+#    abort "PhantomJS is not installed. Download from http://phantomjs.org"
+#  end
 
-  cmd = "phantomjs tests/vendor/qunit/run-qunit.js \"file://localhost#{File.dirname(__FILE__)}/tests/index.html\""
+#  cmd = "phantomjs tests/vendor/qunit/run-qunit.js \"file://localhost#{File.dirname(__FILE__)}/tests/index.html\""
 
   # Run the tests
-  puts "Running tests"
-  success = system(cmd)
+#  puts "Running tests"
+#  success = system(cmd)
 
-  if success
-    puts "Tests Passed".green
-  else
-    puts "Tests Failed".red
-    exit(1)
-  end
-end
+#  if success
+#    puts "Tests Passed".green
+#  else
+#    puts "Tests Failed".red
+#    exit(1)
+#  end
+#end
 
 task :default => :dist

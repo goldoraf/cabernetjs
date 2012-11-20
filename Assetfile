@@ -20,11 +20,11 @@ input "src" do
   end
 end
 
-input "tests/src" do
-  match "**/*.js" do
-    concat "cabernet-tests.js"
-  end
-end
+#input "tests/src" do
+#  match "**/*.js" do
+#    concat "cabernet-tests.js"
+#  end
+#end
 
 input "dist" do
   match "cabernet.js" do
