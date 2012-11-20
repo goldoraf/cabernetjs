@@ -109,7 +109,26 @@ test("Filters on columns", function() {
     }
 });
 
-test("No Filterable data", function() {
+test("Datagrid can get its columns config from a Syrah model", function() {
+    window.Foo = Ember.Namespace.create();
+    Foo.Contact = Syrah.Model.define({
+        firstname: String,
+        lastname: String,
+        dob: Date
+    });
+    var grid = Cabernet.DatagridController.create({
+        modelType: 'Foo.Contact'
+    });
+
+    equal(grid.get('columnsForDisplay').get('length'), 3);
+    equal(grid.get('filters').get('length'), 3);
+
+    ok(grid.get('columnsForDisplay')[0].filter instanceof Cabernet.DatagridTextFilter);
+    ok(grid.get('columnsForDisplay')[1].filter instanceof Cabernet.DatagridTextFilter);
+    ok(grid.get('columnsForDisplay')[2].filter instanceof Cabernet.DatagridDaterangeFilter);
+});
+
+test("No filterable data", function() {
 
     var grid = Cabernet.DatagridController.create({
         data: [],

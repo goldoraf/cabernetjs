@@ -1,6 +1,5 @@
 Cabernet.DatagridView = Ember.View.extend({
     classNames: ['datagrid'],
-    columnsClassNames: {},
     template: Ember.Handlebars.compile(
         '<table> \
             <thead> \
@@ -30,7 +29,7 @@ Cabernet.DatagridView = Ember.View.extend({
         if (data.get('length') === 0) {
             this.$('tbody').replaceWith(this.get('emptyTemplate')({ 
                 columnCount: this.get('controller').get('displayedColumns').get('length'),
-                //emptyText: this.get('emptyText')
+                emptyText: this.get('controller').get('emptyText')
             }));
         } else {
             this.$('tbody').replaceWith(this.get('gridTemplate')({ data: data }));
@@ -43,24 +42,20 @@ Cabernet.DatagridView = Ember.View.extend({
 
     gridTemplate: function() {
         var custom, inner, css, html = [],
-            cssClasses = this.get('columnsClassNames'),
             columnCount = this.get('controller').get('displayedColumns').get('length');
         
         this.get('controller').get('displayedColumns').forEach(function(col, index) {
-            custom = this.getCustomDisplay(col.name);
+            custom = col.get('template');
             inner = (custom !== null) ? custom : '{{this.'+col.name+'}}';
-            css = (cssClasses[col.name] !== undefined) ? ' class="'+cssClasses[col.name]+'"' : '';
+            css = (col.get('classNames') !== null) 
+                ? ' class="' + (Ember.isArray(col.get('classNames')) ? col.get('classNames').join(' ') : col.get('classNames')) + '"' 
+                : '';
             if (col.get('displayed') === true || col.get('hideable') === false) 
                 html.push('<td'+css+(index === (columnCount - 1) ? ' colspan="2">' : '>')+inner+'</td>');
         }, this);
         
         return Handlebars.compile('<tbody>{{#list data}}<tr>'+html.join('')+'</tr>{{/list}}</tbody>');
-    }.property('controller.displayedColumns').cacheable(),
-
-    getCustomDisplay: function(columnName) { return null;
-        /*if (!this.get('custom').hasOwnProperty(columnName)) return null;
-        return this.get('custom')[columnName];*/
-    },
+    }.property('controller.displayedColumns').cacheable()
 });
 
 Cabernet.DatagridHeaderView = Ember.View.extend({

@@ -61,11 +61,7 @@
                 TestDatagridController: Cabernet.DatagridController.extend({
                     modelType: 'Test.Contact',
                     defaultSort: '-lastname',
-                    sessionBucket: 'test',
-                    columnsClassNames: { lastname: 'bold' },
-                    custom: {
-                        firstname: '<a href="#">{{this.firstname}}</a>'
-                    }
+                    sessionBucket: 'test'
                 }),
 
                 TestPopoverController: Ember.Controller.extend({

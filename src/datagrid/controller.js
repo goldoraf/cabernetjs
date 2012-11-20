@@ -3,7 +3,6 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
     displayedData: [],
     modelType: null,
     columns: null,
-    custom: {},
     defaultSort: null,
     emptyText: 'No results found',
     sessionBucket: null,
