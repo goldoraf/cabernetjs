@@ -270,3 +270,71 @@ test("Try to display/hide non hideable columns", function() {
     grid.get('columnsForDisplay')[2].set('displayed', false); // Yes we can
     equal(grid.get('displayedColumns').get('length'), 2);
 });
+
+test("Column sorting for main datatypes", function() {
+
+     var grid = Cabernet.Datagrid.create({
+        data: [
+            {"id": 0, dateValue: "2012-01-01", amountValue: 200.00, textValue: "first", intValue: 99},
+            {"id": 1, dateValue: "2012-02-01", amountValue: 1000.00, textValue: "aaa", intValue: 80},
+            {"id": 2, dateValue: "2012-04-30", amountValue: 50.01, textValue: "test", intValue: 40},
+            {"id": 3, dateValue: "2012-07-01", amountValue: 50.00, textValue: "test too", intValue: 10}
+        ],
+
+        columns: ['id', 'dateValue', 'amountValue', 'textValue', 'intValue']
+    });
+   
+
+    // Sort by date descending
+    grid.sort('dateValue', 'down');
+
+    equal(grid.get('displayedData')[0].id, 3);
+    equal(grid.get('displayedData')[1].id, 2);
+    equal(grid.get('displayedData')[2].id, 1);
+    equal(grid.get('displayedData')[3].id, 0);
+
+    // Sort by amount ascending
+    grid.sort('amountValue', 'up');
+
+    equal(grid.get('displayedData')[0].id, 3);
+    equal(grid.get('displayedData')[1].id, 2);
+    equal(grid.get('displayedData')[2].id, 0);
+    equal(grid.get('displayedData')[3].id, 1);
+
+    // Sort by text descending
+    grid.sort('textValue', 'down');
+
+    equal(grid.get('displayedData')[0].id, 3);
+    equal(grid.get('displayedData')[1].id, 2);
+    equal(grid.get('displayedData')[2].id, 0);
+    equal(grid.get('displayedData')[3].id, 1);
+
+    // Sort by int ascending
+    grid.sort('intValue', 'up');
+
+    equal(grid.get('displayedData')[0].id, 3);
+    equal(grid.get('displayedData')[1].id, 2);
+    equal(grid.get('displayedData')[2].id, 1);
+    equal(grid.get('displayedData')[3].id, 0);
+});
+
+test("Column sorting error handling", function() {
+
+     var grid = Cabernet.Datagrid.create({
+        data: [
+            {"id": 0, dateValue: "2012-01-01", amountValue: 200.00, textValue: "first", intValue: 99},
+            {"id": 1, dateValue: "2012-02-01", amountValue: 1000.00, textValue: "aaa", intValue: 80},
+            {"id": 2, dateValue: "2012-04-30", amountValue: 50.01, textValue: "test", intValue: 40},
+            {"id": 3, dateValue: "2012-07-01", amountValue: 50.00, textValue: "test too", intValue: 10}
+        ],
+
+        columns: ['id', 'dateValue', 'amountValue', 'textValue', 'intValue']
+    });
+   
+
+    // Sort by non existing column
+    raises(function() {
+            return grid.sort('unknownValue', 'down');
+        }, 
+        /column is undefined/, "error expected with message 'column is undefined'");   
+});
