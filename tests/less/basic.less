@@ -61,17 +61,20 @@ div.datagrid table {
             a.sortlink {
                 color: @darkBlue;
                 font-weight: 500;
+                display: block;
             }
-            &.headerSortUp {
-                background: url(../../images/sort.png) right bottom no-repeat;   
+            &.headerSortUp a.sortlink {
+                background: url(../../images/sort.png) no-repeat  right 5px transparent;
             }
             &.headerSortDown a.sortlink {              
-                background: url(../../images/sort.png) right top no-repeat;
+                background: url(../../images/sort.png) no-repeat  right -10px transparent;
             }
 
             div.filter {
                 float: right;
-                padding-left: 5px;
+                //padding-left: 5px;
+                display: inline-block;
+                padding: 0 10px;
             }
 
             a.filterlink {
@@ -90,6 +93,10 @@ div.datagrid table {
 
             a.filterlink.active {
                 background-position: center -32px;
+            }
+
+            &.columnpicker {
+                width: 20px;
             }
         }
     }

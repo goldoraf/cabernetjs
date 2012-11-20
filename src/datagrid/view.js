@@ -24,7 +24,7 @@ Cabernet.DatagridView = Ember.View.extend({
                             <a class="sortlink" {{action sort column.name target="controller"}}>{{column.label}}</a> \
                         </th> \
                     {{/each}} \
-                    <th>{{view Cabernet.DatagridColumnpicker columnsBinding="columnsForDisplay"}}</th> \
+                    <th class="columnpicker">{{view Cabernet.DatagridColumnpicker columnsBinding="columnsForDisplay"}}</th> \
                 </tr> \
             </thead> \
             <tbody /> \

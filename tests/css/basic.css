@@ -2801,16 +2801,18 @@ div.datagrid table thead th:first-child {
 div.datagrid table thead th a.sortlink {
   color: #00517e;
   font-weight: 500;
+  display: block;
 }
-div.datagrid table thead th.headerSortUp {
-  background: url(../../images/sort.png) right bottom no-repeat;
+div.datagrid table thead th.headerSortUp a.sortlink {
+  background: url(../../images/sort.png) no-repeat right 5px transparent;
 }
 div.datagrid table thead th.headerSortDown a.sortlink {
-  background: url(../../images/sort.png) right top no-repeat;
+  background: url(../../images/sort.png) no-repeat right -10px transparent;
 }
 div.datagrid table thead th div.filter {
   float: right;
-  padding-left: 5px;
+  display: inline-block;
+  padding: 0 10px;
 }
 div.datagrid table thead th a.filterlink {
   margin: 0;
@@ -2826,6 +2828,9 @@ div.datagrid table thead th a.filterlink:hover {
 }
 div.datagrid table thead th a.filterlink.active {
   background-position: center -32px;
+}
+div.datagrid table thead th.columnpicker {
+  width: 20px;
 }
 div.datagrid table td {
   padding: 5px;
