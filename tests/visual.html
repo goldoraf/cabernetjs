@@ -72,9 +72,11 @@
                     placements: ['right', 'below', 'above', 'left', 'below right', 'above right']
                 }),
                 TestPopoverView: Ember.View.extend({
-                    template: Ember.Handlebars.compile('{{#each placement in placements}} \
-                        {{placement}}{{view Cabernet.Popover placementBinding="placement" contentTemplate="<p>Lorem ipsum</p>"}} \
-                        {{/each}}')
+                    template: Ember.Handlebars.compile(
+                        '{{#each placement in placements}} \
+                            {{view Cabernet.Popover linkTextBinding="placement" placementBinding="placement" contentTemplate="<p>Lorem ipsum</p>"}} \
+                        {{/each}}'
+                    )
                 }),
 
                 Router: Ember.Router.extend({

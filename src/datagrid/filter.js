@@ -25,7 +25,7 @@ Cabernet.DatagridFilter = Ember.Object.extend({
 
     applied: function() {
         return !Ember.empty(this.get('value'));
-    }.property('value'),
+    }.property('value')
 });
 
 Cabernet.DatagridFilter.reopenClass({
@@ -68,7 +68,7 @@ Cabernet.DatagridPickFilter = Cabernet.DatagridFilter.extend({
     applied: function() {
         return Ember.isArray(this.get('value')) 
             && this.get('values').get('length') != this.get('value').get('length');
-    }.property('value'),
+    }.property('value')
 });
 
 Cabernet.DatagridRangeFilter = Cabernet.DatagridFilter.extend({
@@ -114,7 +114,7 @@ Cabernet.DatagridRangeFilter = Cabernet.DatagridFilter.extend({
 
     applied: function() {
         return this.get('selectedMin') != this.get('min') || this.get('selectedMax') != this.get('max');
-    }.property('value'),
+    }.property('value')
 });
 
 Cabernet.DatagridDaterangeFilter = Cabernet.DatagridFilter.extend({
@@ -140,5 +140,5 @@ Cabernet.DatagridDaterangeFilter = Cabernet.DatagridFilter.extend({
 
     applied: function() {
         return Ember.isArray(this.get('value'));
-    }.property('value'),
+    }.property('value')
 });
