@@ -17,7 +17,6 @@ div.datagrid-header {
   background-color: @activeTabColor;
   line-height: 18px;
   overflow:auto;
-
 }
 
 div.datagrid table {
@@ -140,6 +139,24 @@ div.datagrid div.columnpicker {
         
         background-position: top center;
         
+        &:hover {
+            background-position: bottom center;
+        }
+    }
+}
+
+div#clipboard-wrapper{
+    display: inline-block;
+    float: right;
+    margin: 0;
+    margin-top: 3px;
+      a#clipboard-button {
+        .iconLink(url(../../images/copyPaste.png));
+        height: 25px;
+        width: 27px;
+        margin-right: @space;
+        background-position: top center;
+        float: right;
         &:hover {
             background-position: bottom center;
         }

@@ -10,6 +10,7 @@ Cabernet.Datagrid = Ember.View.extend({
     template: Ember.Handlebars.compile(
         '   <div><div class="datagrid-header">\
                     {{view Cabernet.Datagrid.Columnpicker columnsBinding="columnsForDisplay"}}\
+                    <div id="clipboard-wrapper" style="position: relative" class="table-header-add-on"><a id="clipboard-button">Copy</a></div>\
                 </div>\
                 <div><table> \
                 <thead> \
@@ -50,6 +51,7 @@ Cabernet.Datagrid = Ember.View.extend({
     classNames: ['datagrid'],
     columnsClassNames: {},
     displayedData: [],
+    clipClient: null,
 
     columnsForDisplay: function() {
         return this.expandColumnsDefinition();
@@ -97,10 +99,23 @@ Cabernet.Datagrid = Ember.View.extend({
         this.addObserver('displayedData', function displayedDataChanged() {
             this.renderGrid();
         });
+
     },
 
     didInsertElement: function() {
         this.renderGrid();
+        var newClipClient = new ZeroClipboard.Client();
+        this.set("clipClient", newClipClient);
+        this.get("clipClient").setText( '' );
+        this.get("clipClient").setHandCursor( true );
+        this.get("clipClient").setCSSEffects( true );
+
+        var that = this;
+        this.get("clipClient").addEventListener( 'mouseDown', function(clipClient) {
+            that.copyToClipboard();
+        });
+
+        this.get("clipClient").glue('clipboard-button', 'clipboard-wrapper') ;
     },
 
     renderGrid: function() {
@@ -182,6 +197,32 @@ Cabernet.Datagrid = Ember.View.extend({
         if (direction === 'down') sorted.reverse();
         this.set('displayedData', sorted);
         if (this.shouldPersistParams()) this.persistSort(columnName, direction);
+    },
+
+    generateTSV: function() {
+        var contents = '';
+        var keys = [];
+        this.get('displayedColumns').forEach(function(column, index) {
+            keys.push(column.get('name'));
+        });
+
+        var datas = this.get('displayedData').toArray();
+        for (var rowIndex = 0; rowIndex < datas.length; rowIndex++) {
+            var row = datas[rowIndex];
+            var values = [];
+
+            this.get('displayedColumns').forEach(function(column, index) {
+                var item = Ember.get(row, column.get('name'));
+                values.push(item);
+            });
+            contents += values.join("\t") + "\r\n";
+        }
+        return keys.join("\t") + "\r\n" + contents;
+    },
+
+    copyToClipboard: function() {
+        var tsv = this.generateTSV();
+        this.get("clipClient").setText(tsv);
     },
 
     persistSort: function(columnName, direction) {

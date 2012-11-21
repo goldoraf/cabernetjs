@@ -1,74 +1,82 @@
 module("Datagrid tests", {
-    setup: function() {
+    setup:function () {
         window.Foo = Ember.Namespace.create();
 
         Foo.User = Syrah.Model.define({
-            login: String,
-            name: String
+            login:String,
+            name:String
         });
 
         sessionStorage.clear();
     }
 });
 
-test("Filter object creation from object (type text)", function() {
-    var filter = Cabernet.Datagrid.Filter.createFromOptions({ type: 'text' });
+test("Filter object creation from object (type text)", function () {
+    var filter = Cabernet.Datagrid.Filter.createFromOptions({ type:'text' });
     ok(filter instanceof Cabernet.Datagrid.TextFilter);
 });
 
-test("Filter object creation from object (type pick)", function() {
-   var filter = Cabernet.Datagrid.Filter.createFromOptions({ type: 'pick', column: 'usertype' }, [
-            { login: 'jdoe', usertype: 'admin' }, { login: 'jane', usertype: 'admin' },
-            { login: 'jack', usertype: 'user' }, { login: 'joe', usertype: 'root' }
-        ]
+test("Filter object creation from object (type pick)", function () {
+    var filter = Cabernet.Datagrid.Filter.createFromOptions({ type:'pick', column:'usertype' }, [
+        { login:'jdoe', usertype:'admin' },
+        { login:'jane', usertype:'admin' },
+        { login:'jack', usertype:'user' },
+        { login:'joe', usertype:'root' }
+    ]
     );
     ok(filter instanceof Cabernet.Datagrid.PickFilter);
 });
 
-test("Filter object creation from object (type range)", function() {
-    var filter = Cabernet.Datagrid.Filter.createFromOptions({ type: 'range', column: 'balance' }, [
-            { account: '123456', balance: 500 }, { account: '123456', balance: 1000 },
-            { account: '123456', balance: 100 }, { account: '123456', balance: 1200 }
-        ]
+test("Filter object creation from object (type range)", function () {
+    var filter = Cabernet.Datagrid.Filter.createFromOptions({ type:'range', column:'balance' }, [
+        { account:'123456', balance:500 },
+        { account:'123456', balance:1000 },
+        { account:'123456', balance:100 },
+        { account:'123456', balance:1200 }
+    ]
     );
     ok(filter instanceof Cabernet.Datagrid.RangeFilter);
 });
 
-test("Filter object creation from object (type daterange)", function() {
-    var filter = Cabernet.Datagrid.Filter.createFromOptions({ type: 'daterange' });
+test("Filter object creation from object (type daterange)", function () {
+    var filter = Cabernet.Datagrid.Filter.createFromOptions({ type:'daterange' });
     ok(filter instanceof Cabernet.Datagrid.DaterangeFilter);
 });
 
-test("PickFilter should derive its pickable values from the grid data", function() {
-    var filter = Cabernet.Datagrid.Filter.createFromOptions({ type: 'pick', column: 'usertype' }, [
-            { login: 'jdoe', usertype: 'admin' }, { login: 'jane', usertype: 'admin' },
-            { login: 'jack', usertype: 'user' }, { login: 'joe', usertype: 'root' }
-        ]
+test("PickFilter should derive its pickable values from the grid data", function () {
+    var filter = Cabernet.Datagrid.Filter.createFromOptions({ type:'pick', column:'usertype' }, [
+        { login:'jdoe', usertype:'admin' },
+        { login:'jane', usertype:'admin' },
+        { login:'jack', usertype:'user' },
+        { login:'joe', usertype:'root' }
+    ]
     );
     deepEqual(filter.get('values'), ['admin', 'user', 'root']);
 });
 
-test("RangeFilter should derive various options from the grid data", function() {
-    var filter = Cabernet.Datagrid.Filter.createFromOptions({ type: 'range', column: 'balance' }, [
-            { account: '123456', balance: 500 }, { account: '123456', balance: 1000 },
-            { account: '123456', balance: 100 }, { account: '123456', balance: 1200 }
-        ]
+test("RangeFilter should derive various options from the grid data", function () {
+    var filter = Cabernet.Datagrid.Filter.createFromOptions({ type:'range', column:'balance' }, [
+        { account:'123456', balance:500 },
+        { account:'123456', balance:1000 },
+        { account:'123456', balance:100 },
+        { account:'123456', balance:1200 }
+    ]
     );
     equal(filter.get('min'), 100);
     equal(filter.get('max'), 1200);
     equal(filter.get('step'), 1);
 });
 
-test("Filters on columns", function() {
+test("Filters on columns", function () {
 
     var grid = Cabernet.Datagrid.create({
-        data: [],
-        columns: ['simpleByDefault',
-            { name: 'filterableByDefaultWithName'},
-            { name: 'filterableByText', filter: { type: 'text' } },
-            { name: 'filterableByRange', filter: { type: 'range' } },
-            { name: 'filterableByDateRange', filter: { type: 'daterange' } },
-            { name: 'filterableByPicker', filter: { type: 'pick' } } ]
+        data:[],
+        columns:['simpleByDefault',
+            { name:'filterableByDefaultWithName'},
+            { name:'filterableByText', filter:{ type:'text' } },
+            { name:'filterableByRange', filter:{ type:'range' } },
+            { name:'filterableByDateRange', filter:{ type:'daterange' } },
+            { name:'filterableByPicker', filter:{ type:'pick' } } ]
     });
     equal(grid.get('columnsForDisplay').get('length'), 6);
     equal(grid.get('filters').get('length'), 6);
@@ -80,41 +88,48 @@ test("Filters on columns", function() {
     ok(grid.get('columnsForDisplay')[4].filter instanceof Cabernet.Datagrid.DaterangeFilter); // Column filterableByDateRange
     ok(grid.get('columnsForDisplay')[5].filter instanceof Cabernet.Datagrid.PickFilter); // Column filterableByPicker
 
-    for(var i=0; i<grid.get('columnsForDisplay').get('length'); i++) {
+    for (var i = 0; i < grid.get('columnsForDisplay').get('length'); i++) {
         deepEqual(grid.get('filters')[i], grid.get('columnsForDisplay')[i].filter);
     }
 });
 
-test("No Filterable datas", function() {
+test("No Filterable datas", function () {
 
     var grid = Cabernet.Datagrid.create({
-        data: [],
-        columns: [{name: 'headerColumn', filterable: false} ]
+        data:[],
+        columns:[
+            {name:'headerColumn', filterable:false}
+        ]
     });
     equal(grid.get('columnsForDisplay').get('length'), 1);
-    
+
     equal(grid.get('filters').get('length'), 0); // No filter because of 'filterable: false' 
     ok(Ember.empty(grid.get('columnsForDisplay')[0].filter));
 });
 
-test("Filter datas by text", function() {
+test("Filter datas by text", function () {
 
     var grid = Cabernet.Datagrid.create({
-        data: [{"textColumn":"aa"},{"textColumn":"ab"},{"textColumn":"bb"},{"textColumn":"bc"}],
-        columns: ['textColumn']
+        data:[
+            {"textColumn":"aa"},
+            {"textColumn":"ab"},
+            {"textColumn":"bb"},
+            {"textColumn":"bc"}
+        ],
+        columns:['textColumn']
     });
     equal(grid.get('data').get('length'), 4);
     equal(grid.get('displayedData').get('length'), 4);
-    
+
     var filter = grid.get('filters')[0];
 
-    filter.set('value', 'a'); 
+    filter.set('value', 'a');
     equal(grid.get('data').get('length'), 4); // unchanged
     equal(grid.get('displayedData').get('length'), 2); // Only 'aa' and 'ab'
     equal(grid.get('displayedData')[0].textColumn, "aa");
     equal(grid.get('displayedData')[1].textColumn, "ab");
 
-    filter.set('value', 'aa'); 
+    filter.set('value', 'aa');
     equal(grid.get('displayedData').get('length'), 1); // Only 'aa'
     equal(grid.get('displayedData')[0].textColumn, "aa");
 
@@ -129,15 +144,22 @@ test("Filter datas by text", function() {
     equal(grid.get('displayedData')[1].textColumn, "bc");
 });
 
-test("Filter datas by picker(enumerated values)", function() {
+test("Filter datas by picker(enumerated values)", function () {
 
     var grid = Cabernet.Datagrid.create({
-        data: [{"pickColumn":"A"},{"pickColumn":"B"},{"pickColumn":"A"},{"pickColumn":"C"}],
-        columns: [{ name: 'pickColumn', filter: { type: 'pick' }}]
+        data:[
+            {"pickColumn":"A"},
+            {"pickColumn":"B"},
+            {"pickColumn":"A"},
+            {"pickColumn":"C"}
+        ],
+        columns:[
+            { name:'pickColumn', filter:{ type:'pick' }}
+        ]
     });
     equal(grid.get('data').get('length'), 4);
     equal(grid.get('displayedData').get('length'), 4);
-    
+
     var filter = grid.get('filters')[0];
     var filterValues = filter.get('values');
     equal(filterValues.get('length'), 3);
@@ -146,72 +168,83 @@ test("Filter datas by picker(enumerated values)", function() {
     ok(filterValues.contains("C"));
 
     // Filtering
-    filter.set('value', ['A']); 
+    filter.set('value', ['A']);
     equal(grid.get('data').get('length'), 4); // unchanged
-    equal(grid.get('displayedData').get('length'), 2); 
+    equal(grid.get('displayedData').get('length'), 2);
     equal(grid.get('displayedData')[0].pickColumn, "A");
     equal(grid.get('displayedData')[1].pickColumn, "A");
-    
-    filter.set('value', ['A', 'B']); 
-    equal(grid.get('displayedData').get('length'), 3); 
+
+    filter.set('value', ['A', 'B']);
+    equal(grid.get('displayedData').get('length'), 3);
     equal(grid.get('displayedData')[0].pickColumn, "A");
     equal(grid.get('displayedData')[1].pickColumn, "B");
     equal(grid.get('displayedData')[2].pickColumn, "A");
 
     // Filter by different value (possible ?)
-    filter.set('value', ['D']); 
+    filter.set('value', ['D']);
     equal(grid.get('displayedData').get('length'), 0);
 });
 
-test("Filter datas by range", function() {
+test("Filter datas by range", function () {
 
     var grid = Cabernet.Datagrid.create({
-        data: [{"rangeColumn":1},{"rangeColumn":"2"},{"rangeColumn":"3"},{"rangeColumn":"4"}],
-        columns: [{ name: 'rangeColumn', filter: { type: 'range' }}]
+        data:[
+            {"rangeColumn":1},
+            {"rangeColumn":"2"},
+            {"rangeColumn":"3"},
+            {"rangeColumn":"4"}
+        ],
+        columns:[
+            { name:'rangeColumn', filter:{ type:'range' }}
+        ]
     });
     equal(grid.get('data').get('length'), 4);
     equal(grid.get('displayedData').get('length'), 4);
-    
+
     var filter = grid.get('filters')[0];
 
     // Filter by min and max
-    filter.set('value', ['2', '3']); 
+    filter.set('value', ['2', '3']);
     equal(grid.get('data').get('length'), 4); // unchanged
     equal(grid.get('displayedData').get('length'), 2); // Only '2' and '3'
     equal(grid.get('displayedData')[0].rangeColumn, "2");
     equal(grid.get('displayedData')[1].rangeColumn, "3");
 
     // Filter by min only
-    filter.set('value', ['2', null]); 
+    filter.set('value', ['2', null]);
     equal(grid.get('displayedData').get('length'), 3); // '2', '3' and '4'
     equal(grid.get('displayedData')[0].rangeColumn, "2");
     equal(grid.get('displayedData')[1].rangeColumn, "3");
     equal(grid.get('displayedData')[2].rangeColumn, "4");
 
     // Filter by max only
-    filter.set('value', [null, '3']); 
+    filter.set('value', [null, '3']);
     equal(grid.get('displayedData').get('length'), 3); // '1', '2' and '3'
     equal(grid.get('displayedData')[0].rangeColumn, "1");
     equal(grid.get('displayedData')[1].rangeColumn, "2");
     equal(grid.get('displayedData')[2].rangeColumn, "3");
 });
 
-test("Filter datas by daterange", function() {
+test("Filter datas by daterange", function () {
 
     var grid = Cabernet.Datagrid.create({
-        data: [ {"daterangeColumn": "2012-01-01"},
-                {"daterangeColumn": "2012-02-01"},
-                {"daterangeColumn": "2012-04-30"},
-                {"daterangeColumn": "2012-07-01"}],
-        columns: [{ name: 'daterangeColumn', filter: { type: 'daterange' }}]
+        data:[
+            {"daterangeColumn":"2012-01-01"},
+            {"daterangeColumn":"2012-02-01"},
+            {"daterangeColumn":"2012-04-30"},
+            {"daterangeColumn":"2012-07-01"}
+        ],
+        columns:[
+            { name:'daterangeColumn', filter:{ type:'daterange' }}
+        ]
     });
     equal(grid.get('data').get('length'), 4);
     equal(grid.get('displayedData').get('length'), 4);
-    
+
     var filter = grid.get('filters')[0];
 
     // Filter by min and max date values
-    filter.set('value', ["2012-01-01", "2012-06-01"]); 
+    filter.set('value', ["2012-01-01", "2012-06-01"]);
     equal(grid.get('data').get('length'), 4); // unchanged
     equal(grid.get('displayedData').get('length'), 3);
     equal(grid.get('displayedData')[0].daterangeColumn, "2012-01-01");
@@ -219,28 +252,28 @@ test("Filter datas by daterange", function() {
     equal(grid.get('displayedData')[2].daterangeColumn, "2012-04-30");
 
     // Filter by min date value
-    filter.set('value', ["2012-03-01", null]); 
+    filter.set('value', ["2012-03-01", null]);
     equal(grid.get('displayedData').get('length'), 2);
     equal(grid.get('displayedData')[0].daterangeColumn, "2012-04-30");
     equal(grid.get('displayedData')[1].daterangeColumn, "2012-07-01");
 
     // Filter by max date value
-    filter.set('value', [null, "2012-03-01"]); 
+    filter.set('value', [null, "2012-03-01"]);
     equal(grid.get('displayedData').get('length'), 2);
     equal(grid.get('displayedData')[0].daterangeColumn, "2012-01-01");
     equal(grid.get('displayedData')[1].daterangeColumn, "2012-02-01");
-        
+
 });
 
-test("Display/hide standard columns", function() {
+test("Display/hide standard columns", function () {
 
     var grid = Cabernet.Datagrid.create({
-        data: [],
-        columns: ['First', 'Second', 'Third']
+        data:[],
+        columns:['First', 'Second', 'Third']
     });
     equal(grid.get('columnsForDisplay').get('length'), 3);
     equal(grid.get('displayedColumns').get('length'), 3);
-   
+
     //Hide 2 columns
     grid.get('columnsForDisplay')[0].set('displayed', false);
     grid.get('columnsForDisplay')[2].set('displayed', false);
@@ -251,17 +284,17 @@ test("Display/hide standard columns", function() {
     equal(grid.get('displayedColumns').get('length'), 2);
 });
 
-test("Try to display/hide non hideable columns", function() {
+test("Try to display/hide non hideable columns", function () {
 
     var grid = Cabernet.Datagrid.create({
-        data: [],
-        columns: [  'First', 
-                    {name: 'Second', hideable: false}, 
-                    'Third']
+        data:[],
+        columns:[  'First',
+            {name:'Second', hideable:false},
+            'Third']
     });
     equal(grid.get('columnsForDisplay').get('length'), 3);
     equal(grid.get('displayedColumns').get('length'), 3);
-   
+
     // Hide non hideable column
     grid.get('columnsForDisplay')[1].set('displayed', false); // Useless
     equal(grid.get('displayedColumns').get('length'), 3);
@@ -271,19 +304,19 @@ test("Try to display/hide non hideable columns", function() {
     equal(grid.get('displayedColumns').get('length'), 2);
 });
 
-test("Column sorting for main datatypes", function() {
+test("Column sorting for main datatypes", function () {
 
-     var grid = Cabernet.Datagrid.create({
-        data: [
-            {"id": 0, dateValue: "2012-01-01", amountValue: 200.00, textValue: "first", intValue: 99},
-            {"id": 1, dateValue: "2012-02-01", amountValue: 1000.00, textValue: "aaa", intValue: 80},
-            {"id": 2, dateValue: "2012-04-30", amountValue: 50.01, textValue: "test", intValue: 40},
-            {"id": 3, dateValue: "2012-07-01", amountValue: 50.00, textValue: "test too", intValue: 10}
+    var grid = Cabernet.Datagrid.create({
+        data:[
+            {"id":0, dateValue:"2012-01-01", amountValue:200.00, textValue:"first", intValue:99},
+            {"id":1, dateValue:"2012-02-01", amountValue:1000.00, textValue:"aaa", intValue:80},
+            {"id":2, dateValue:"2012-04-30", amountValue:50.01, textValue:"test", intValue:40},
+            {"id":3, dateValue:"2012-07-01", amountValue:50.00, textValue:"test too", intValue:10}
         ],
 
-        columns: ['id', 'dateValue', 'amountValue', 'textValue', 'intValue']
+        columns:['id', 'dateValue', 'amountValue', 'textValue', 'intValue']
     });
-   
+
 
     // Sort by date descending
     grid.sort('dateValue', 'down');
@@ -318,23 +351,50 @@ test("Column sorting for main datatypes", function() {
     equal(grid.get('displayedData')[3].id, 0);
 });
 
-test("Column sorting error handling", function() {
+test("Column sorting error handling", function () {
 
-     var grid = Cabernet.Datagrid.create({
-        data: [
-            {"id": 0, dateValue: "2012-01-01", amountValue: 200.00, textValue: "first", intValue: 99},
-            {"id": 1, dateValue: "2012-02-01", amountValue: 1000.00, textValue: "aaa", intValue: 80},
-            {"id": 2, dateValue: "2012-04-30", amountValue: 50.01, textValue: "test", intValue: 40},
-            {"id": 3, dateValue: "2012-07-01", amountValue: 50.00, textValue: "test too", intValue: 10}
+    var grid = Cabernet.Datagrid.create({
+        data:[
+            {"id":0, dateValue:"2012-01-01", amountValue:200.00, textValue:"first", intValue:99},
+            {"id":1, dateValue:"2012-02-01", amountValue:1000.00, textValue:"aaa", intValue:80},
+            {"id":2, dateValue:"2012-04-30", amountValue:50.01, textValue:"test", intValue:40},
+            {"id":3, dateValue:"2012-07-01", amountValue:50.00, textValue:"test too", intValue:10}
         ],
 
-        columns: ['id', 'dateValue', 'amountValue', 'textValue', 'intValue']
+        columns:['id', 'dateValue', 'amountValue', 'textValue', 'intValue']
     });
-   
+
 
     // Sort by non existing column
-    raises(function() {
+    raises(function () {
             return grid.sort('unknownValue', 'down');
-        }, 
-        /column is undefined/, "error expected with message 'column is undefined'");   
+        },
+        /column is undefined/, "error expected with message 'column is undefined'");
+});
+
+
+test("Copy grid content to TSV", function () {
+
+    var grid = Cabernet.Datagrid.create({
+        data:[
+            {"id":0, dateValue:"2012-01-01", amountValue:200.00, textValue:"first", intValue:99},
+            {"id":1, dateValue:"2012-02-01", amountValue:1000.00, textValue:"aaa", intValue:80},
+            {"id":2, dateValue:"2012-04-30", amountValue:50.01, textValue:"test", intValue:40},
+            {"id":3, dateValue:"2012-07-01", amountValue:50.00, textValue:"test too", intValue:10}
+        ],
+
+        columns:['id', 'dateValue', 'amountValue', 'textValue', 'intValue']
+    });
+
+
+    // Sort by date descending
+    var content = grid.generateTSV();
+    var expectedContent =
+        "id\tdateValue\tamountValue\ttextValue\tintValue\r\n"
+            + "0\t2012-01-01\t200\tfirst\t99\r\n"
+            + "1\t2012-02-01\t1000\taaa\t80\r\n"
+            + "2\t2012-04-30\t50.01\ttest\t40\r\n"
+            + "3\t2012-07-01\t50\ttest too\t10\r\n";
+
+    equal(content, expectedContent);
 });

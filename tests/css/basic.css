@@ -2738,7 +2738,7 @@ html body textarea {
 .bold {
   font-weight: bold;
 }
-div.table-header {
+div.datagrid-header {
   margin: 0;
   padding: 10px;
   -webkit-border-radius: 0;
@@ -2864,6 +2864,29 @@ div.datagrid div.columnpicker a.toggle {
   background-position: top center;
 }
 div.datagrid div.columnpicker a.toggle:hover {
+  background-position: bottom center;
+}
+div#clipboard-wrapper {
+  display: inline-block;
+  float: right;
+  margin: 0;
+  margin-top: 3px;
+}
+div#clipboard-wrapper a#clipboard-button {
+  text-indent: -5000px;
+  display: inline-block;
+  width: 20px;
+  outline: none;
+  background-image: url(../../images/copyPaste.png);
+  background-repeat: no-repeat;
+  background-position: center center;
+  height: 25px;
+  width: 27px;
+  margin-right: 10px;
+  background-position: top center;
+  float: right;
+}
+div#clipboard-wrapper a#clipboard-button:hover {
   background-position: bottom center;
 }
 div.filterbar {
