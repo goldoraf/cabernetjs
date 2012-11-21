@@ -43,4 +43,11 @@ task :test, [:suite] => :dist do |t, args|
   end
 end
 
+desc "Copy file to repo"
+task :publish do
+  FileList['dist/*'].each do |file|
+      cp file, target = ENV['LOCAL_REPOSITORY']+'/cabernet/latest', :verbose => true
+  end
+end
+
 task :default => :test
