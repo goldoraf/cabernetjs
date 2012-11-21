@@ -23,6 +23,11 @@
         <ol id="qunit-tests"></ol>
         
         <script type="text/javascript">
+            if (location.hash === '#testem')
+                document.write('<script src="/testem.js"></'+'script>')
+        </script>
+
+        <script type="text/javascript">
 
             // hack qunit to not suck for Ember objects
             var originalTypeof = QUnit.jsDump.typeOf;
@@ -39,8 +44,9 @@
               return obj.toString();
             }
         </script>
-         
+          
         <script src="../dist/cabernet.js"></script>
-        <script src="../dist/cabernet-tests.js"></script>
+        
+        <script src="src/datagrid_test.js"></script>
     </body>
 </html>
