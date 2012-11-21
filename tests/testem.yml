@@ -4,6 +4,6 @@ launch_in_dev:
 - Firefox
 launch_in_ci:
 - Firefox
-- IE8
+#- IE8
 - Chrome
 test_page: tests/index.html
