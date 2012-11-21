@@ -29,7 +29,7 @@ task :test, [:suite] => :dist do |t, args|
     abort "PhantomJS is not installed. Download from http://phantomjs.org"
   end
 
-  cmd = "phantomjs tests/vendor/qunit/run-qunit.js \"file://localhost#{File.dirname(__FILE__)}/tests/index.html\""
+  cmd = "phantomjs tests/vendor/qunit/run-qunit.js \"file://localhost#{File.dirname(__FILE__)}/tests/index.html\" > tests/test-result.tap"
 
   # Run the tests
   puts "Running tests"
