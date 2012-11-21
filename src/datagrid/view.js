@@ -56,7 +56,7 @@ Cabernet.DatagridView = Ember.View.extend({
                 html.push('<td'+css+(index === (columnCount - 1) ? ' colspan="2">' : '>')+inner+'</td>');
         }, this);
         
-        return Handlebars.compile('<tbody>{{#list data}}<tr>'+html.join('')+'</tr>{{/list}}</tbody>');
+        return Cabernet.Handlebars.compile('<tbody>{{#list data}}<tr>'+html.join('')+'</tr>{{/list}}</tbody>');
     }.property('controller.displayedColumns').cacheable()
 });
 
