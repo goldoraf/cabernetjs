@@ -25,6 +25,8 @@ Cabernet.DatagridView = Ember.View.extend({
     },
 
     renderGrid: function() {
+        Cabernet.log('DG renderGrid');
+        
         var data = this.get('controller').get('displayedData');
         if (data.get('length') === 0) {
             this.$('tbody').replaceWith(this.get('emptyTemplate')({ 
@@ -126,10 +128,11 @@ Cabernet.DatagridPickFilterView = Cabernet.DatagridFilterView.extend({
                       </ul>',
 
     distinctValues: function() {
-        var distinct = [];
+        var checked, distinct = [];
         this.get('filter').get('values').forEach(function(v) { 
-            distinct.pushObject(Ember.Object.create({ value: v, checked: true })); 
-        });
+            checked = !Ember.isArray(this.get('filter').get('value')) || this.get('filter').get('value').contains(v);
+            distinct.pushObject(Ember.Object.create({ value: v, checked: checked })); 
+        }, this);
         return distinct;
     }.property('filter.values'),
 
@@ -144,17 +147,21 @@ Cabernet.DatagridPickFilterView = Cabernet.DatagridFilterView.extend({
 Cabernet.DatagridRangeFilterView = Cabernet.DatagridFilterView.extend({
     contentTemplate: '<p>From {{view.filter.selectedMin}} to {{view.filter.selectedMax}}</p><div class="slider-range"></div>',
 
-    applyFilter: function(value) {
-        this.get('filter').set('value', value);
-    },
-
     didInsertElement: function() {
-        var that = this;
+        var initialValues, that = this;
+
+        if (Ember.isArray(this.get('filter').get('value'))) {
+            var filterValue = this.get('filter').get('value');
+            initialValues = [filterValue[0], filterValue[1]];
+        } else {
+            initialValues = [this.get('filter').get('min'), this.get('filter').get('max')];
+        }
+
         this.$('div.slider-range').slider({
             range: true,
             min: this.get('filter').get('min'),
             max: this.get('filter').get('max'),
-            values: [this.get('filter').get('min'), this.get('filter').get('max')],
+            values: initialValues,
             step: this.get('filter').get('step'),
             slide: function(event, ui) {
                 that.get('filter').set('value', ui.values);

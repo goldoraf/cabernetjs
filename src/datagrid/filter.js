@@ -41,7 +41,6 @@ Cabernet.DatagridPickFilter = Cabernet.DatagridFilter.extend({
     }.property('controller.data'),
 
     apply: function(data) {
-        var value;
         return data.filter(function(item) {
             return this.get('value').contains(this.getValueFor(item));
         }, this);
@@ -93,7 +92,7 @@ Cabernet.DatagridRangeFilter = Cabernet.DatagridFilter.extend({
 
     applied: function() {
         return this.get('selectedMin') != this.get('min') || this.get('selectedMax') != this.get('max');
-    }.property('value')
+    }.property('value').volatile()
 });
 
 Cabernet.DatagridDaterangeFilter = Cabernet.DatagridFilter.extend({

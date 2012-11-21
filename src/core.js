@@ -2,6 +2,12 @@ window.Cabernet = Ember.Namespace.create({
   CURRENT_API_REVISION: 1
 });
 
+Cabernet.LOG_ENABLED = true;
+
+Cabernet.log = function(message) {
+  if (Cabernet.LOG_ENABLED) Ember.Logger.info(message);
+}
+
 Handlebars.registerHelper('list', function(context, options) {
   var fn = options.fn;
   var ret = "";
@@ -14,7 +20,6 @@ Handlebars.registerHelper('list', function(context, options) {
   return ret;
 });
 
-Ember.ENV.RAISE_ON_DEPRECATION = false;
 if (Em.I18n !== undefined) {
     Cabernet.translate = Em.I18n.t;
 } else {

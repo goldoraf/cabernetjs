@@ -12,9 +12,11 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
     }.observes('data'),
 
     contentChanged: function() {
+        Cabernet.log('DG controller content changed');
         if (!Ember.none(this.get('content')) && this.get('content').data !== undefined) {
             this.set('data', this.get('content').data);
-            this.set('displayedData', this.get('content').data);
+            this.set('displayedData', this.get('data'));
+            this.applyFilters();
         }
     }.observes('content'),
 
@@ -31,6 +33,7 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
     }.property('columnsForDisplay.@each.displayed'),
 
     displayedColumnsChanged: function() {
+        Cabernet.log('DG displayed columns changed');
         this.saveParam('displayedColumns', this.get('displayedColumns').mapProperty('name'));
     }.observes('displayedColumns'),
 
@@ -48,7 +51,7 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
 
     appliedFiltersChanged: function() {
         this.applyFilters();
-        //if (this.shouldPersistParams()) this.persistFilters();
+        if (this.shouldPersistParams()) this.persistFilters();
     }.observes('appliedFilters.@each'),
 
     init: function() {
@@ -61,6 +64,7 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
             if (!Ember.none(persistedSort)) this.set('defaultSort', persistedSort);
         }
         this.applyDefaultSort();
+        this.applyFilters();
     },
 
     sort: function(columnName, direction) {
@@ -90,6 +94,8 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
     },
 
     applyFilters: function() {
+        Cabernet.log('DG applying filters');
+
         var data = this.get('data');
         this.get('appliedFilters').forEach(function(filter) {
             data = filter.apply(data);
@@ -110,6 +116,14 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
 
     persistSort: function(columnName, direction) {
         this.saveParam('sort', (direction == 'down') ? '-'+columnName : columnName);
+    },
+
+    persistFilters: function() {
+        var data = [];
+        this.get('appliedFilters').forEach(function(filter) {
+            data.push({ column: filter.get('column'), value: filter.get('value') });
+        });
+        this.saveParam('filters', data);
     },
 
     saveParam: function(key, data) {
@@ -135,12 +149,17 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
         }
 
         var col, cols = [], data = this.get('data'), colsDef = this.get('columns'),
-            previouslyDisplayed = this.shouldPersistParams() ? this.retrieveParam('displayedColumns') : null;
+            previouslyDisplayed = this.shouldPersistParams() ? this.retrieveParam('displayedColumns') : null,
+            appliedFilters  = this.shouldPersistParams() ? this.retrieveParam('filters') : null,
+            previouslyFiltered = !Ember.none(appliedFilters) ? appliedFilters.mapProperty('column') : null;
         
         colsDef.forEach(function(column) {
             col = Cabernet.DatagridColumn.createFromOptions(column, this);
             if (!Ember.none(previouslyDisplayed) && !previouslyDisplayed.contains(col.get('name'))) {
                 col.set('displayed', false);
+            }
+            if (!Ember.none(previouslyFiltered) && previouslyFiltered.contains(col.get('name'))) {
+                col.get('filter').set('value', appliedFilters.findProperty('column', col.get('name')).value);
             }
             cols.pushObject(col);
         }, this);
