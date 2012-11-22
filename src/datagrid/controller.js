@@ -17,10 +17,12 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
     emptyText: 'No results found',
     sessionBucket: null,
 
+    copyAllEnabled: true,
+
     dataChanged: function() {
         // does nothing, but avoids duplicate 'controllerDataChanged' on filters...
         this.get('data').forEach(function(obj) {
-            obj.set("guid", guid());
+            obj instanceof Ember.Object ? obj.set("guid", guid()) : obj.guid = guid();
         });
     }.observes('data'),
 
@@ -170,6 +172,23 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
 
     shouldPersistParams: function() {
         return !Ember.none(this.get('sessionBucket'));
+    },
+
+    generateTSV: function() {
+        var row, rowIndex, values, contents = '',
+            data = this.get('displayedData').toArray(),
+            keys = this.get('displayedColumns').mapProperty('name');
+
+        for (rowIndex = 0; rowIndex < data.length; rowIndex++) {
+            row = data[rowIndex];
+            values = [];
+
+            keys.forEach(function(column) {
+                values.push(row instanceof Ember.Object ? row.get(column) : row[column]);
+            });
+            contents += values.join("\t") + "\r\n";
+        }
+        return keys.join("\t") + "\r\n" + contents;
     },
 
     expandColumnsDefinition: function() {

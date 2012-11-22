@@ -2738,24 +2738,6 @@ html body textarea {
 .bold {
   font-weight: bold;
 }
-div.datagrid div.datagrid-header {
-  margin: 0;
-  padding: 10px;
-  -webkit-border-radius: 0;
-  -moz-border-radius: 0;
-  border-radius: 0;
-  border: 1px solid #b5d2e3;
-  border-bottom: none;
-  background-color: #d7e7f0;
-  line-height: 18px;
-}
-div.datagrid div.datagrid-header form {
-  margin: 0;
-}
-div.datagrid div.datagrid-header form .input,
-div.datagrid div.datagrid-header form .input-append {
-  margin-left: 220px;
-}
 div.datagrid table {
   width: 100%;
   border-collapse: separate;
@@ -2829,7 +2811,7 @@ div.datagrid table thead th a.filterlink:hover {
 div.datagrid table thead th a.filterlink.active {
   background-position: center -32px;
 }
-div.datagrid table thead th.columnpicker {
+div.datagrid table thead th.options {
   width: 20px;
 }
 div.datagrid table td {
@@ -2870,13 +2852,13 @@ div.datagrid table tbody tr:hover td {
 div.datagrid table tr:last-child td {
   border-bottom-width: 0px;
 }
-div.datagrid div.columnpicker {
+div.datagrid div.options {
   display: inline-block;
   float: right;
   margin: 0;
   margin-top: 3px;
 }
-div.datagrid div.columnpicker a.toggle {
+div.datagrid div.options a.toggle {
   text-indent: -5000px;
   display: inline-block;
   width: 20px;
@@ -2889,7 +2871,7 @@ div.datagrid div.columnpicker a.toggle {
   margin: 0;
   background-position: top center;
 }
-div.datagrid div.columnpicker a.toggle:hover {
+div.datagrid div.options a.toggle:hover {
   background-position: bottom center;
 }
 div.filterbar {

@@ -1,4 +1,4 @@
-/** !!!!! view.js dépend de jquery.editableCell.js !!!!! */
+/** !!!!! view.js depends on jquery.editableCell.js !!!!! */
 
 Cabernet.DatagridView = Ember.View.extend({
     classNames: ['datagrid'],
@@ -9,7 +9,7 @@ Cabernet.DatagridView = Ember.View.extend({
                     {{#each column in displayedColumns}} \
                         {{view Cabernet.DatagridHeaderView columnBinding="column"}} \
                     {{/each}} \
-                    <th class="columnpicker">{{view Cabernet.DatagridColumnpicker columnsBinding="columnsForDisplay"}}</th> \
+                    <th class="options">{{view Cabernet.DatagridOptionsView}}</th> \
                 </tr> \
             </thead> \
             <tbody /> \
@@ -227,12 +227,41 @@ Cabernet.DatagridDaterangeFilterView = Cabernet.DatagridFilterView.extend({
     }
 });
 
-Cabernet.DatagridColumnpicker = Cabernet.Popover.extend({
-    classNames: ['columnpicker'],
+Cabernet.DatagridOptionsView = Cabernet.Popover.extend({
+    classNames: ['options'],
     placement: 'below left',
-    linkTemplate: '<a class="toggle" {{action "toggle" target="view"}}>Select columns</a>',
-    contentTemplate: '{{view Ember.CollectionView tagName="ul" class="inputs-list" \
-                        itemViewClass="Cabernet.DatagridColumnpickerElement" contentBinding="view.columns"}}'
+    linkTemplate: '<a class="toggle" {{action "toggle" target="view"}}>Options</a>',
+    contentTemplate: '{{#if copyAllEnabled}} \
+                        <div id="clipboard-wrapper" style="position:relative"> \
+                            <div id="clipboard-button">Copy to Clipboard</div> \
+                        </div> \
+                      {{/if}} \
+                      {{view Ember.CollectionView tagName="ul" class="inputs-list" \
+                        itemViewClass="Cabernet.DatagridColumnpickerElement" contentBinding="columnsForDisplay"}}',
+
+    didInsertElement: function() {
+        if (this.get('controller').get('copyAllEnabled')) {
+            var clipClient = new ZeroClipboard.Client();
+            clipClient.setText('');
+            clipClient.setHandCursor(true);
+            clipClient.setCSSEffects(true);
+            clipClient.glued = false;
+
+            this.set('clipClient', clipClient);
+
+            var that = this;
+            this.get('clipClient').addEventListener('mouseDown', function(client) {
+                that.get('clipClient').setText(that.get('controller').generateTSV());
+            });
+        }
+    },
+
+    toggle: function(e) {
+        this._super(e);
+        var popover = this.$('div.popover'),
+            clipClient = this.get('clipClient');
+        if (popover.is(':visible') && !clipClient.glued) clipClient.glue('clipboard-button', 'clipboard-wrapper');
+    }
 });
 
 Cabernet.DatagridColumnpickerElement = Ember.View.extend({
