@@ -2846,6 +2846,24 @@ div.datagrid table td.datagrid-empty {
   font-weight: bold;
   text-align: center;
 }
+div.datagrid table td.edit.error {
+  border-color: red;
+}
+div.datagrid table td.edit {
+  padding: 0px;
+  border: 1px solid blue;
+}
+div.datagrid table td.edit textarea,
+div.datagrid table td.edit.error textarea {
+  padding: 0;
+  height: 24px;
+  width: 100%;
+  border: none;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  padding-top: 5px;
+  text-indent: 5px;
+}
 div.datagrid table tbody tr:hover td {
   background: #e6e6e6;
 }

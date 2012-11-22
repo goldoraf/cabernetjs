@@ -115,6 +115,26 @@ div.datagrid table {
             font-weight: bold;
             text-align: center;
         }
+        
+        &.edit.error {
+            border-color: red;
+        }
+        
+        &.edit {
+            padding: 0px;
+            border: 1px solid blue;
+        }
+        &.edit textarea,
+        &.edit.error textarea {
+            padding: 0;
+            height: 24px;
+            width: 100%;
+            border: none;
+            -moz-border-radius: 0;
+            -webkit-border-radius: 0;
+            padding-top: 5px;
+            text-indent: 5px;
+        }
     }
     
     tbody tr {

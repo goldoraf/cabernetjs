@@ -1,3 +1,13 @@
+//Generate four random hex digits.
+function S4() {
+   return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+};
+
+// Generate a pseudo-GUID by concatenating random hexadecimal.
+function guid() {
+   return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+};
+
 Cabernet.DatagridController = Ember.ObjectController.extend({
 	data: [],
     displayedData: [],
@@ -9,6 +19,9 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
 
     dataChanged: function() {
         // does nothing, but avoids duplicate 'controllerDataChanged' on filters...
+        this.get('data').forEach(function(obj) {
+            obj.set("guid", guid());
+        });
     }.observes('data'),
 
     contentChanged: function() {
@@ -57,6 +70,10 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
     init: function() {
         this._super();
 
+        this.get('data').forEach(function(obj) {
+            obj.set("guid", guid());
+        });
+
         this.set('displayedData', this.get('data'));
 
         if (this.shouldPersistParams()) {
@@ -65,6 +82,19 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
         }
         this.applyDefaultSort();
         this.applyFilters();
+        
+        $(document).on("saveCell", "td.editable", $.proxy(function(e, oldValue, newValue) {
+            var $cell = $(e.target);
+            if (newValue === "toto") {
+                e.stopImmediatePropagation();
+                $cell.addClass("error");
+                return;
+            }
+            var propertyName = $cell.attr("id");
+            var guid = $cell.parents("tr").attr("id");
+            var object = this.get("data").findProperty("guid", guid);
+            object.set(propertyName, newValue);
+        }, this));
     },
 
     sort: function(columnName, direction) {

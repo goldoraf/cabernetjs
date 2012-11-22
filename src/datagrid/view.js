@@ -1,3 +1,5 @@
+/** !!!!! view.js dépend de jquery.editableCell.js !!!!! */
+
 Cabernet.DatagridView = Ember.View.extend({
     classNames: ['datagrid'],
     template: Ember.Handlebars.compile(
@@ -35,9 +37,19 @@ Cabernet.DatagridView = Ember.View.extend({
             }));
         } else {
             this.$('tbody').replaceWith(this.get('gridTemplate')({ data: data }));
+            
+            this.$('tbody').editableCell({
+                cellSelector: "td.editable"
+            });
+            
+            // Fix column width
+            this.$("tbody").first("tr").find("td").each(function(id, td) {
+                var width = $(td).width();
+                $(td).width(width);
+            });
         }
     },
-
+  
     emptyTemplate: function() {
         return Handlebars.compile('<tbody><tr><td class="datagrid-empty" colspan="{{columnCount}}">{{emptyText}}</td></tr></tbody>');
     }.property(),
@@ -53,7 +65,7 @@ Cabernet.DatagridView = Ember.View.extend({
                 ? ' class="' + (Ember.isArray(col.get('classNames')) ? col.get('classNames').join(' ') : col.get('classNames')) + '"' 
                 : '';
             if (col.get('displayed') === true || col.get('hideable') === false) 
-                html.push('<td'+css+(index === (columnCount - 1) ? ' colspan="2">' : '>')+inner+'</td>');
+                html.push('<td id="'+ col.name + '" class="editable"' + (index === (columnCount - 1) ? ' colspan="2">' : '>')+inner+'</td>');
         }, this);
         
         return Cabernet.Handlebars.compile('<tbody>{{#list data}}<tr>'+html.join('')+'</tr>{{/list}}</tbody>');
