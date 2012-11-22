@@ -176,7 +176,9 @@ Cabernet.DatagridDaterangeFilterView = Cabernet.DatagridFilterView.extend({
 
     didInsertElement: function() {
         var minDateInput = this.$('input.min-date'),
-            maxDateInput = this.$('input.max-date');
+            maxDateInput = this.$('input.max-date'),
+            initialValue = this.get('filter').get('value');
+        
         minDateInput.datepicker({
             defaultDate: "+1w",
             changeMonth: true,
@@ -187,6 +189,9 @@ Cabernet.DatagridDaterangeFilterView = Cabernet.DatagridFilterView.extend({
                 maxDateInput.datepicker("option", "minDate", selectedDate);
             }
         });
+        if (Ember.isArray(initialValue) && !Ember.empty(initialValue[0])) {
+            minDateInput.datepicker("option", "defaultDate", initialValue[0]);
+        }
         maxDateInput.datepicker({
             defaultDate: "+1w",
             changeMonth: true,
@@ -197,6 +202,16 @@ Cabernet.DatagridDaterangeFilterView = Cabernet.DatagridFilterView.extend({
                 minDateInput.datepicker("option", "maxDate", selectedDate);
             }
         });
+        if (Ember.isArray(initialValue) && !Ember.empty(initialValue[1])) {
+            maxDateInput.datepicker("option", "defaultDate", initialValue[1]);
+        }
+        if (Ember.isArray(initialValue)) {
+            // TODO : this is not optimal (at all). It causes multiple rerendering of the grid...
+            this.get('filter').beginPropertyChanges();
+            this.get('filter').set('selectedMin', initialValue[0]);
+            this.get('filter').set('selectedMax', initialValue[1]);
+            this.get('filter').endPropertyChanges();
+        }
     }
 });
 
