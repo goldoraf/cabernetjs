@@ -1,3 +1,5 @@
+/** !!!!! view.js dépend de jquery.editableCell.js !!!!! */
+
 Cabernet.DatagridView = Ember.View.extend({
     classNames: ['datagrid'],
     columnsClassNames: {},
@@ -50,9 +52,19 @@ Cabernet.DatagridView = Ember.View.extend({
             }));
         } else {
             this.$('tbody').replaceWith(this.get('gridTemplate')({ data: data }));
+            
+            this.$('tbody').editableCell({
+                cellSelector: "td.editable"
+            });
+            
+            // Fix column width
+            this.$("tbody").first("tr").find("td").each(function(id, td) {
+                var width = $(td).width();
+                $(td).width(width);
+            });
         }
     },
-
+  
     emptyTemplate: function() {
         return Handlebars.compile('<tbody><tr><td class="datagrid-empty" colspan="{{columnCount}}">{{emptyText}}</td></tr></tbody>');
     }.property(),
@@ -67,16 +79,16 @@ Cabernet.DatagridView = Ember.View.extend({
             inner = (custom !== null) ? custom : '{{this.'+col.name+'}}';
             css = (cssClasses[col.name] !== undefined) ? ' class="'+cssClasses[col.name]+'"' : '';
             if (col.get('displayed') === true || col.get('hideable') === false) 
-                html.push('<td'+css+(index === (columnCount - 1) ? ' colspan="2">' : '>')+inner+'</td>');
+                html.push('<td id="'+ col.name + '" class="editable"' + (index === (columnCount - 1) ? ' colspan="2">' : '>')+inner+'</td>');
         }, this);
         
-        return Handlebars.compile('<tbody>{{#list data}}<tr>'+html.join('')+'</tr>{{/list}}</tbody>');
+        return Handlebars.compile('<tbody>{{#list data}}<tr id="{{this.guid}}">'+html.join('')+'</tr>{{/list}}</tbody>');
     }.property('controller.displayedColumns').cacheable(),
 
     getCustomDisplay: function(columnName) { return null;
         /*if (!this.get('custom').hasOwnProperty(columnName)) return null;
         return this.get('custom')[columnName];*/
-    },
+    }
 });
 
 Cabernet.DatagridFilterView = Cabernet.Popover.extend({

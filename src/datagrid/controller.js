@@ -1,3 +1,13 @@
+//Generate four random hex digits.
+function S4() {
+   return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+};
+
+// Generate a pseudo-GUID by concatenating random hexadecimal.
+function guid() {
+   return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+};
+
 Cabernet.DatagridController = Ember.ObjectController.extend({
 	data: [],
     displayedData: [],
@@ -10,12 +20,15 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
 
     dataChanged: function() {
         // does nothing, but avoids duplicate 'controllerDataChanged' on filters...
+        this.get('data').forEach(function(obj) {
+            obj.set("guid", guid());
+        });
     }.observes('data'),
 
     contentChanged: function() {
         if (!Ember.none(this.get('content')) && this.get('content').data !== undefined) {
             this.set('data', this.get('content').data);
-            this.set('displayedData', this.get('content').data);
+            this.set('displayedData', this.get('data'));
         }
     }.observes('content'),
 
@@ -51,6 +64,10 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
     init: function() {
         this._super();
 
+        this.get('data').forEach(function(obj) {
+            obj.set("guid", guid());
+        });
+
         this.set('displayedData', this.get('data'));
         
         this.addObserver('displayedColumns', function displayedColumnsChanged() {
@@ -61,7 +78,20 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
             var persistedSort = this.retrieveParam('sort');
             if (!Ember.none(persistedSort)) this.set('defaultSort', persistedSort);
         }*/
-        this.applyDefaultSort();
+        this.applyDefaultSort();  
+        
+        $(document).on("saveCell", "td.editable", $.proxy(function(e, oldValue, newValue) {
+            var $cell = $(e.target);
+            if (newValue === "toto") {
+                e.stopImmediatePropagation();
+                $cell.addClass("error");
+                return;
+            }
+            var propertyName = $cell.attr("id");
+            var guid = $cell.parents("tr").attr("id");
+            var object = this.get("data").findProperty("guid", guid);
+            object.set(propertyName, newValue);
+        }, this));
     },
 
     sort: function(columnName, direction) {
