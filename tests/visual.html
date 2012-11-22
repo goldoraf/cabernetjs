@@ -58,6 +58,7 @@
                     var grid = Cabernet.Datagrid.create({
                         data: contacts,
                         modelType: Test.Contact,
+                        columns: ['fullname', 'firstname', 'lastname', 'city'],
                         defaultSort: '-lastname',
                         sessionBucket: 'test',
                         columnsClassNames: { lastname: 'bold' },
@@ -73,6 +74,12 @@
                 firstname: String,
                 lastname: String,
                 city: String
+            });
+
+            Test.Contact.reopen({
+                fullname: function() {
+                    return this.get('firstname') + ' ' + this.get('lastname');
+                }.property('firstname', 'lastname')
             });
         </script>
     </body>
