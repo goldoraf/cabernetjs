@@ -2738,7 +2738,7 @@ html body textarea {
 .bold {
   font-weight: bold;
 }
-div.datagrid div.datagrid-header {
+div.datagrid-header {
   margin: 0;
   padding: 10px;
   -webkit-border-radius: 0;
@@ -2748,13 +2748,7 @@ div.datagrid div.datagrid-header {
   border-bottom: none;
   background-color: #d7e7f0;
   line-height: 18px;
-}
-div.datagrid div.datagrid-header form {
-  margin: 0;
-}
-div.datagrid div.datagrid-header form .input,
-div.datagrid div.datagrid-header form .input-append {
-  margin-left: 220px;
+  overflow: auto;
 }
 div.datagrid table {
   width: 100%;
@@ -2791,7 +2785,7 @@ div.datagrid table thead {
 }
 div.datagrid table thead th {
   background: url(../../images/table-th-separator.png) 0px center no-repeat;
-  text-align: left;
+  text-align: center;
   padding: 5px;
   color: #00517e;
 }
@@ -2801,16 +2795,19 @@ div.datagrid table thead th:first-child {
 div.datagrid table thead th a.sortlink {
   color: #00517e;
   font-weight: 500;
+  padding-left: 10px;
+  display: inline-block;
 }
-div.datagrid table thead th.headerSortUp {
-  background: url(../../images/sort.png) right bottom no-repeat;
+div.datagrid table thead th.headerSortUp a.sortlink {
+  background: url(../../images/sort.png) no-repeat left 3px transparent;
 }
 div.datagrid table thead th.headerSortDown a.sortlink {
-  background: url(../../images/sort.png) right top no-repeat;
+  background: url(../../images/sort.png) no-repeat left -10px transparent;
 }
 div.datagrid table thead th div.filter {
   float: right;
-  padding-left: 5px;
+  display: inline-block;
+  padding: 0 10px;
 }
 div.datagrid table thead th a.filterlink {
   margin: 0;
@@ -2867,6 +2864,29 @@ div.datagrid div.columnpicker a.toggle {
   background-position: top center;
 }
 div.datagrid div.columnpicker a.toggle:hover {
+  background-position: bottom center;
+}
+div#clipboard-wrapper {
+  display: inline-block;
+  float: right;
+  margin: 0;
+  margin-top: 3px;
+}
+div#clipboard-wrapper a#clipboard-button {
+  text-indent: -5000px;
+  display: inline-block;
+  width: 20px;
+  outline: none;
+  background-image: url(../../images/copyPaste.png);
+  background-repeat: no-repeat;
+  background-position: center center;
+  height: 25px;
+  width: 27px;
+  margin-right: 10px;
+  background-position: top center;
+  float: right;
+}
+div#clipboard-wrapper a#clipboard-button:hover {
   background-position: bottom center;
 }
 div.filterbar {

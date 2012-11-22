@@ -8,11 +8,15 @@ if (Em.I18n !== undefined) {
 Cabernet.Datagrid = Ember.View.extend({
     
     template: Ember.Handlebars.compile(
-        '   <table> \
+        '   <div><div class="datagrid-header">\
+                    {{view Cabernet.Datagrid.Columnpicker columnsBinding="columnsForDisplay"}}\
+                    <div id="clipboard-wrapper" style="position: relative" class="table-header-add-on"><a id="clipboard-button">Copy</a></div>\
+                </div>\
+                <div><table> \
                 <thead> \
                     <tr> \
                         {{#each column in displayedColumns}} \
-                            <th {{bindAttr class="column.sortClass"}}> \
+                            <th {{bindAttr class="column.sortClass" }}>\
                                 {{#if column.filterable}} \
                                     {{#if column.filter.isText}} \
                                         {{view Cabernet.Datagrid.TextFilterView filterBinding="column.filter"}} \
@@ -30,11 +34,10 @@ Cabernet.Datagrid = Ember.View.extend({
                                 <a class="sortlink" {{action onSort context="column.name"}}>{{column.label}}</a> \
                             </th> \
                         {{/each}} \
-                        <th>{{view Cabernet.Datagrid.Columnpicker columnsBinding="columnsForDisplay"}}</th> \
                     </tr> \
                 </thead> \
                 <tbody /> \
-            </table> \
+            </table></div></div> \
         '),
 
     data: [],
@@ -48,6 +51,7 @@ Cabernet.Datagrid = Ember.View.extend({
     classNames: ['datagrid'],
     columnsClassNames: {},
     displayedData: [],
+    clipClient: null,
 
     columnsForDisplay: function() {
         return this.expandColumnsDefinition();
@@ -95,10 +99,23 @@ Cabernet.Datagrid = Ember.View.extend({
         this.addObserver('displayedData', function displayedDataChanged() {
             this.renderGrid();
         });
+
     },
 
     didInsertElement: function() {
         this.renderGrid();
+        var newClipClient = new ZeroClipboard.Client();
+        this.set("clipClient", newClipClient);
+        this.get("clipClient").setText( '' );
+        this.get("clipClient").setHandCursor( true );
+        this.get("clipClient").setCSSEffects( true );
+
+        var that = this;
+        this.get("clipClient").addEventListener( 'mouseDown', function(clipClient) {
+            that.copyToClipboard();
+        });
+
+        this.get("clipClient").glue('clipboard-button', 'clipboard-wrapper') ;
     },
 
     renderGrid: function() {
@@ -180,6 +197,32 @@ Cabernet.Datagrid = Ember.View.extend({
         if (direction === 'down') sorted.reverse();
         this.set('displayedData', sorted);
         if (this.shouldPersistParams()) this.persistSort(columnName, direction);
+    },
+
+    generateTSV: function() {
+        var contents = '';
+        var keys = [];
+        this.get('displayedColumns').forEach(function(column, index) {
+            keys.push(column.get('name'));
+        });
+
+        var datas = this.get('displayedData').toArray();
+        for (var rowIndex = 0; rowIndex < datas.length; rowIndex++) {
+            var row = datas[rowIndex];
+            var values = [];
+
+            this.get('displayedColumns').forEach(function(column, index) {
+                var item = Ember.get(row, column.get('name'));
+                values.push(item);
+            });
+            contents += values.join("\t") + "\r\n";
+        }
+        return keys.join("\t") + "\r\n" + contents;
+    },
+
+    copyToClipboard: function() {
+        var tsv = this.generateTSV();
+        this.get("clipClient").setText(tsv);
     },
 
     persistSort: function(columnName, direction) {
@@ -291,7 +334,7 @@ Cabernet.Datagrid.Filter = Ember.Object.extend({
 
     applied: function() {
         return !Ember.empty(this.get('value'));
-    }.property('value'),
+    }.property('value')
 });
 
 Cabernet.Datagrid.Filter.reopenClass({
@@ -330,7 +373,7 @@ Cabernet.Datagrid.PickFilter = Cabernet.Datagrid.Filter.extend({
     applied: function() {
         return Ember.isArray(this.get('value')) 
             && this.get('values').get('length') != this.get('value').get('length');
-    }.property('value'),
+    }.property('value')
 });
 
 Cabernet.Datagrid.PickFilter.reopenClass({
@@ -371,7 +414,7 @@ Cabernet.Datagrid.RangeFilter = Cabernet.Datagrid.Filter.extend({
 
     applied: function() {
         return this.get('selectedMin') != this.get('min') || this.get('selectedMax') != this.get('max');
-    }.property('value'),
+    }.property('value')
 });
 
 Cabernet.Datagrid.RangeFilter.reopenClass({
@@ -406,7 +449,7 @@ Cabernet.Datagrid.DaterangeFilter = Cabernet.Datagrid.Filter.extend({
 
     applied: function() {
         return Ember.isArray(this.get('value'));
-    }.property('value'),
+    }.property('value')
 });
 
 Cabernet.Datagrid.FilterView = Cabernet.Popover.extend({
@@ -418,7 +461,7 @@ Cabernet.Datagrid.FilterView = Cabernet.Popover.extend({
         var klass = 'filterlink';
         if (this.get('filter').get('applied') === true) klass+= ' active';
         return klass;
-    }.property('filter.applied'),
+    }.property('filter.applied')
 });
 
 Cabernet.Datagrid.PickFilterView = Cabernet.Datagrid.FilterView.extend({

@@ -10,7 +10,7 @@ def pipeline
 end
 
 desc "Build cabernet.js"
-task :dist do
+task :dist => :clean do
   puts "Building Cabernet..."
   pipeline.invoke
   puts "Done"
@@ -29,7 +29,7 @@ task :test, [:suite] => :dist do |t, args|
     abort "PhantomJS is not installed. Download from http://phantomjs.org"
   end
 
-  cmd = "phantomjs tests/vendor/qunit/run-qunit.js \"file://localhost#{File.dirname(__FILE__)}/tests/index.html\""
+  cmd = "phantomjs tests/vendor/qunit/run-qunit.js \"file://localhost#{File.dirname(__FILE__)}/tests/index.html\" > tests/test-result.tap"
 
   # Run the tests
   puts "Running tests"
@@ -43,4 +43,11 @@ task :test, [:suite] => :dist do |t, args|
   end
 end
 
-task :default => :dist
+desc "Copy file to repo"
+task :publish do
+  FileList['dist/*'].each do |file|
+      cp file, target = ENV['LOCAL_REPOSITORY']+'/cabernet/latest', :verbose => true
+  end
+end
+
+task :default => :test

@@ -6,6 +6,7 @@
         <meta charset="utf-8">
         <link rel="stylesheet" type="text/css" href="vendor/qunit/qunit.css" />
         <script src="vendor/qunit/qunit.js"></script>
+        <script src="vendor/qunit/qunit-tap.js"></script>
         <script src="vendor/jquery-1.7.1.min.js"></script>
         <script src="vendor/jquery.ba-outside-events.js"></script>
         <script src="vendor/jquery-ui-1.9.1.custom.min.js"></script>
@@ -21,7 +22,16 @@
         <div id="qunit-testrunner-toolbar"></div>
         <h2 id="qunit-userAgent"></h2>
         <ol id="qunit-tests"></ol>
+
+        <script type="text/javascript">
+            qunitTap(QUnit, function() { console.log.apply(console, arguments); }, {noPlan: true});
+        </script>
         
+        <script type="text/javascript">
+            if (location.hash === '#testem')
+                document.write('<script src="/testem.js"></'+'script>')
+        </script>
+
         <script type="text/javascript">
 
             // hack qunit to not suck for Ember objects
@@ -39,8 +49,9 @@
               return obj.toString();
             }
         </script>
-         
+          
         <script src="../dist/cabernet.js"></script>
-        <script src="../dist/cabernet-tests.js"></script>
+        
+        <script src="src/datagrid_test.js"></script>
     </body>
 </html>
