@@ -12,13 +12,6 @@ Cabernet.Handlebars.JavaScriptCompiler.prototype.namespace = "Cabernet.Handlebar
 Cabernet.Handlebars.JavaScriptCompiler.prototype.nameLookup = function(parent, name, type) {
   var basicLookup = Handlebars.JavaScriptCompiler.prototype.nameLookup(parent, name, type);
   return '(' + parent + " instanceof Ember.Object) ? " + parent + ".get('" + name + "') : " + basicLookup;
-  /*if (/^[0-9]+$/.test(name)) {
-    return '(' + parent + " instanceof Ember.Object) ? " + parent + ".get('" + name + "') : " + parent + "[" + name + "]";
-  } else if (Handlebars.JavaScriptCompiler.isValidJavaScriptVariableName(name)) {
-    return '(' + parent + " instanceof Ember.Object) ? " + parent + ".get('" + name + "') : " + parent + "." + name;
-  } else {
-    return '(' + parent + " instanceof Ember.Object) ? " + parent + ".get('" + name + "') : " + parent + "['" + name + "']";
-  }*/
 }
 
 Cabernet.Handlebars.compile = function(string, options) {
