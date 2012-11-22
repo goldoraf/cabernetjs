@@ -41,12 +41,6 @@ Cabernet.DatagridView = Ember.View.extend({
             this.$('tbody').editableCell({
                 cellSelector: "td.editable"
             });
-            
-            // Fix column width
-            this.$("tbody").first("tr").find("td").each(function(id, td) {
-                var width = $(td).width();
-                $(td).width(width);
-            });
         }
     },
   
