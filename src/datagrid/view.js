@@ -217,6 +217,29 @@ Cabernet.DatagridDaterangeFilterView = Cabernet.DatagridFilterView.extend({
     }
 });
 
+Cabernet.DatagridBooleanFilterView = Cabernet.DatagridFilterView.extend({
+    classNames: ['boolean'],
+    contentTemplate: '<ul class="inputs-list"> \
+                        <li><label><input type="radio" name="radiogroup" value="all"/>All</label></li> \
+                        <li><label><input type="radio" name="radiogroup" value="true"/>Yes</label></li> \
+                        <li><label><input type="radio" name="radiogroup" value="false"/>No</label></li> \
+                      </ul>',
+
+    stringValue: function() {
+        var v = this.get('filter').get('value');
+        return Ember.empty(v) ? 'all' : v === true ? 'true' : 'false';
+    }.property('filter.value'),
+
+    didInsertElement: function() {
+        this.$('input[name=radiogroup]').val([this.get('stringValue')]);
+        var that = this;
+        this.$('input[name=radiogroup]').change(function() {
+            var v = that.$('input[name=radiogroup]:checked').val();
+            that.get('filter').set('value', v == 'all' ? '' : v == 'true' ? true : false);
+        });
+    }
+});
+
 Cabernet.DatagridOptionsView = Cabernet.Popover.extend({
     classNames: ['options'],
     placement: 'below left',

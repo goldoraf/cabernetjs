@@ -118,3 +118,11 @@ Cabernet.DatagridDaterangeFilter = Cabernet.DatagridFilter.extend({
         return Ember.isArray(this.get('value'));
     }.property('value')
 });
+
+Cabernet.DatagridBooleanFilter = Cabernet.DatagridFilter.extend({
+    apply: function(data) {
+        return data.filter(function(item) {
+            return this.getValueFor(item) === this.get('value');
+        }, this);
+    }
+});

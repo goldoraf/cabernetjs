@@ -31,6 +31,9 @@ Cabernet.DatagridColumn.reopenClass({
                     case Number:
                         filterType = 'range';
                         break;
+                    case Boolean:
+                        filterType = 'boolean';
+                        break;
                     default:
                         filterType = 'text';
                         break;

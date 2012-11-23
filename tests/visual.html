@@ -42,15 +42,15 @@
             };
 
             var lightData = [
-                {firstname: 'John', lastname: 'Doe', city: 'New York'},
-                {firstname: 'Jane', lastname: 'Doe', city: 'Los Angeles'},
-                {firstname: 'Jack', lastname: 'Ryan', city: 'Washington'},
-                {firstname: 'Jack', lastname: 'Bauer', city: 'Los Angeles'},
+                {firstname: 'John', lastname: 'Doe', city: 'New York', admin: true},
+                {firstname: 'Jane', lastname: 'Doe', city: 'Los Angeles', admin: false},
+                {firstname: 'Jack', lastname: 'Ryan', city: 'Washington', admin: false},
+                {firstname: 'Jack', lastname: 'Bauer', city: 'Los Angeles', admin: false},
             ];
 
             var heavyData = [];
             for (var i=1; i<=100; i++) {
-                heavyData.push({firstname: 'John'+i, lastname: 'Doe', city: 'New York'})
+                heavyData.push({firstname: 'John'+i, lastname: 'Doe', city: 'New York', admin: false})
             }
 
             Test = Ember.Application.create({
@@ -115,7 +115,8 @@
             Test.Contact = Syrah.Model.define({
                 firstname: String,
                 lastname: String,
-                city: String
+                city: String,
+                admin: Boolean
             });
 
             Test.initialize();
