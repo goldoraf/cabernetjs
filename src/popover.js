@@ -19,6 +19,7 @@ Cabernet.Popover = Ember.View.extend({
             $('div.popover.active').removeClass('active').hide();
             popover.addClass('active');
             var params = this.getPositionParams(popover);
+            
             popover.position({
                 of: this.$('a'),
                 my : params.my,
@@ -59,7 +60,7 @@ Cabernet.Popover = Ember.View.extend({
             'below': { my: 'top', at: 'bottom', offset: '0' },
             'above': { my: 'bottom', at: 'center', offset: '0' },
             'left': { my: 'right', at: 'left', offset: '0' },
-            'below right': { my: 'left top', at: 'center bottom', offset: '0', arrowLeft: '20px' },
+            'below right': { my: 'left top', at: 'left bottom', offset: '-10 0', arrowLeft: width - 12.5 + 'px' },
             'below left' : { my: 'right top', at: 'right bottom', offset: '20 0', arrowLeft: width - 20 + 'px' },
             'above right': { my: 'left bottom', at: 'center top', offset: '0', arrowLeft: '20px' }
         }

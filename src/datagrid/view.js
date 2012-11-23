@@ -2,17 +2,27 @@
 
 Cabernet.DatagridView = Ember.View.extend({
     classNames: ['datagrid'],
+    columnsClassNames: {},
     template: Ember.Handlebars.compile(
-        '<table> \
+        '<div class="options">{{view Cabernet.DatagridOptionsView}}</div> \
+        <table data-datagrid-table="cabernet-datagrid-table"> \
             <thead> \
                 <tr> \
                     {{#each column in displayedColumns}} \
                         {{view Cabernet.DatagridHeaderView columnBinding="column"}} \
                     {{/each}} \
-                    <th class="options">{{view Cabernet.DatagridOptionsView}}</th> \
                 </tr> \
             </thead> \
             <tbody /> \
+            <tfoot>\
+                <tr>\
+                    {{#each column in displayedColumns}} \
+                        <th {{bindAttr class="column.sortClass"}}> \
+                            {{column.label}} \
+                        </th> \
+                    {{/each}} \
+                <tr>\
+            </tfoot>\
         </table>'
     ),
 
@@ -24,6 +34,23 @@ Cabernet.DatagridView = Ember.View.extend({
         this.addObserver('controller.displayedColumns', function displayedColumnsChanged() {
             this.renderGrid();
         });
+        
+        this.$("td.editable").on("saveCell", $.proxy(function(e, oldValue, newValue) {
+            var $cell = $(e.target);
+            var trNumber = $cell.parents("tr").index("table[data-datagrid-table='cabernet-datagrid-table'] tbody tr");
+            var model = this.get("controller").get("displayedData").objectAt(trNumber);
+            var property = $cell.attr("data-datagrid-columnName");
+            this.get("controller").updateModel(model, property, oldValue, newValue, {
+                success: function() {},
+                error: function(msg) {
+                    e.stopPropagation(); // be sure no other event is going to break or callback
+                    $cell.data("value", oldValue);
+                    $cell.trigger("dblclick");
+                    $cell.addClass("error");
+                }
+            });
+            
+        }, this));
     },
 
     renderGrid: function() {
@@ -38,9 +65,23 @@ Cabernet.DatagridView = Ember.View.extend({
         } else {
             this.$('tbody').replaceWith(this.get('gridTemplate')({ data: data }));
             
-            this.$('tbody').editableCell({
-                cellSelector: "td.editable"
-            });
+            this.$("tbody").first("tr").addClass("row-0");
+            this.$("tr > td:first, tr > th:first").addClass("cell-0");
+            
+            // Editable table
+           	if (this.get("controller").get("editable")) {
+                this.$('tbody').editableCell({
+                    cellSelector: "td.editable"
+                });   
+            }
+            
+            // make the table scrollabel
+            if (this.get("controller").get("scrollable")) {
+                this.$("table[data-datagrid-table='cabernet-datagrid-table']").tableScroll("undo").tableScroll({
+                    height: this.get("controller").get("height"), 
+                    flush: true
+                });
+            }
         }
     },
   
@@ -59,7 +100,7 @@ Cabernet.DatagridView = Ember.View.extend({
                 ? ' class="' + (Ember.isArray(col.get('classNames')) ? col.get('classNames').join(' ') : col.get('classNames')) + '"' 
                 : '';
             if (col.get('displayed') === true || col.get('hideable') === false) 
-                html.push('<td id="'+ col.name + '" class="editable"' + (index === (columnCount - 1) ? ' colspan="2">' : '>')+inner+'</td>');
+                html.push('<td data-datagrid-columnName="'+ col.name + '" class="editable"' + '>' +inner+'</td>');
         }, this);
         
         return Cabernet.Handlebars.compile('<tbody>{{#list data}}<tr>'+html.join('')+'</tr>{{/list}}</tbody>');
@@ -82,10 +123,10 @@ Cabernet.DatagridHeaderView = Ember.View.extend({
     }.property('column.filter'),
 
     template: Ember.Handlebars.compile(
-        '{{#if view.column.filterable}} \
+        '<a class="sortlink" {{action sort view.column.name target="controller"}}>{{view.column.label}}</a> \
+        {{#if view.column.filterable}} \
             {{view "view.filterViewClass" filterBinding="view.column.filter"}} \
-        {{/if}} \
-        <a class="sortlink" {{action sort view.column.name target="controller"}}>{{view.column.label}}</a>'
+        {{/if}}'
     )
 });
 
@@ -219,7 +260,7 @@ Cabernet.DatagridDaterangeFilterView = Cabernet.DatagridFilterView.extend({
 
 Cabernet.DatagridOptionsView = Cabernet.Popover.extend({
     classNames: ['options'],
-    placement: 'below left',
+    placement: 'below right',
     linkTemplate: '<a class="toggle" {{action "toggle" target="view"}}>Options</a>',
     contentTemplate: '{{#if copyAllEnabled}} \
                         <div id="clipboard-wrapper" style="position:relative"> \

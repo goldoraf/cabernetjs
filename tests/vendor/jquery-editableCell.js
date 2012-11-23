@@ -28,7 +28,7 @@
         init: function(options) {
             methods.settings = $.extend({
                 cellSelector: "td",
-                editOn: "dblclick",
+                editOn: "dblclick editCell",
                 saveOn: {
                     "keydown": ["enter"]
                 },
@@ -50,6 +50,10 @@
             // Enter edit mode
             $(this).on(methods.settings.editOn, methods.settings.cellSelector, methods.enterEditModeHandler);
             
+            /**
+             * TODO
+             * Crapy - need to find a better way to attach those complex event with keydown
+             */
             // Abort editing
             if (methods.settings.abortOn.keydown) {
                 var abortKeyList = [];
@@ -62,6 +66,7 @@
                 });
                 $(this).on("keydown", methods.settings.cellSelector, function(e) {
                     if ($.inArray(e.keyCode, abortKeyList) != -1) {
+                        e.preventDefault(); // Prevent the insertion of the \n on submit
                         methods.exitEditMode(e);
                     }
                 });
@@ -73,6 +78,7 @@
                 }
             }
             
+            // Save
             if (methods.settings.saveOn.keydown) {
                 saveKeyList = [];
                 $.each(methods.settings.saveOn.keydown, function(id, value) {
@@ -84,6 +90,7 @@
                 });
                 $(this).on("keydown", methods.settings.cellSelector, function(e) {
                     if ($.inArray(e.keyCode, saveKeyList) != -1) {
+                        e.preventDefault(); // Prevent the insertion of the \n on submit
                         methods.save(e);
                     }
                 });
@@ -94,7 +101,7 @@
                 }
             }
             
-            // Save the cell
+            // apply the Save
             $(document).on("saveCell", methods.settings.cellSelector, methods.saveCellHandler);
         }, 
         
@@ -143,15 +150,22 @@
          */
         enterEditModeHandler: function(e) {
              var $cell = $(e.currentTarget);
+             
+             // Set the width manually so the cell keep the same size
+             $cell.width($cell.width());
         
-            // Don't do anything on click if cell is already in edit mode
+            // Don't do anything if cell is already in edit mode
             if ($cell.data("mode") === "edit") {
                 return;
             }
             
             // Set the edit mode
             $cell.addClass("edit");
-            $cell.data("value", $cell.text());
+            if ($cell.data("value") === undefined) {
+                $cell.data("value", $cell.text());   
+            }
+                
+                
             $cell.data("mode", "edit");
             
             var template = methods.settings.editTemplate.replace("{{value}}", $cell.text());
