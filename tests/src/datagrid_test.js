@@ -128,6 +128,16 @@ test("Datagrid can get its columns config from a Syrah model", function() {
     ok(grid.get('columnsForDisplay')[2].filter instanceof Cabernet.DatagridDaterangeFilter);
 });
 
+test("Sort setting", function() {
+    var grid = Cabernet.DatagridController.create({
+        columns: ['firstname', 'lastname', 'email']
+    });
+    equal(grid.get('columnsForDisplay').filterProperty('sort', false).get('length'), 3);
+    grid.setCurrentSort('lastname', 'down');
+    equal(grid.get('columnsForDisplay').filterProperty('sort', false).get('length'), 2);
+    equal(grid.get('columnsForDisplay').findProperty('sort', 'down').get('name'), 'lastname');
+});
+
 test("No filterable data", function() {
 
     var grid = Cabernet.DatagridController.create({

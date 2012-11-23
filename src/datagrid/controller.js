@@ -30,8 +30,7 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
         Cabernet.log('DG controller content changed');
         if (!Ember.none(this.get('content')) && this.get('content').data !== undefined) {
             this.set('data', this.get('content').data);
-            this.set('displayedData', this.get('data'));
-            this.applyFilters();
+            this.refreshDisplayedData();
         }
     }.observes('content'),
 
@@ -65,25 +64,21 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
     }.property('filters.@each.applied'),
 
     appliedFiltersChanged: function() {
-        this.applyFilters();
+        this.refreshDisplayedData();
         if (this.shouldPersistParams()) this.persistFilters();
     }.observes('appliedFilters.@each'),
 
     init: function() {
         this._super();
 
-        this.get('data').forEach(function(obj) {
-            obj.set("guid", guid());
-        });
-
-        this.set('displayedData', this.get('data'));
-
+        var initialSort = this.get('defaultSort');
         if (this.shouldPersistParams()) {
             var persistedSort = this.retrieveParam('sort');
-            if (!Ember.none(persistedSort)) this.set('defaultSort', persistedSort);
+            if (!Ember.none(persistedSort)) initialSort = persistedSort;
         }
-        this.applyDefaultSort();
-        this.applyFilters();
+        this.setInitialSort(initialSort);
+
+        this.refreshDisplayedData();
         
         $(document).on("saveCell", "td.editable", $.proxy(function(e, oldValue, newValue) {
             var $cell = $(e.target);
@@ -99,7 +94,21 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
         }, this));
     },
 
+    refreshDisplayedData: function() {
+        if (Ember.empty(this.get('data'))) {
+            this.set('displayedData', this.get('data'));
+            return;
+        }
+        Cabernet.log('DG refreshDisplayedData');
+        this.set('displayedData', this.applySort(this.applyFilters(this.get('data'))));
+    },
+
     sort: function(columnName, direction) {
+        this.setCurrentSort(columnName, direction);
+        this.refreshDisplayedData();
+    },
+
+    setCurrentSort: function(columnName, direction) {
         if (columnName instanceof jQuery.Event) {
             columnName = columnName.context;
         }
@@ -108,11 +117,28 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
             var actualSort = column.get('sort'),
                 direction  = (actualSort === 'down') ? 'up' : 'down';
         }
-
         this.get('columnsForDisplay').setEach('sort', false);
         column.set('sort', direction);
+        if (this.shouldPersistParams()) this.persistSort(columnName, direction);
+        return column;
+    },
+
+    getCurrentSortColumn: function() {
+        return this.get('columnsForDisplay').find(function(col) {
+            return col.get('sort') !== false;
+        });
+    },
+
+    applySort: function(data) {
+        Cabernet.log('DG applying sort');
+
+        var sortColumn = this.getCurrentSortColumn();
+        if (Ember.none(sortColumn)) return data;
         
-        var sorted = this.get('displayedData').toArray().sort(function(a, b) {
+        var columnName = sortColumn.get('name'),
+            direction  = sortColumn.get('sort');
+        
+        var sorted = data.toArray().sort(function(a, b) {
             var aValue, bValue, ret = 0;
 
             aValue = Ember.get(a, columnName);
@@ -121,29 +147,27 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
             return ret;
         });
         if (direction === 'down') sorted.reverse();
-        this.set('displayedData', sorted);
-        if (this.shouldPersistParams()) this.persistSort(columnName, direction);
+        return sorted;
     },
 
-    applyFilters: function() {
+    applyFilters: function(data) {
         Cabernet.log('DG applying filters');
 
-        var data = this.get('data');
         this.get('appliedFilters').forEach(function(filter) {
             data = filter.apply(data);
         });
-        this.set('displayedData', data);
+        return data;
     },
 
-    applyDefaultSort: function() {
-        if (Ember.none(this.get('defaultSort'))) return;
-        var col = this.get('defaultSort'),
+    setInitialSort: function(initialSort) {
+        if (Ember.none(initialSort)) return;
+        var col = initialSort,
             dir = 'up';
         if (col.indexOf('-') === 0) {
             dir = 'down';
             col = col.substr(1);
         }
-        this.sort(col, dir);
+        this.setCurrentSort(col, dir);
     },
 
     persistSort: function(columnName, direction) {
