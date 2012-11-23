@@ -78,7 +78,7 @@ Cabernet.Datagrid = Ember.View.extend({
     }.property('filters.@each.applied'),
 
     appliedFiltersChanged: function() {
-        this.applyFilters();
+        this.refreshDisplayedData();
         //if (this.shouldPersistParams()) this.persistFilters();
     }.observes('appliedFilters.@each'),
 
@@ -90,12 +90,15 @@ Cabernet.Datagrid = Ember.View.extend({
             this.renderGrid();
         });
 
-        this.set('displayedData', this.get('data'));
+        var initialSort = this.get('defaultSort');
         if (this.shouldPersistParams()) {
             var persistedSort = this.retrieveParam('sort');
-            if (!Ember.none(persistedSort)) this.set('defaultSort', persistedSort);
+            if (!Ember.none(persistedSort)) initialSort = persistedSort;
         }
-        this.applyDefaultSort();
+        this.setInitialSort(initialSort);
+
+        this.refreshDisplayedData();
+
         this.addObserver('displayedData', function displayedDataChanged() {
             this.renderGrid();
         });
@@ -153,23 +156,8 @@ Cabernet.Datagrid = Ember.View.extend({
         return this.get('custom')[columnName];
     },
 
-    applyFilters: function() {
-        var data = this.get('data');
-        this.get('appliedFilters').forEach(function(filter) {
-            data = filter.apply(data);
-        });
-        this.set('displayedData', data);
-    },
-
-    applyDefaultSort: function() {
-        if (Ember.none(this.get('defaultSort'))) return;
-        var col = this.get('defaultSort'),
-            dir = 'up';
-        if (col.indexOf('-') === 0) {
-            dir = 'down';
-            col = col.substr(1);
-        }
-        this.sort(col, dir);
+    refreshDisplayedData: function() {
+        this.set('displayedData', this.applySort(this.applyFilters(this.get('data'))));
     },
 
     onSort: function(event) {
@@ -177,16 +165,36 @@ Cabernet.Datagrid = Ember.View.extend({
     },
 
     sort: function(columnName, direction) {
+        this.setCurrentSort(columnName, direction);
+        this.refreshDisplayedData();
+    },
+
+    setCurrentSort: function(columnName, direction) {
         var column = this.get('columnsForDisplay').findProperty('name', columnName);
         if (direction === undefined) {
             var actualSort = column.get('sort'),
                 direction  = (actualSort === 'down') ? 'up' : 'down';
         }
-
         this.get('columnsForDisplay').setEach('sort', false);
         column.set('sort', direction);
+        if (this.shouldPersistParams()) this.persistSort(columnName, direction);
+        return column;
+    },
+
+    getCurrentSortColumn: function() {
+        return this.get('columnsForDisplay').find(function(col) {
+            return col.get('sort') !== false;
+        });
+    },
+
+    applySort: function(data) {
+        var sortColumn = this.getCurrentSortColumn();
+        if (Ember.none(sortColumn)) return data;
         
-        var sorted = this.get('displayedData').toArray().sort(function(a, b) {
+        var columnName = sortColumn.get('name'),
+            direction  = sortColumn.get('sort');
+        
+        var sorted = data.toArray().sort(function(a, b) {
             var aValue, bValue, ret = 0;
 
             aValue = Ember.get(a, columnName);
@@ -195,8 +203,25 @@ Cabernet.Datagrid = Ember.View.extend({
             return ret;
         });
         if (direction === 'down') sorted.reverse();
-        this.set('displayedData', sorted);
-        if (this.shouldPersistParams()) this.persistSort(columnName, direction);
+        return sorted;
+    },
+
+    applyFilters: function(data) {
+        this.get('appliedFilters').forEach(function(filter) {
+            data = filter.apply(data);
+        });
+        return data;
+    },
+
+    setInitialSort: function(initialSort) {
+        if (Ember.none(initialSort)) return;
+        var col = initialSort,
+            dir = 'up';
+        if (col.indexOf('-') === 0) {
+            dir = 'down';
+            col = col.substr(1);
+        }
+        this.setCurrentSort(col, dir);
     },
 
     generateTSV: function() {
