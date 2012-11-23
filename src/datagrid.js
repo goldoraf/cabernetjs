@@ -570,11 +570,7 @@ Cabernet.Datagrid.DaterangeFilterView = Cabernet.Datagrid.FilterView.extend({
 });
 
 Cabernet.Datagrid.TextFilterView = Cabernet.Datagrid.FilterView.extend({
-    contentTemplate: '{{view Cabernet.Datagrid.FilterTextField}}',
-
-    applyFilter: function(value) {
-        this.get('filter').set('value', value);
-    },
+    contentTemplate: '{{view Cabernet.Datagrid.FilterTextField valueBinding="filter.value"}}',
 
     toggle: function(e) {
         this._super(e);
@@ -585,7 +581,7 @@ Cabernet.Datagrid.TextFilterView = Cabernet.Datagrid.FilterView.extend({
 
 Cabernet.Datagrid.FilterTextField = Ember.TextField.extend({
     insertNewline: function() {
-        this.get('parentView').applyFilter(this.get('value'));
+        //this.get('parentView').applyFilter(this.get('value'));
     }
 });
 
