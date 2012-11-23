@@ -65,7 +65,7 @@ Cabernet.DatagridView = Ember.View.extend({
         } else {
             this.$('tbody').replaceWith(this.get('gridTemplate')({ data: data }));
             
-            this.$("tbody").first("tr").addClass("row-0");
+            this.$("tbody tr:first").addClass("row-0");
             this.$("tr > td:first, tr > th:first").addClass("cell-0");
             
             // Editable table
@@ -77,7 +77,8 @@ Cabernet.DatagridView = Ember.View.extend({
             
             // make the table scrollabel
             if (this.get("controller").get("scrollable")) {
-                this.$("table[data-datagrid-table='cabernet-datagrid-table']").tableScroll("undo").tableScroll({
+                this.$("table[data-datagrid-table='cabernet-datagrid-table']").tableScroll("undo");
+                this.$("table[data-datagrid-table='cabernet-datagrid-table']").tableScroll({
                     height: this.get("controller").get("height"), 
                     flush: true
                 });

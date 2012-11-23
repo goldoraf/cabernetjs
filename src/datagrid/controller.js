@@ -67,9 +67,9 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
 
         this.refreshDisplayedData();
 	},
-	
-	updateModel: function(model, property, oldValue, newValue, callback) {
-        callback = callback || { success: function() { console.log("in default callback");}, error: function() {console.log("in default callback");}};
+
+    updateModel: function(model, property, oldValue, newValue, callback) {
+        callback = callback || { success: function() {}, error: function() {}};
         
         // Validation
         if (newValue === "toto") {
@@ -103,6 +103,7 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
             var actualSort = column.get('sort'),
                 direction  = (actualSort === 'down') ? 'up' : 'down';
         }
+
         this.get('columnsForDisplay').setEach('sort', false);
         column.set('sort', direction);
         if (this.shouldPersistParams()) this.persistSort(columnName, direction);

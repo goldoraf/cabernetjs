@@ -2762,7 +2762,7 @@ div.datagrid table {
   border: 1px solid #b5d2e3;
   border-top: 1px solid #4f8bac;
   margin-bottom: 0;
-  padding: 0 !important;
+  padding: 0;
 }
 div.datagrid table td.checkbox,
 div.datagrid table th.checkbox {
@@ -2827,7 +2827,7 @@ div.datagrid table thead th a.sortlink {
   color: #00517e;
   font-weight: 500;
   display: inline-block;
-  margin-left: 10px;
+  padding-left: 10px;
 }
 div.datagrid table thead th.headerSortUp a.sortlink {
   background: url(../../images/sort.png) 5px bottom no-repeat;
@@ -2841,7 +2841,6 @@ div.datagrid table thead th div.filter {
 div.datagrid table thead th a.filterlink {
   margin: 0;
   text-indent: -5000px;
-  text-align: left;
   display: inline-block;
   outline: none;
   background: url(../../images/filters_small.png) center -16px no-repeat;
