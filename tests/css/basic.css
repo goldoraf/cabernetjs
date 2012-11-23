@@ -2738,18 +2738,37 @@ html body textarea {
 .bold {
   font-weight: bold;
 }
+div.datagrid div.datagrid-header {
+  margin: 0;
+  padding: 10px;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  border: 1px solid #b5d2e3;
+  border-bottom: none;
+  background-color: #d7e7f0;
+  line-height: 18px;
+}
+div.datagrid div.datagrid-header form {
+  margin: 0;
+}
+div.datagrid div.datagrid-header form .input,
+div.datagrid div.datagrid-header form .input-append {
+  margin-left: 220px;
+}
 div.datagrid table {
   width: 100%;
   border-collapse: separate;
   border: 1px solid #b5d2e3;
   border-top: 1px solid #4f8bac;
   margin-bottom: 0;
+  padding: 0;
 }
 div.datagrid table td.checkbox,
 div.datagrid table th.checkbox {
   width: 15px;
 }
-div.datagrid table thead {
+div.datagrid table tfoot {
   font-weight: 600;
   background-color: #b9d6e6;
   background-repeat: repeat-x;
@@ -2771,30 +2790,53 @@ div.datagrid table thead {
   font-size: 12px;
   border-bottom: 1px solid #b5d2e3;
 }
+div.datagrid table thead {
+  font-weight: 600;
+  background-color: #b9d6e6;
+  background-repeat: repeat-x;
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#e2edf4), to(#b9d6e6));
+  background-image: -moz-linear-gradient(top, #e2edf4, #b9d6e6);
+  background-image: -ms-linear-gradient(top, #e2edf4, #b9d6e6);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #e2edf4), color-stop(100%, #b9d6e6));
+  background-image: -webkit-linear-gradient(top, #e2edf4, #b9d6e6);
+  background-image: -o-linear-gradient(top, #e2edf4, #b9d6e6);
+  background-image: linear-gradient(top, #e2edf4, #b9d6e6);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e2edf4', endColorstr='#b9d6e6', GradientType=0);
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  border-color: #b9d6e6 #b9d6e6 #81b5d2;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  text-shadow: 0 1px 0 white;
+  text-align: center;
+  font-size: 12px;
+  border-bottom: 1px solid #b5d2e3;
+}
 div.datagrid table thead th {
   background: url(../../images/table-th-separator.png) 0px center no-repeat;
   text-align: left;
-  padding: 5px;
+  padding: 0px;
   color: #00517e;
+  vertical-align: middle;
+  padding: 0px 0px 0px 15px;
+  height: 27px;
 }
-div.datagrid table thead th:first-child {
+div.datagrid table thead th.cell-0 {
   background: none;
 }
 div.datagrid table thead th a.sortlink {
+  line-height: 12px;
   color: #00517e;
   font-weight: 500;
-  display: block;
+  display: inline-block;
+  padding-left: 10px;
 }
 div.datagrid table thead th.headerSortUp a.sortlink {
-  background: url(../../images/sort.png) no-repeat right 5px transparent;
+  background: url(../../images/sort.png) 5px bottom no-repeat;
 }
 div.datagrid table thead th.headerSortDown a.sortlink {
-  background: url(../../images/sort.png) no-repeat right -10px transparent;
+  background: url(../../images/sort.png) 5px top no-repeat;
 }
 div.datagrid table thead th div.filter {
-  float: right;
   display: inline-block;
-  padding: 0 10px;
 }
 div.datagrid table thead th a.filterlink {
   margin: 0;
@@ -2815,7 +2857,7 @@ div.datagrid table thead th.options {
   width: 20px;
 }
 div.datagrid table td {
-  padding: 5px;
+  padding: 5px 0px 5px 15px;
   border-right: 1px solid white;
   border-left: 1px solid #d1e2ed;
   border-bottom: 1px solid #d1e2ed;
@@ -2829,22 +2871,32 @@ div.datagrid table td.datagrid-empty {
   text-align: center;
 }
 div.datagrid table td.edit.error {
-  border-color: red;
+  border-color: #e9322d;
+  -webkit-box-shadow: 0 0 6px #f8b9b7;
+  -moz-box-shadow: 0 0 6px #f8b9b7;
+  box-shadow: 0 0 6px #f8b9b7;
 }
 div.datagrid table td.edit {
-  padding: 0px;
-  border: 1px solid blue;
+  padding: 0;
+  padding-right: 15px;
+  border-color: rgba(82, 168, 236, 0.8);
+  -webkit-box-shadow: 0 0 8px rgba(82, 168, 236, 0.6);
+  -moz-box-shadow: 0 0 8px rgba(82, 168, 236, 0.6);
+  box-shadow: 0 0 8px rgba(82, 168, 236, 0.6);
 }
 div.datagrid table td.edit textarea,
 div.datagrid table td.edit.error textarea {
-  padding: 0;
-  height: 24px;
-  width: 100%;
+  line-height: 18px;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
   border: none;
-  -moz-border-radius: 0;
-  -webkit-border-radius: 0;
-  padding-top: 5px;
-  text-indent: 5px;
+  height: 25px;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  border-radius: 0px;
+  width: 100%;
+  padding: 0px 0px 0px 15px;
 }
 div.datagrid table tbody tr:hover td {
   background: #e6e6e6;
@@ -2855,8 +2907,7 @@ div.datagrid table tr:last-child td {
 div.datagrid div.options {
   display: inline-block;
   float: right;
-  margin: 0;
-  margin-top: 3px;
+  margin: 1px 0 1px 1px;
 }
 div.datagrid div.options a.toggle {
   text-indent: -5000px;

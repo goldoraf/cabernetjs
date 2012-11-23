@@ -4,19 +4,23 @@
     <head>
         <title>Components test</title>
         <meta charset="utf-8">
+        
+        <!-- JS -->
+        <script src="vendor/ZeroClipboard.js"></script>
         <script src="vendor/jquery-1.8.2.js"></script>
         <script src="vendor/jquery.ba-outside-events.js"></script>
         <script src="vendor/jquery-ui-1.9.1.custom.min.js"></script>
         <script src="vendor/jquery-editableCell.js"></script>
-        <script src="vendor/ZeroClipboard.js"></script>
+        <script src="vendor/jquery.tableScroll.js"></script>
         <script src="vendor/moment.min.js"></script>
         <script src="vendor/handlebars-1.0.rc.1.js"></script>
         <script src="vendor/ember-1.0.0-pre2.js"></script>
-        
         <script src="vendor/syrah.js"></script>
         <script src="vendor/twitter-bootstrap-1.4.0/js/bootstrap-twipsy.js"></script>
         <script src="vendor/twitter-bootstrap-1.4.0/js/bootstrap-popover.js"></script>
         <script src="../dist/cabernet.js"></script>
+        
+        <!-- CSS -->
         <link rel="stylesheet" type="text/css" href="css/basic.css"/>
         <link rel="stylesheet" type="text/css" href="css/jquery-ui-1.9.1.custom.min.css"/>
 
@@ -65,7 +69,10 @@
                 TestDatagridController: Cabernet.DatagridController.extend({
                     modelType: 'Test.Contact',
                     defaultSort: '-lastname',
-                    sessionBucket: 'test'
+                    sessionBucket: 'test',
+                    scrollable: true,
+                    height: 500,
+                    editable: true
                 }),
 
                 TestPopoverController: Ember.Controller.extend({

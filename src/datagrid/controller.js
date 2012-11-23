@@ -1,13 +1,3 @@
-//Generate four random hex digits.
-function S4() {
-   return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-};
-
-// Generate a pseudo-GUID by concatenating random hexadecimal.
-function guid() {
-   return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
-};
-
 Cabernet.DatagridController = Ember.ObjectController.extend({
 	data: [],
     displayedData: [],
@@ -21,9 +11,6 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
 
     dataChanged: function() {
         // does nothing, but avoids duplicate 'controllerDataChanged' on filters...
-        this.get('data').forEach(function(obj) {
-            obj instanceof Ember.Object ? obj.set("guid", guid()) : obj.guid = guid();
-        });
     }.observes('data'),
 
     contentChanged: function() {
@@ -79,22 +66,22 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
         this.setInitialSort(initialSort);
 
         this.refreshDisplayedData();
+	},
+
+    updateModel: function(model, property, oldValue, newValue, callback) {
+        callback = callback || { success: function() {}, error: function() {}};
         
-        $(document).on("saveCell", "td.editable", $.proxy(function(e, oldValue, newValue) {
-            var $cell = $(e.target);
-            if (newValue === "toto") {
-                e.stopImmediatePropagation();
-                $cell.addClass("error");
-                return;
-            }
-            var propertyName = $cell.attr("id");
-            var guid = $cell.parents("tr").attr("id");
-            var object = this.get("data").findProperty("guid", guid);
-            object.set(propertyName, newValue);
-        }, this));
+        // Validation
+        if (newValue === "toto") {
+            callback.error();
+            return;
+        }
+        
+        model instanceof Ember.Object ? model.set(property, newValue) : model[property] = newValue;
+        return callback.success();
     },
 
-    refreshDisplayedData: function() {
+	refreshDisplayedData: function() {
         if (Ember.empty(this.get('data'))) {
             this.set('displayedData', this.get('data'));
             return;
@@ -102,7 +89,6 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
         Cabernet.log('DG refreshDisplayedData');
         this.set('displayedData', this.applySort(this.applyFilters(this.get('data'))));
     },
-
     sort: function(columnName, direction) {
         this.setCurrentSort(columnName, direction);
         this.refreshDisplayedData();
@@ -117,6 +103,7 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
             var actualSort = column.get('sort'),
                 direction  = (actualSort === 'down') ? 'up' : 'down';
         }
+
         this.get('columnsForDisplay').setEach('sort', false);
         column.set('sort', direction);
         if (this.shouldPersistParams()) this.persistSort(columnName, direction);
