@@ -45,3 +45,11 @@ Cabernet.Handlebars.registerHelper('list', function(context, options) {
   }
   return ret;
 });
+
+var i18nHelper = function(key, options) {
+  var context = this;
+  return Cabernet.I18n.translate(key);
+}
+
+Cabernet.Handlebars.registerHelper('t', i18nHelper);
+Ember.Handlebars.registerHelper('t', i18nHelper);

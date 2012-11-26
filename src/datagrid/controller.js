@@ -4,10 +4,24 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
     modelType: null,
     columns: null,
     defaultSort: null,
-    emptyText: 'No results found',
     sessionBucket: null,
 
     copyAllEnabled: true,
+    editable: false,
+    scrollable: false,
+
+    STRINGS: {
+        'cabernet.datagrid.empty' : 'No results found',
+        'cabernet.datagrid.fromValue'  : 'From',
+        'cabernet.datagrid.toValue'    : 'to',
+        'cabernet.datagrid.fromDate'   : 'From',
+        'cabernet.datagrid.toDate'     : 'to',
+        'cabernet.datagrid.all' : 'All',
+        'cabernet.datagrid.yes' : 'Yes',
+        'cabernet.datagrid.no'  : 'No',
+        'cabernet.datagrid.options'  : 'Options',
+        'cabernet.datagrid.copyToClipboard' : 'Copy to clipboard'
+    },
 
     dataChanged: function() {
         // does nothing, but avoids duplicate 'controllerDataChanged' on filters...
@@ -58,6 +72,8 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
     init: function() {
         this._super();
 
+        this.setI18nStrings();
+
         var initialSort = this.get('defaultSort');
         if (this.shouldPersistParams()) {
             var persistedSort = this.retrieveParam('sort');
@@ -89,6 +105,7 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
         Cabernet.log('DG refreshDisplayedData');
         this.set('displayedData', this.applySort(this.applyFilters(this.get('data'))));
     },
+
     sort: function(columnName, direction) {
         this.setCurrentSort(columnName, direction);
         this.refreshDisplayedData();
@@ -232,5 +249,12 @@ Cabernet.DatagridController = Ember.ObjectController.extend({
             props = Ember.get(this.get('modelType')).__metadata__.definedProperties;
         for (var propName in props) { cols.pushObject({ name: propName, type: props[propName].type }); }
         return cols;
+    },
+
+    setI18nStrings: function() {
+        var strings = this.get('STRINGS');
+        for (var k in strings) {
+            Cabernet.I18n.addMessage(k, strings[k]);
+        }
     }
 });

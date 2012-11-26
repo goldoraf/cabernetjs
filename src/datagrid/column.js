@@ -16,7 +16,7 @@ Cabernet.DatagridColumn.reopenClass({
         if (typeof options === 'string') options = { name: options };
         Ember.assert("Column objects must have a 'name' property", options.hasOwnProperty('name'));
 
-        options.label = options.label || Cabernet.translate(options.name);
+        options.label = options.label || Cabernet.I18n.translate(options.name);
         options.type = options.type || String;
 
         if (!options.hasOwnProperty('filterable') || options.filterable === true) {

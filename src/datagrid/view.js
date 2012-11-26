@@ -1,5 +1,3 @@
-/** !!!!! view.js depends on jquery.editableCell.js !!!!! */
-
 Cabernet.DatagridView = Ember.View.extend({
     classNames: ['datagrid'],
     columnsClassNames: {},
@@ -59,8 +57,7 @@ Cabernet.DatagridView = Ember.View.extend({
         var data = this.get('controller').get('displayedData');
         if (data.get('length') === 0) {
             this.$('tbody').replaceWith(this.get('emptyTemplate')({ 
-                columnCount: this.get('controller').get('displayedColumns').get('length'),
-                emptyText: this.get('controller').get('emptyText')
+                columnCount: this.get('controller').get('displayedColumns').get('length')
             }));
         } else {
             this.$('tbody').replaceWith(this.get('gridTemplate')({ data: data }));
@@ -87,7 +84,7 @@ Cabernet.DatagridView = Ember.View.extend({
     },
   
     emptyTemplate: function() {
-        return Handlebars.compile('<tbody><tr><td class="datagrid-empty" colspan="{{columnCount}}">{{emptyText}}</td></tr></tbody>');
+        return Cabernet.Handlebars.compile('<tbody><tr><td class="datagrid-empty" colspan="{{columnCount}}">{{t "cabernet.datagrid.empty"}}</td></tr></tbody>');
     }.property(),
 
     gridTemplate: function() {
@@ -134,7 +131,7 @@ Cabernet.DatagridHeaderView = Ember.View.extend({
 Cabernet.DatagridFilterView = Cabernet.Popover.extend({
     classNames: ['filter'],
     placement: 'below',
-    linkTemplate: '<a {{bindAttr class="view.linkClass"}} {{action "toggle" target="view"}}>U</a>',
+    linkTemplate: '<a {{bindAttr class="view.linkClass"}} {{action "toggle" target="view"}}>|</a>',
 
     linkClass: function() {
         var klass = 'filterlink';
@@ -189,7 +186,8 @@ Cabernet.DatagridPickFilterView = Cabernet.DatagridFilterView.extend({
 });
 
 Cabernet.DatagridRangeFilterView = Cabernet.DatagridFilterView.extend({
-    contentTemplate: '<p>From {{view.filter.selectedMin}} to {{view.filter.selectedMax}}</p><div class="slider-range"></div>',
+    contentTemplate: '<p>{{t "cabernet.datagrid.fromValue"}} {{view.filter.selectedMin}} \
+        {{t "cabernet.datagrid.toValue"}} {{view.filter.selectedMax}}</p><div class="slider-range"></div>',
 
     didInsertElement: function() {
         var initialValues, that = this;
@@ -215,8 +213,8 @@ Cabernet.DatagridRangeFilterView = Cabernet.DatagridFilterView.extend({
 });
 
 Cabernet.DatagridDaterangeFilterView = Cabernet.DatagridFilterView.extend({
-    contentTemplate: '<p>From {{view Ember.TextField classNames="min-date" valueBinding="view.filter.selectedMin"}} \
-        to {{view Ember.TextField classNames="max-date" valueBinding="view.filter.selectedMax"}}</p>',
+    contentTemplate: '<p>{{t "cabernet.datagrid.fromDate"}} {{view Ember.TextField classNames="min-date" valueBinding="view.filter.selectedMin"}} \
+        {{t "cabernet.datagrid.toDate"}} {{view Ember.TextField classNames="max-date" valueBinding="view.filter.selectedMax"}}</p>',
 
     didInsertElement: function() {
         var minDateInput = this.$('input.min-date'),
@@ -262,9 +260,9 @@ Cabernet.DatagridDaterangeFilterView = Cabernet.DatagridFilterView.extend({
 Cabernet.DatagridBooleanFilterView = Cabernet.DatagridFilterView.extend({
     classNames: ['boolean'],
     contentTemplate: '<ul class="inputs-list"> \
-                        <li><label><input type="radio" name="radiogroup" value="all"/>All</label></li> \
-                        <li><label><input type="radio" name="radiogroup" value="true"/>Yes</label></li> \
-                        <li><label><input type="radio" name="radiogroup" value="false"/>No</label></li> \
+                        <li><label><input type="radio" name="radiogroup" value="all"/>{{t "cabernet.datagrid.all"}}</label></li> \
+                        <li><label><input type="radio" name="radiogroup" value="true"/>{{t "cabernet.datagrid.yes"}}</label></li> \
+                        <li><label><input type="radio" name="radiogroup" value="false"/>{{t "cabernet.datagrid.no"}}</label></li> \
                       </ul>',
 
     stringValue: function() {
@@ -285,10 +283,10 @@ Cabernet.DatagridBooleanFilterView = Cabernet.DatagridFilterView.extend({
 Cabernet.DatagridOptionsView = Cabernet.Popover.extend({
     classNames: ['options'],
     placement: 'below right',
-    linkTemplate: '<a class="toggle" {{action "toggle" target="view"}}>Options</a>',
+    linkTemplate: '<a class="toggle" {{action "toggle" target="view"}}>{{t "cabernet.datagrid.options"}}</a>',
     contentTemplate: '{{#if copyAllEnabled}} \
                         <div id="clipboard-wrapper" style="position:relative"> \
-                            <div id="clipboard-button">Copy to Clipboard</div> \
+                            <div id="clipboard-button">{{t "cabernet.datagrid.copyToClipboard"}}</div> \
                         </div> \
                       {{/if}} \
                       {{view Ember.CollectionView tagName="ul" class="inputs-list" \

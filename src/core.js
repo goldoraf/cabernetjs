@@ -8,8 +8,10 @@ Cabernet.log = function(message) {
   if (Cabernet.LOG_ENABLED) Ember.Logger.info(message);
 }
 
-if (Em.I18n !== undefined) {
-    Cabernet.translate = Em.I18n.t;
-} else {
-    Cabernet.translate = Ember.String.loc;
-}
+Cabernet.I18n = Ember.Object.create({
+    translate: Ember.String.loc,
+
+    addMessage: function(k, string) {
+        Ember.STRINGS[k] = string;
+    }
+});
