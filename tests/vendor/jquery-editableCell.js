@@ -37,7 +37,8 @@
                     "blur" : true
                 },
                 editClass: "edit",
-                editTemplate: "<textarea>{{value}}</textarea>"
+                editTemplate: "<textarea>{{value}}</textarea>",
+                editNodeSelector: "textarea"
             }, options);
             
             methods.bindEvent.apply(this);
@@ -64,16 +65,19 @@
                         abortKeyList.push(value);
                     }
                 });
-                $(this).on("keydown", methods.settings.cellSelector, function(e) {
+
+                var abortSelector = methods.settings.cellSelector+"."+methods.settings.editClass + " " + methods.settings.editNodeSelector;
+
+                $(this).on("keydown", abortSelector, function(e) {
                     if ($.inArray(e.keyCode, abortKeyList) != -1) {
                         e.preventDefault(); // Prevent the insertion of the \n on submit
                         methods.exitEditMode(e);
                     }
                 });
                 
-                for (eventSpec in methods.settings.abortOn) {
-                    if (!eventSpec.match("key")) {
-                        $(this).on(eventSpec, methods.settings.cellSelector, methods.exitEditMode);   
+                for (eventType in methods.settings.abortOn) {
+                    if (!eventType.match("key")) {
+                        $(this).on(eventType, abortSelector, methods.exitEditMode);   
                     }
                 }
             }
@@ -170,7 +174,7 @@
             
             var template = methods.settings.editTemplate.replace("{{value}}", $cell.text());
             $cell.html(template);
-            $cell.find("textarea, input").select();
+            $cell.find(methods.settings.editNodeSelector).select();
         },
         /**
          * exitEditModeHandler
@@ -179,7 +183,7 @@
          * then call the showMode
          */
         exitEditMode: function(e) {
-            var $cell = $(e.currentTarget);
+            var $cell = $(e.currentTarget).parent(methods.settings.cellSelector);
             methods.showMode($cell);
         },
         /**

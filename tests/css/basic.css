@@ -3219,3 +3219,9 @@ div.popover.below .arrow:after {
   left: -9px;
   top: 1px;
 }
+/* tableScroll need to replace some element */
+.datagrid .options.scrollable .toggle {
+  position: absolute;
+  right: 6px;
+  margin-top: 5px;
+}

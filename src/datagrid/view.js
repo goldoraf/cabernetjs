@@ -1,14 +1,14 @@
 Cabernet.DatagridView = Ember.View.extend({
     classNames: ['datagrid'],
     columnsClassNames: {},
+    initScroll: true,
+    nbColumns: null,
     template: Ember.Handlebars.compile(
-        '<div class="options">{{view Cabernet.DatagridOptionsView}}</div> \
-        <table data-datagrid-table="cabernet-datagrid-table"> \
+        '<div {{bindAttr class=":options controller.scrollable:scrollable"}}>{{view Cabernet.DatagridOptionsView}}</div> \
+        <div class="dg-wrapper"><table data-datagrid-table="cabernet-datagrid-table"> \
             <thead> \
                 <tr> \
-                    {{#each column in displayedColumns}} \
-                        {{view Cabernet.DatagridHeaderView columnBinding="column"}} \
-                    {{/each}} \
+                    {{each displayedColumns itemViewClass="Cabernet.DatagridHeaderView"}} \
                 </tr> \
             </thead> \
             <tbody /> \
@@ -21,18 +21,10 @@ Cabernet.DatagridView = Ember.View.extend({
                     {{/each}} \
                 <tr>\
             </tfoot>\
-        </table>'
+        </table></div>'
     ),
 
-    didInsertElement: function() {
-        this.renderGrid();
-        this.addObserver('controller.displayedData', function displayedDataChanged() {
-            this.renderGrid();
-        });
-        this.addObserver('controller.displayedColumns', function displayedColumnsChanged() {
-            this.renderGrid();
-        });
-        
+    editablePlugin: function() {
         this.$("td.editable").on("saveCell", $.proxy(function(e, oldValue, newValue) {
             var $cell = $(e.target);
             var trNumber = $cell.parents("tr").index("table[data-datagrid-table='cabernet-datagrid-table'] tbody tr");
@@ -42,6 +34,7 @@ Cabernet.DatagridView = Ember.View.extend({
                 success: function() {},
                 error: function(msg) {
                     e.stopPropagation(); // be sure no other event is going to break or callback
+                    console.log("propagation stoped");
                     $cell.data("value", oldValue);
                     $cell.trigger("dblclick");
                     $cell.addClass("error");
@@ -49,6 +42,58 @@ Cabernet.DatagridView = Ember.View.extend({
             });
             
         }, this));
+
+        // Editable table
+        if (this.get("controller").get("editable")) {
+            this.$('tbody').editableCell({
+                cellSelector: "td.editable"
+            });   
+        }
+    },
+
+    scrollablePlugin: function() {
+        if (this.get("initScroll") && this.get("controller").get("scrollable")) {
+            this.get("parentView").$(".dg-wrapper").tableScroll("undo");
+            this.get("parentView").$(".dg-wrapper").tableScroll({
+                height: 400,
+                flush: true
+            });
+            this.set("initScroll", false);
+        }
+    },
+
+    reinitScrollablePlugin: function() {
+        this.set("nbColumns", 0);
+    },
+
+    childInserted: function(cell) {
+        var nbColumns = this.get("nbColumns") + 1;
+        this.set("nbColumns", nbColumns);
+        if (this.get("nbColumns") == this.get("controller").get("displayedColumns").length) {
+            this.set("initScroll", true);
+            this.scrollablePlugin();
+        }
+    },
+
+    didInsertElement: function() {
+        this.renderGrid();
+        this.set("initScroll", true);
+        this.scrollablePlugin();
+        this.editablePlugin();
+
+        this.addObserver('controller.displayedData', function() {
+            this.renderGrid();
+            this.set("initScroll", true);
+            this.scrollablePlugin();
+            this.editablePlugin();
+        });
+        this.addObserver('controller.displayedColumns', function() {
+            this.reinitScrollablePlugin();
+            this.renderGrid();
+            this.editablePlugin();
+        });
+
+        this._super();
     },
 
     renderGrid: function() {
@@ -60,29 +105,15 @@ Cabernet.DatagridView = Ember.View.extend({
                 columnCount: this.get('controller').get('displayedColumns').get('length')
             }));
         } else {
+            // Render the table
             this.$('tbody').replaceWith(this.get('gridTemplate')({ data: data }));
             
+            // Workaround for the elemtn:first css selector
             this.$("tbody tr:first").addClass("row-0");
-            this.$("tr > td:first, tr > th:first").addClass("cell-0");
-            
-            // Editable table
-           	if (this.get("controller").get("editable")) {
-                this.$('tbody').editableCell({
-                    cellSelector: "td.editable"
-                });   
-            }
-            
-            // make the table scrollabel
-            if (this.get("controller").get("scrollable")) {
-                this.$("table[data-datagrid-table='cabernet-datagrid-table']").tableScroll("undo");
-                this.$("table[data-datagrid-table='cabernet-datagrid-table']").tableScroll({
-                    height: this.get("controller").get("height"), 
-                    flush: true
-                });
-            }
+            this.$("tr > td:eq(0), tr > th:eq(0)").addClass("cell-0");
         }
     },
-  
+    
     emptyTemplate: function() {
         return Cabernet.Handlebars.compile('<tbody><tr><td class="datagrid-empty" colspan="{{columnCount}}">{{t "cabernet.datagrid.empty"}}</td></tr></tbody>');
     }.property(),
@@ -109,21 +140,25 @@ Cabernet.DatagridHeaderView = Ember.View.extend({
     tagName: 'th',
     classNameBindings: ['sortClass'],
 
+    didInsertElement: function() {
+        this.get("parentView").childInserted(this.$());
+    },
+
     sortClass: function() {
-        var sortDir = this.get('column').get('sort');
+        var sortDir = this.get("content").get('sort');
         if (sortDir === 'up') return 'headerSortUp';
         if (sortDir === 'down') return 'headerSortDown';
         return '';
-    }.property('column.sort'),
+    }.property('sort'),
 
     filterViewClass: function() {
-        return Ember.get(this.get('column').get('filter').get('viewClass'));
-    }.property('column.filter'),
+        return Ember.get(this.get("content").get('filter').get('viewClass'));
+    }.property('filter'),
 
     template: Ember.Handlebars.compile(
-        '<a class="sortlink" {{action sort view.column.name target="controller"}}>{{view.column.label}}</a> \
-        {{#if view.column.filterable}} \
-            {{view "view.filterViewClass" filterBinding="view.column.filter"}} \
+        '<a class="sortlink" {{action sort view.content.name target="controller"}}>{{view.content.label}}</a> \
+        {{#if view.content.filterable}} \
+            {{view "view.filterViewClass" filterBinding="view.content.filter"}} \
         {{/if}}'
     )
 });

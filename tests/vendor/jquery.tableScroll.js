@@ -46,25 +46,26 @@ OTHER DEALINGS IN THE SOFTWARE.
 	}
 	
 	$.fn.tableScroll = function(options) {
+        var self = this.find('table');
+        
 		if (options == 'undo') {
-			var container = $(this).parents(".tablescroll");
-			if (container.length) {
-                
+			var wrapper = self.parents(".tablescroll");
+			if (wrapper.length) {
                 // Restore the auto width
-                container.find("thead tr:first th, thead tr:first td").css({width: 'auto'});
-                container.find("tbody tr:first th, tbody tr:first td").css({width: 'auto'});
-                container.find("tfoot tr:first th, tfoot tr:first td").css({width: 'auto'});
+                wrapper.find("thead tr:first th, thead tr:first td").css({width: 'auto'});
+                wrapper.find("tbody tr:first th, tbody tr:first td").css({width: 'auto'});
+                wrapper.find("tfoot tr:first th, tfoot tr:first td").css({width: 'auto'});
                 
-				container.find('.tablescroll_head thead').prependTo(this);
-				container.find('.tablescroll_foot tfoot').appendTo(this);
+				wrapper.find('.tablescroll_head thead').prependTo(self);
+				wrapper.find('.tablescroll_foot tfoot').appendTo(self);
                 
-				container.before(this);
-				container.remove();
+                wrapper.before(self.parents('.dg-wrapper'));
+                wrapper.remove();
 			}
             
-			return this;
+			return self;
 		}
-
+        
 		var settings = $.extend({},$.fn.tableScroll.defaults,options);
 		
 		// Bail out if there's no vertical overflow
