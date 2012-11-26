@@ -44,24 +44,23 @@
 
                     Test.store = Syrah.Store.create({});
 
-                    /*var data = [
-                        {firstname: 'John', lastname: 'Doe', city: 'New York'},
-                        {firstname: 'Jane', lastname: 'Doe', city: 'Los Angeles'},
-                        {firstname: 'Jack', lastname: 'Ryan', city: 'Washington'},
-                        {firstname: 'Jack', lastname: 'Bauer', city: 'Los Angeles'},
-                    ];*/
+                    var data = [
+                        {firstname: 'John', lastname: 'Doe', city: 'New York', admin: true},
+                        {firstname: 'Jane', lastname: 'Doe', city: 'Los Angeles', admin: true},
+                        {firstname: 'Jack', lastname: 'Ryan', city: 'Washington', admin: false},
+                        {firstname: 'Jack', lastname: 'Bauer', city: 'Los Angeles', admin: false},
+                    ];
 
-                    var data = [];
+                    /*var data = [];
                     for (var i=1; i<=100; i++) {
                         data.push({firstname: 'John'+i, lastname: 'Doe', city: 'New York'})
-                    }
+                    }*/
 
                     var contacts = Test.store.loadMany(Test.Contact, Ember.A([]), data);
 
                     var grid = Cabernet.Datagrid.create({
                         data: contacts,
                         modelType: Test.Contact,
-                        columns: ['fullname', 'firstname', 'lastname', 'city'],
                         defaultSort: '-lastname',
                         sessionBucket: 'test',
                         columnsClassNames: { lastname: 'bold' },
@@ -76,7 +75,8 @@
             Test.Contact = Syrah.Model.define({
                 firstname: String,
                 lastname: String,
-                city: String
+                city: String,
+                admin: Boolean
             });
 
             Test.Contact.reopen({

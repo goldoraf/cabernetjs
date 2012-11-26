@@ -1,16 +1,10 @@
-Ember.ENV.RAISE_ON_DEPRECATION = false;
-if (Em.I18n !== undefined) {
-    Cabernet.translate = Em.I18n.t;
-} else {
-    Cabernet.translate = Ember.String.loc;
-}
-
 Cabernet.Datagrid = Ember.View.extend({
     
     template: Ember.Handlebars.compile(
         '   <div><div class="datagrid-header">\
                     {{view Cabernet.Datagrid.Columnpicker columnsBinding="columnsForDisplay"}}\
-                    <div id="clipboard-wrapper" style="position: relative" class="table-header-add-on"><a id="clipboard-button">Copy</a></div>\
+                    <div id="clipboard-wrapper" style="position: relative" class="table-header-add-on"> \
+                        <a id="clipboard-button">{{t "cabernet.datagrid.copyToClipboard"}}</a></div>\
                 </div>\
                 <div><table> \
                 <thead> \
@@ -30,6 +24,9 @@ Cabernet.Datagrid = Ember.View.extend({
                                     {{#if column.filter.isDaterange}} \
                                         {{view Cabernet.Datagrid.DaterangeFilterView filterBinding="column.filter"}} \
                                     {{/if}} \
+                                    {{#if column.filter.isBoolean}} \
+                                        {{view Cabernet.Datagrid.BooleanFilterView filterBinding="column.filter"}} \
+                                    {{/if}} \
                                 {{/if}} \
                                 <a class="sortlink" {{action onSort context="column.name"}}>{{column.label}}</a> \
                             </th> \
@@ -45,13 +42,23 @@ Cabernet.Datagrid = Ember.View.extend({
     columns: null,
     custom: {},
     defaultSort: null,
-    emptyText: 'No results found',
     sessionBucket: null,
 
     classNames: ['datagrid'],
     columnsClassNames: {},
     displayedData: [],
     clipClient: null,
+
+    STRINGS: {
+        'cabernet.datagrid.empty' : 'No results found',
+        'cabernet.datagrid.fromValue'  : 'From',
+        'cabernet.datagrid.toValue'    : 'to',
+        'cabernet.datagrid.fromDate'   : 'From',
+        'cabernet.datagrid.toDate'     : 'to',
+        'cabernet.datagrid.all' : 'All',
+        'cabernet.datagrid.yes' : 'Yes',
+        'cabernet.datagrid.no'  : 'No'
+    },
 
     columnsForDisplay: function() {
         return this.expandColumnsDefinition();
@@ -84,6 +91,8 @@ Cabernet.Datagrid = Ember.View.extend({
 
     init: function() {
         this._super();
+
+        this.setI18nStrings();
         
         this.addObserver('displayedColumns', function displayedColumnsChanged() {
             this.saveParam('displayedColumns', this.get('displayedColumns').mapProperty('name'));
@@ -124,15 +133,14 @@ Cabernet.Datagrid = Ember.View.extend({
     renderGrid: function() {
         if (this.get('displayedData').get('length') === 0) {
             this.$('tbody').replaceWith(this.get('emptyTemplate')({ 
-                columnCount: this.get('displayedColumns').get('length'),
-                emptyText: this.get('emptyText')
+                columnCount: this.get('displayedColumns').get('length')
             }));
         } else
             this.$('tbody').replaceWith(this.get('gridTemplate')({ data: this.get('displayedData') }));
     },
 
     emptyTemplate: function() {
-        return Handlebars.compile('<tbody><tr><td class="datagrid-empty" colspan="{{columnCount}}">{{emptyText}}</td></tr></tbody>');
+        return Cabernet.Handlebars.compile('<tbody><tr><td class="datagrid-empty" colspan="{{columnCount}}">{{t "cabernet.datagrid.empty"}}</td></tr></tbody>');
     }.property(),
 
     gridTemplate: function() {
@@ -292,6 +300,13 @@ Cabernet.Datagrid = Ember.View.extend({
             props = this.get('modelType').__metadata__.definedProperties;
         for (var propName in props) { cols.pushObject({ name: propName, type: props[propName].type }); }
         return cols;
+    },
+
+    setI18nStrings: function() {
+        var strings = this.get('STRINGS');
+        for (var k in strings) {
+            Cabernet.I18n.addMessage(k, strings[k]);
+        }
     }
 });
 
@@ -318,11 +333,30 @@ Cabernet.Datagrid.Column.reopenClass({
         if (typeof options === 'string') options = { name: options };
         Ember.assert("Column objects must have a 'name' property", options.hasOwnProperty('name'));
 
-        options.label = options.label || Cabernet.translate(options.name);
+        options.label = options.label || Cabernet.I18n.translate(options.name);
         options.type = options.type || String;
 
         if (!options.hasOwnProperty('filterable') || options.filterable === true) {
-            var filterOpts = options.filter || { type: 'text' };
+            if (options.filter !== undefined) {
+                var filterOpts = options.filter;
+            } else {
+                var filterType;
+                switch(options.type) {
+                    case Date:
+                        filterType = 'daterange';
+                        break;
+                    case Number:
+                        filterType = 'range';
+                        break;
+                    case Boolean:
+                        filterType = 'boolean';
+                        break;
+                    default:
+                        filterType = 'text';
+                        break;
+                }
+                var filterOpts = { type: filterType };
+            }
             if (typeof filterOpts === 'string') filterOpts = { type: filterOpts };
             filterOpts.column = options.name;
             
@@ -353,6 +387,10 @@ Cabernet.Datagrid.Filter = Ember.Object.extend({
         return this.get('type') === 'daterange';
     }.property('type'),
 
+    isBoolean: function() {
+        return this.get('type') === 'boolean';
+    }.property('type'),
+
     getValueFor: function(item) {
         return item instanceof Ember.Object ? item.get(this.get('column')) : item[this.get('column')];
     },
@@ -373,7 +411,6 @@ Cabernet.Datagrid.Filter.reopenClass({
 
 Cabernet.Datagrid.TextFilter = Cabernet.Datagrid.Filter.extend({
     type: 'text',
-    view: Cabernet.Datagrid.TextFilterView,
 
     apply: function(data) {
         var regex = new RegExp(this.get('value'), 'i', 'g');
@@ -385,7 +422,6 @@ Cabernet.Datagrid.TextFilter = Cabernet.Datagrid.Filter.extend({
 
 Cabernet.Datagrid.PickFilter = Cabernet.Datagrid.Filter.extend({
     type: 'pick',
-    view: Cabernet.Datagrid.PickFilterView,
     values: null,
 
     apply: function(data) {
@@ -410,8 +446,7 @@ Cabernet.Datagrid.PickFilter.reopenClass({
 
 Cabernet.Datagrid.RangeFilter = Cabernet.Datagrid.Filter.extend({
     type: 'range',
-    view: Cabernet.Datagrid.RangeFilterView,
-
+    
     selectedMax: function() {
         return !Ember.empty(this.get('value')) ? this.get('value')[1] : this.get('max');
     }.property('value'),
@@ -453,7 +488,6 @@ Cabernet.Datagrid.RangeFilter.reopenClass({
 
 Cabernet.Datagrid.DaterangeFilter = Cabernet.Datagrid.Filter.extend({
     type: 'datarange',
-    view: Cabernet.Datagrid.DaterangeFilterView,
     selectedMin: '',
     selectedMax: '',
 
@@ -475,6 +509,16 @@ Cabernet.Datagrid.DaterangeFilter = Cabernet.Datagrid.Filter.extend({
     applied: function() {
         return Ember.isArray(this.get('value'));
     }.property('value')
+});
+
+Cabernet.Datagrid.BooleanFilter = Cabernet.Datagrid.Filter.extend({
+    type: 'boolean',
+
+    apply: function(data) {
+        return data.filter(function(item) {
+            return this.getValueFor(item) === this.get('value');
+        }, this);
+    }
 });
 
 Cabernet.Datagrid.FilterView = Cabernet.Popover.extend({
@@ -518,7 +562,8 @@ Cabernet.Datagrid.PickFilterView = Cabernet.Datagrid.FilterView.extend({
 });
 
 Cabernet.Datagrid.RangeFilterView = Cabernet.Datagrid.FilterView.extend({
-    contentTemplate: '<p>From {{filter.selectedMin}} to {{filter.selectedMax}}</p><div class="slider-range"></div>',
+    contentTemplate: '<p>{{t "cabernet.datagrid.fromValue"}} {{filter.selectedMin}} \
+        {{t "cabernet.datagrid.toValue"}} {{filter.selectedMax}}</p><div class="slider-range"></div>',
 
     applyFilter: function(value) {
         this.get('filter').set('value', value);
@@ -540,8 +585,8 @@ Cabernet.Datagrid.RangeFilterView = Cabernet.Datagrid.FilterView.extend({
 });
 
 Cabernet.Datagrid.DaterangeFilterView = Cabernet.Datagrid.FilterView.extend({
-    contentTemplate: '<p>From {{view Ember.TextField classNames="min-date" valueBinding="filter.selectedMin"}} \
-        to {{view Ember.TextField classNames="max-date" valueBinding="filter.selectedMax"}}</p>',
+    contentTemplate: '<p>{{t "cabernet.datagrid.fromDate"}} {{view Ember.TextField classNames="min-date" valueBinding="filter.selectedMin"}} \
+        {{t "cabernet.datagrid.toDate"}} {{view Ember.TextField classNames="max-date" valueBinding="filter.selectedMax"}}</p>',
 
     didInsertElement: function() {
         var minDateInput = this.$('input.min-date'),
@@ -582,6 +627,29 @@ Cabernet.Datagrid.TextFilterView = Cabernet.Datagrid.FilterView.extend({
 Cabernet.Datagrid.FilterTextField = Ember.TextField.extend({
     insertNewline: function() {
         //this.get('parentView').applyFilter(this.get('value'));
+    }
+});
+
+Cabernet.Datagrid.BooleanFilterView = Cabernet.Datagrid.FilterView.extend({
+    classNames: ['boolean'],
+    contentTemplate: '<ul class="inputs-list"> \
+                        <li><label><input type="radio" name="radiogroup" value="all"/>{{t "cabernet.datagrid.all"}}</label></li> \
+                        <li><label><input type="radio" name="radiogroup" value="true"/>{{t "cabernet.datagrid.yes"}}</label></li> \
+                        <li><label><input type="radio" name="radiogroup" value="false"/>{{t "cabernet.datagrid.no"}}</label></li> \
+                      </ul>',
+
+    stringValue: function() {
+        var v = this.get('filter').get('value');
+        return Ember.empty(v) ? 'all' : v === true ? 'true' : 'false';
+    }.property('filter.value'),
+
+    didInsertElement: function() {
+        this.$('input[name=radiogroup]').val([this.get('stringValue')]);
+        var that = this;
+        this.$('input[name=radiogroup]').change(function() {
+            var v = that.$('input[name=radiogroup]:checked').val();
+            that.get('filter').set('value', v == 'all' ? '' : v == 'true' ? true : false);
+        });
     }
 });
 
