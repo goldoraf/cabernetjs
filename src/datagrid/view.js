@@ -62,7 +62,7 @@ Cabernet.DatagridView = Ember.View.extend({
         } else {
             this.$('tbody').replaceWith(this.get('gridTemplate')({ data: data }));
             
-            /*this.$("tbody tr:first").addClass("row-0");
+            this.$("tbody tr:first").addClass("row-0");
             this.$("tr > td:first, tr > th:first").addClass("cell-0");
             
             // Editable table
@@ -79,7 +79,7 @@ Cabernet.DatagridView = Ember.View.extend({
                     height: this.get("controller").get("height"), 
                     flush: true
                 });
-            }*/
+            }
         }
     },
   
