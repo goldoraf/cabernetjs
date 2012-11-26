@@ -171,6 +171,23 @@ div.datagrid div.options {
     display:inline-block;
     float: right;
     margin: 1px 0 1px 1px;
+
+    hr {
+        border: none;
+        background-color: #ccc;
+        color: #ccc;
+        height: 1px;
+        margin: 7px 0;
+    }
+
+    div.clipboard-button {
+        color: @darkBlue;
+        cursor: pointer;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
     
     a.toggle {
         .iconLink(url(../../images/columnPicker.png));

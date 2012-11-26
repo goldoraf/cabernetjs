@@ -2909,6 +2909,20 @@ div.datagrid div.options {
   float: right;
   margin: 1px 0 1px 1px;
 }
+div.datagrid div.options hr {
+  border: none;
+  background-color: #ccc;
+  color: #ccc;
+  height: 1px;
+  margin: 7px 0;
+}
+div.datagrid div.options div.clipboard-button {
+  color: #00517e;
+  cursor: pointer;
+}
+div.datagrid div.options div.clipboard-button:hover {
+  text-decoration: underline;
+}
 div.datagrid div.options a.toggle {
   text-indent: -5000px;
   display: inline-block;

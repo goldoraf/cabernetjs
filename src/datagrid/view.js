@@ -62,7 +62,7 @@ Cabernet.DatagridView = Ember.View.extend({
         } else {
             this.$('tbody').replaceWith(this.get('gridTemplate')({ data: data }));
             
-            this.$("tbody tr:first").addClass("row-0");
+            /*this.$("tbody tr:first").addClass("row-0");
             this.$("tr > td:first, tr > th:first").addClass("cell-0");
             
             // Editable table
@@ -79,7 +79,7 @@ Cabernet.DatagridView = Ember.View.extend({
                     height: this.get("controller").get("height"), 
                     flush: true
                 });
-            }
+            }*/
         }
     },
   
@@ -285,9 +285,10 @@ Cabernet.DatagridOptionsView = Cabernet.Popover.extend({
     placement: 'below right',
     linkTemplate: '<a class="toggle" {{action "toggle" target="view"}}>{{t "cabernet.datagrid.options"}}</a>',
     contentTemplate: '{{#if copyAllEnabled}} \
-                        <div id="clipboard-wrapper" style="position:relative"> \
-                            <div id="clipboard-button">{{t "cabernet.datagrid.copyToClipboard"}}</div> \
+                        <div class="clipboard-wrapper" style="position:relative"> \
+                            <div class="clipboard-button">{{t "cabernet.datagrid.copyToClipboard"}}</div> \
                         </div> \
+                        <hr /> \
                       {{/if}} \
                       {{view Ember.CollectionView tagName="ul" class="inputs-list" \
                         itemViewClass="Cabernet.DatagridColumnpickerElement" contentBinding="columnsForDisplay"}}',
@@ -313,7 +314,10 @@ Cabernet.DatagridOptionsView = Cabernet.Popover.extend({
         this._super(e);
         var popover = this.$('div.popover'),
             clipClient = this.get('clipClient');
-        if (popover.is(':visible') && !clipClient.glued) clipClient.glue('clipboard-button', 'clipboard-wrapper');
+        if (popover.is(':visible') && !clipClient.glued) {
+            clipClient.glue(this.$('div.clipboard-button').get(0), this.$('div.clipboard-wrapper').get(0));
+            clipClient.glued = true;
+        }
     }
 });
 
