@@ -43,6 +43,11 @@ test("Filter object creation from object (type daterange)", function () {
     ok(filter instanceof Cabernet.Datagrid.DaterangeFilter);
 });
 
+test("Filter object creation from object (type boolean)", function () {
+    var filter = Cabernet.Datagrid.Filter.createFromOptions({ type:'boolean' });
+    ok(filter instanceof Cabernet.Datagrid.BooleanFilter);
+});
+
 test("PickFilter should derive its pickable values from the grid data", function () {
     var filter = Cabernet.Datagrid.Filter.createFromOptions({ type:'pick', column:'usertype' }, [
         { login:'jdoe', usertype:'admin' },
@@ -76,10 +81,11 @@ test("Filters on columns", function () {
             { name:'filterableByText', filter:{ type:'text' } },
             { name:'filterableByRange', filter:{ type:'range' } },
             { name:'filterableByDateRange', filter:{ type:'daterange' } },
-            { name:'filterableByPicker', filter:{ type:'pick' } } ]
+            { name:'filterableByPicker', filter:{ type:'pick' } },
+            { name:'filterableByBoolean', filter:{ type:'boolean' } } ]
     });
-    equal(grid.get('columnsForDisplay').get('length'), 6);
-    equal(grid.get('filters').get('length'), 6);
+    equal(grid.get('columnsForDisplay').get('length'), 7);
+    equal(grid.get('filters').get('length'), 7);
 
     ok(grid.get('columnsForDisplay')[0].filter instanceof Cabernet.Datagrid.TextFilter); // Column simpleByDefault
     ok(grid.get('columnsForDisplay')[1].filter instanceof Cabernet.Datagrid.TextFilter); // Column filterableByDefaultWithName
@@ -87,6 +93,7 @@ test("Filters on columns", function () {
     ok(grid.get('columnsForDisplay')[3].filter instanceof Cabernet.Datagrid.RangeFilter); // Column filterableByRange
     ok(grid.get('columnsForDisplay')[4].filter instanceof Cabernet.Datagrid.DaterangeFilter); // Column filterableByDateRange
     ok(grid.get('columnsForDisplay')[5].filter instanceof Cabernet.Datagrid.PickFilter); // Column filterableByPicker
+    ok(grid.get('columnsForDisplay')[6].filter instanceof Cabernet.Datagrid.BooleanFilter); // Column filterableByBoolean
 
     for (var i = 0; i < grid.get('columnsForDisplay').get('length'); i++) {
         deepEqual(grid.get('filters')[i], grid.get('columnsForDisplay')[i].filter);
@@ -142,6 +149,39 @@ test("Filter datas by text", function () {
     equal(grid.get('displayedData').get('length'), 2); // Only 'bb' and bc'
     equal(grid.get('displayedData')[0].textColumn, "bb");
     equal(grid.get('displayedData')[1].textColumn, "bc");
+});
+
+test("Filter datas by boolean", function () {
+
+    var grid = Cabernet.Datagrid.create({
+        data:[
+            {"booleanColumn":true, "valueText":'A'},
+            {"booleanColumn":false, "valueText":'B'},
+            {"booleanColumn":true, "valueText":'C'}
+        ],
+        columns:['booleanColumn', 'valueText']
+    });
+    equal(grid.get('data').get('length'), 3);
+    equal(grid.get('displayedData').get('length'), 3);
+
+    var filter = grid.get('filters')[0];
+
+    filter.set('value', true);
+    equal(grid.get('data').get('length'), 3); // unchanged
+    equal(grid.get('displayedData').get('length'), 2); // Only first ant third
+    equal(grid.get('displayedData')[0].valueText, "A");
+    equal(grid.get('displayedData')[1].valueText, "C");
+
+    filter.set('value', false);
+    equal(grid.get('displayedData').get('length'), 1); // Only second
+    equal(grid.get('displayedData')[0].valueText, "B");
+
+    filter.set('value', ''); // Value 'all'
+    equal(grid.get('displayedData').get('length'), 3); // All rows
+    equal(grid.get('displayedData')[0].valueText, "A");
+    equal(grid.get('displayedData')[1].valueText, "B");
+    equal(grid.get('displayedData')[2].valueText, "C");
+    
 });
 
 test("Filter datas by picker(enumerated values)", function () {
