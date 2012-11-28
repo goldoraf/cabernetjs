@@ -165,7 +165,8 @@ Cabernet.DatagridHeaderView = Ember.View.extend({
 
 Cabernet.DatagridFilterView = Cabernet.Popover.extend({
     classNames: ['filter'],
-    placement: 'below',
+    placement: 'below right',
+    withArrow: false,
     linkTemplate: '<a {{bindAttr class="view.linkClass"}} {{action "toggle" target="view"}}>|</a>',
 
     linkClass: function() {

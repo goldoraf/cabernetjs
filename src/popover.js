@@ -4,6 +4,7 @@ Cabernet.Popover = Ember.View.extend({
     linkTemplate: null,
     contentTemplate: '',
     placement: 'below',
+    withArrow: true,
 
     init: function() {
         this.set('template', this.generateTemplate());
@@ -26,7 +27,7 @@ Cabernet.Popover = Ember.View.extend({
                 at: params.at,
                 offset: params.offset
             });
-            if (params.arrowLeft !== undefined) popover.children('div.arrow').css('left', params.arrowLeft);
+            if (this.get('withArrow') && params.arrowLeft !== undefined) popover.children('div.arrow').css('left', params.arrowLeft);
             
             popover.bind('clickoutside', function(e) {
                 $(this).removeClass('active').hide().unbind('clickoutside');
@@ -43,9 +44,9 @@ Cabernet.Popover = Ember.View.extend({
         else if (placementClass == 'above left' || placementClass == 'above right') placementClass = 'above';
         return Ember.Handlebars.compile(
             linkTmpl +
-            '<div class="popover ' + placementClass + '"> \
-                <div class="arrow"></div> \
-                <div class="inner"> \
+            '<div class="popover ' + placementClass + '">' +
+                (this.get('withArrow') ? '<div class="arrow"></div>' : '') +
+                '<div class="inner"> \
                     <div class="content">' +
                         this.get('contentTemplate') +
                     '</div> \
