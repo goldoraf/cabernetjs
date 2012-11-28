@@ -92,10 +92,11 @@ test("Filters on columns", function() {
             { name: 'filterableByText', filter: { type: 'text' } },
             { name: 'filterableByRange', filter: { type: 'range' } },
             { name: 'filterableByDateRange', filter: { type: 'daterange' } },
-            { name: 'filterableByPicker', filter: { type: 'pick' } } ]
+            { name: 'filterableByPicker', filter: { type: 'pick' } },
+            { name:'filterableByBoolean', filter:{ type:'boolean' } } ]
     });
-    equal(grid.get('columnsForDisplay').get('length'), 6);
-    equal(grid.get('filters').get('length'), 6);
+    equal(grid.get('columnsForDisplay').get('length'), 7);
+    equal(grid.get('filters').get('length'), 7);
 
     ok(grid.get('columnsForDisplay')[0].filter instanceof Cabernet.DatagridTextFilter); // Column simpleByDefault
     ok(grid.get('columnsForDisplay')[1].filter instanceof Cabernet.DatagridTextFilter); // Column filterableByDefaultWithName
@@ -103,6 +104,7 @@ test("Filters on columns", function() {
     ok(grid.get('columnsForDisplay')[3].filter instanceof Cabernet.DatagridRangeFilter); // Column filterableByRange
     ok(grid.get('columnsForDisplay')[4].filter instanceof Cabernet.DatagridDaterangeFilter); // Column filterableByDateRange
     ok(grid.get('columnsForDisplay')[5].filter instanceof Cabernet.DatagridPickFilter); // Column filterableByPicker
+	ok(grid.get('columnsForDisplay')[6].filter instanceof Cabernet.DatagridBooleanFilter); // Column filterableByBoolean
 
     for(var i=0; i<grid.get('columnsForDisplay').get('length'); i++) {
         deepEqual(grid.get('filters')[i], grid.get('columnsForDisplay')[i].filter);
@@ -180,6 +182,39 @@ test("Filter data by text", function() {
     equal(grid.get('displayedData').get('length'), 2); // Only 'bb' and bc'
     equal(grid.get('displayedData')[0].textColumn, "bb");
     equal(grid.get('displayedData')[1].textColumn, "bc");
+});
+
+test("Filter datas by boolean", function () {
+
+    var grid = Cabernet.DatagridController.create({
+        data:[
+            {"booleanColumn":true, "valueText":'A'},
+            {"booleanColumn":false, "valueText":'B'},
+            {"booleanColumn":true, "valueText":'C'}
+        ],
+        columns:['booleanColumn', 'valueText']
+    });
+    equal(grid.get('data').get('length'), 3);
+    equal(grid.get('displayedData').get('length'), 3);
+
+    var filter = grid.get('filters')[0];
+
+    filter.set('value', true);
+    equal(grid.get('data').get('length'), 3); // unchanged
+    equal(grid.get('displayedData').get('length'), 2); // Only first ant third
+    equal(grid.get('displayedData')[0].valueText, "A");
+    equal(grid.get('displayedData')[1].valueText, "C");
+
+    filter.set('value', false);
+    equal(grid.get('displayedData').get('length'), 1); // Only second
+    equal(grid.get('displayedData')[0].valueText, "B");
+
+    filter.set('value', ''); // Value 'all'
+    equal(grid.get('displayedData').get('length'), 3); // All rows
+    equal(grid.get('displayedData')[0].valueText, "A");
+    equal(grid.get('displayedData')[1].valueText, "B");
+    equal(grid.get('displayedData')[2].valueText, "C");
+    
 });
 
 test("Filter data by picker(enumerated values)", function() {
@@ -322,4 +357,99 @@ test("Try to display/hide non hideable columns", function() {
     // Hide hideable column
     grid.get('columnsForDisplay')[2].set('displayed', false); // Yes we can
     equal(grid.get('displayedColumns').get('length'), 2);
+});
+
+test("Column sorting for main datatypes", function () {
+
+    var grid = Cabernet.DatagridController.create({
+        data:[
+            {"id":0, dateValue:"2012-01-01", amountValue:200.00, textValue:"first", intValue:99},
+            {"id":1, dateValue:"2012-02-01", amountValue:1000.00, textValue:"aaa", intValue:80},
+            {"id":2, dateValue:"2012-04-30", amountValue:50.01, textValue:"test", intValue:40},
+            {"id":3, dateValue:"2012-07-01", amountValue:50.00, textValue:"test too", intValue:10}
+        ],
+
+        columns:['id', 'dateValue', 'amountValue', 'textValue', 'intValue']
+    });
+
+
+    // Sort by date descending
+    grid.sort('dateValue', 'down');
+
+    equal(grid.get('displayedData')[0].id, 3);
+    equal(grid.get('displayedData')[1].id, 2);
+    equal(grid.get('displayedData')[2].id, 1);
+    equal(grid.get('displayedData')[3].id, 0);
+
+    // Sort by amount ascending
+    grid.sort('amountValue', 'up');
+
+    equal(grid.get('displayedData')[0].id, 3);
+    equal(grid.get('displayedData')[1].id, 2);
+    equal(grid.get('displayedData')[2].id, 0);
+    equal(grid.get('displayedData')[3].id, 1);
+
+    // Sort by text descending
+    grid.sort('textValue', 'down');
+
+    equal(grid.get('displayedData')[0].id, 3);
+    equal(grid.get('displayedData')[1].id, 2);
+    equal(grid.get('displayedData')[2].id, 0);
+    equal(grid.get('displayedData')[3].id, 1);
+
+    // Sort by int ascending
+    grid.sort('intValue', 'up');
+
+    equal(grid.get('displayedData')[0].id, 3);
+    equal(grid.get('displayedData')[1].id, 2);
+    equal(grid.get('displayedData')[2].id, 1);
+    equal(grid.get('displayedData')[3].id, 0);
+});
+
+test("Column sorting error handling", function () {
+
+    var grid = Cabernet.DatagridController.create({
+        data:[
+            {"id":0, dateValue:"2012-01-01", amountValue:200.00, textValue:"first", intValue:99},
+            {"id":1, dateValue:"2012-02-01", amountValue:1000.00, textValue:"aaa", intValue:80},
+            {"id":2, dateValue:"2012-04-30", amountValue:50.01, textValue:"test", intValue:40},
+            {"id":3, dateValue:"2012-07-01", amountValue:50.00, textValue:"test too", intValue:10}
+        ],
+
+        columns:['id', 'dateValue', 'amountValue', 'textValue', 'intValue']
+    });
+
+
+    // Sort by non existing column
+    raises(function () {
+            return grid.sort('unknownValue', 'down');
+        },
+        /undefined/, "error expected with message containing 'undefined'");   
+});
+
+
+test("Copy grid content to TSV", function () {
+
+    var grid = Cabernet.DatagridController.create({
+        data:[
+            {"id":0, dateValue:"2012-01-01", amountValue:200.00, textValue:"first", intValue:99},
+            {"id":1, dateValue:"2012-02-01", amountValue:1000.00, textValue:"aaa", intValue:80},
+            {"id":2, dateValue:"2012-04-30", amountValue:50.01, textValue:"test", intValue:40},
+            {"id":3, dateValue:"2012-07-01", amountValue:50.00, textValue:"test too", intValue:10}
+        ],
+
+        columns:['id', 'dateValue', 'amountValue', 'textValue', 'intValue']
+    });
+
+
+    // Sort by date descending
+    var content = grid.generateTSV();
+    var expectedContent =
+        "id\tdateValue\tamountValue\ttextValue\tintValue\r\n"
+            + "0\t2012-01-01\t200\tfirst\t99\r\n"
+            + "1\t2012-02-01\t1000\taaa\t80\r\n"
+            + "2\t2012-04-30\t50.01\ttest\t40\r\n"
+            + "3\t2012-07-01\t50\ttest too\t10\r\n";
+
+    equal(content, expectedContent);
 });
