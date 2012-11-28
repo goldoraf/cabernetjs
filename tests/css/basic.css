@@ -2920,6 +2920,7 @@ div.filterbar div.filters div.filter {
   -ms-transition: none;
   -o-transition: none;
   transition: none;
+  position: relative;
 }
 div.filterbar div.filters div.filter a {
   cursor: pointer;

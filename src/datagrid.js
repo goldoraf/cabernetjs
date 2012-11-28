@@ -10,7 +10,7 @@ Cabernet.Datagrid = Ember.View.extend({
                 <thead> \
                     <tr> \
                         {{#each column in displayedColumns}} \
-                            <th {{bindAttr class="column.sortClass" }}>\
+                            <th style="position: relative" {{bindAttr class="column.sortClass" }}>\
                                 {{#if column.filterable}} \
                                     {{#if column.filter.isText}} \
                                         {{view Cabernet.Datagrid.TextFilterView filterBinding="column.filter"}} \
@@ -523,7 +523,8 @@ Cabernet.Datagrid.BooleanFilter = Cabernet.Datagrid.Filter.extend({
 
 Cabernet.Datagrid.FilterView = Cabernet.Popover.extend({
     classNames: ['filter'],
-    placement: 'below',
+    placement: 'below left',
+    withArrow: false,
     linkTemplate: '<a {{bindAttr class="linkClass"}} {{action "toggle"}}>U</a>',
 
     linkClass: function() {
