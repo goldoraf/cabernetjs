@@ -8,28 +8,12 @@
     font-weight: bold;
 }
 
-div.datagrid-header {
-  margin: 0;
-  padding: @space;
-  .border-radius(0);
-  border: 1px solid @lightBlue;
-  border-bottom: none;
-  background-color: @activeTabColor;
-  line-height: 18px;
-  overflow:auto;
-}
-
 div.datagrid table {
     width: 100%;
     border-collapse: separate;
     border: 1px solid @lightBlue;
     border-top: 1px solid @tabsColor;
     margin-bottom: 0;
-    
-    td.checkbox, 
-    th.checkbox {
-        width: 15px;
-    }
     
     thead {
         font-weight: 600;
@@ -47,9 +31,12 @@ div.datagrid table {
             padding: 5px;
             color: @darkBlue;
 
-            &:first-child {
-                background: none;
+            &.cell-0 {
+                background: none;   
+            }
 
+            &.options {
+                width: 15px;
             }
 
             a.sortlink {
@@ -125,132 +112,39 @@ div.datagrid table {
     }
 }
 
-div.datagrid div.columnpicker {
+div.datagrid div.options {
     display:inline-block;
     float: right;
-    margin: 0;
-    margin-top: 3px;
+    margin: 1px 0 1px 1px;
+
+    hr {
+        border: none;
+        background-color: #ccc;
+        color: #ccc;
+        height: 1px;
+        margin: 7px 0;
+    }
+
+    div.clipboard-button {
+        color: @darkBlue;
+        cursor: pointer;
+        text-align: left;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
     
     a.toggle {
-        .iconLink(url(../../images/columnPicker.png));
-        height: 25px;
-        width: 27px;
+        .iconLink(url(../../images/options.png));
+        height: 10px;
+        width: 25px;
         margin: 0;
         
         background-position: top center;
         
         &:hover {
             background-position: bottom center;
-        }
-    }
-}
-
-div#clipboard-wrapper{
-    display: inline-block;
-    float: right;
-    margin: 0;
-    margin-top: 3px;
-      a#clipboard-button {
-        .iconLink(url(../../images/copyPaste.png));
-        height: 25px;
-        width: 27px;
-        margin-right: @space;
-        background-position: top center;
-        float: right;
-        &:hover {
-            background-position: bottom center;
-        }
-    }
-}
-
-div.filterbar {
-    margin-right: 40px;
-    
-    h5 {
-        line-height: @lineHeight;
-        float: left;
-        color: #004b73;
-        text-shadow: 0 1px 0 @white;
-        margin-right: 10px;
-        font-size: 13px;
-    }
-
-    div.filters {
-        clear: both;
-        display:inline-block;        
-
-        div.filter-links {
-            display: inline-block;
-            margin-right: 10px;
-        }
-
-        div.applied-filters {
-            display: inline-block;
-        }
-
-        div.filter {
-            margin-right: -5px;
-            display: inline-block;
-            .transition(none);
-            position: relative;
-            
-            a {
-                .btn();
-                .border-radius(0px);
-                border-right-width: 1px;
-            }
-
-            a + a:before {
-                border-right-width: 0px;
-            }
-            
-            &:first-child a {
-                .border-radius(4px 0 0 4px);
-            }
-            
-            &:last-child a {
-                .border-radius(0 4px 4px 0);
-            }
-            
-            &.selected a.selected, &.selected a.selected:hover {
-                background: @white;
-                color: @darkBlue;
-            }
-        }
-
-        span.applied-filter {
-            display: inline-block;
-            text-decoration: none;
-            line-height: 18px;
-            padding: 0px 1px 0px 3px; 
-            margin: 1px;
-            
-            .border-radius(2px);
-            .transition(0s none);
-            text-shadow: 0 1px 0 @white;
-            
-            border: 1px solid @darkGray;
-            color: @darkGray;
-            background: @lightGray;
-            
-            a.delete {
-                margin-top: 1px;
-                display: block;
-                float: right;
-                margin-left: 5px;
-                background:url('../images/delete.png') no-repeat left top;
-                width: 16px;
-                height: 16px;
-                text-indent: -5000px;
-            }
-            
-            &:hover {
-                color: @error;
-                
-                a.delete {
-                    background-position: bottom center;
-                }
-            }
         }
     }
 }

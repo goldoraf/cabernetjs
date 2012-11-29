@@ -1,12 +1,7 @@
 Cabernet.Datagrid = Ember.View.extend({
     
     template: Ember.Handlebars.compile(
-        '   <div><div class="datagrid-header">\
-                    {{view Cabernet.Datagrid.Columnpicker columnsBinding="columnsForDisplay"}}\
-                    <div id="clipboard-wrapper" style="position: relative" class="table-header-add-on"> \
-                        <a id="clipboard-button">{{t "cabernet.datagrid.copyToClipboard"}}</a></div>\
-                </div>\
-                <div><table> \
+        '<table> \
                 <thead> \
                     <tr> \
                         {{#each column in displayedColumns}} \
@@ -31,10 +26,13 @@ Cabernet.Datagrid = Ember.View.extend({
                                 <a class="sortlink" {{action onSort context="column.name"}}>{{column.label}}</a> \
                             </th> \
                         {{/each}} \
+                        <th class="options"> \
+                            {{view Cabernet.Datagrid.OptionsView columnsBinding="columnsForDisplay"}}\
+                        </th> \
                     </tr> \
                 </thead> \
                 <tbody /> \
-            </table></div></div> \
+            </table> \
         '),
 
     data: [],
@@ -57,7 +55,9 @@ Cabernet.Datagrid = Ember.View.extend({
         'cabernet.datagrid.toDate'     : 'to',
         'cabernet.datagrid.all' : 'All',
         'cabernet.datagrid.yes' : 'Yes',
-        'cabernet.datagrid.no'  : 'No'
+        'cabernet.datagrid.no'  : 'No',
+        'cabernet.datagrid.options'  : 'Options',
+        'cabernet.datagrid.copyToClipboard' : 'Copy to clipboard'
     },
 
     columnsForDisplay: function() {
@@ -116,18 +116,6 @@ Cabernet.Datagrid = Ember.View.extend({
 
     didInsertElement: function() {
         this.renderGrid();
-        var newClipClient = new ZeroClipboard.Client();
-        this.set("clipClient", newClipClient);
-        this.get("clipClient").setText( '' );
-        this.get("clipClient").setHandCursor( true );
-        this.get("clipClient").setCSSEffects( true );
-
-        var that = this;
-        this.get("clipClient").addEventListener( 'mouseDown', function(clipClient) {
-            that.copyToClipboard();
-        });
-
-        this.get("clipClient").glue('clipboard-button', 'clipboard-wrapper') ;
     },
 
     renderGrid: function() {
@@ -137,6 +125,9 @@ Cabernet.Datagrid = Ember.View.extend({
             }));
         } else
             this.$('tbody').replaceWith(this.get('gridTemplate')({ data: this.get('displayedData') }));
+            // Workaround for the element:first css selector
+            this.$("tbody tr:first").addClass("row-0");
+            this.$("tr > td:eq(0), tr > th:eq(0)").addClass("cell-0");
     },
 
     emptyTemplate: function() {
@@ -251,11 +242,6 @@ Cabernet.Datagrid = Ember.View.extend({
             contents += values.join("\t") + "\r\n";
         }
         return keys.join("\t") + "\r\n" + contents;
-    },
-
-    copyToClipboard: function() {
-        var tsv = this.generateTSV();
-        this.get("clipClient").setText(tsv);
     },
 
     persistSort: function(columnName, direction) {
@@ -654,15 +640,45 @@ Cabernet.Datagrid.BooleanFilterView = Cabernet.Datagrid.FilterView.extend({
     }
 });
 
-Cabernet.Datagrid.Columnpicker = Cabernet.Popover.extend({
-    classNames: ['columnpicker'],
+Cabernet.Datagrid.OptionsView = Cabernet.Popover.extend({
+    classNames: ['options'],
     placement: 'below left',
-    linkTemplate: '<a class="toggle" {{action "toggle"}}>Select columns</a>',
-    contentTemplate: '{{view Ember.CollectionView tagName="ul" class="inputs-list" \
-                        itemViewClass="Cabernet.Datagrid.Columnpicker.Element" contentBinding="columns"}}'
+    withArrow: false,
+    linkTemplate: '<a class="toggle" {{action "toggle"}}>{{t "cabernet.datagrid.options"}}</a>',
+    contentTemplate: '<div class="clipboard-wrapper" style="position:relative"> \
+                            <div class="clipboard-button">{{t "cabernet.datagrid.copyToClipboard"}}</div> \
+                        </div> \
+                        <hr /> \
+                        {{view Ember.CollectionView tagName="ul" class="inputs-list" \
+                        itemViewClass="Cabernet.Datagrid.ColumnpickerElement" contentBinding="columns"}}',
+
+    didInsertElement: function() {
+        var clipClient = new ZeroClipboard.Client();
+        clipClient.setText('');
+        clipClient.setHandCursor(true);
+        clipClient.setCSSEffects(true);
+        clipClient.glued = false;
+
+        this.set('clipClient', clipClient);
+
+        var that = this;
+        this.get('clipClient').addEventListener('mouseDown', function(client) {
+            that.get('clipClient').setText(that.get('parentView').generateTSV());
+        });
+    },
+
+    toggle: function(e) {
+        this._super(e);
+        var popover = this.$('div.popover'),
+            clipClient = this.get('clipClient');
+        if (popover.is(':visible') && !clipClient.glued) {
+            clipClient.glue(this.$('div.clipboard-button').get(0), this.$('div.clipboard-wrapper').get(0));
+            clipClient.glued = true;
+        }
+    }
 });
 
-Cabernet.Datagrid.Columnpicker.Element = Ember.View.extend({
+Cabernet.Datagrid.ColumnpickerElement = Ember.View.extend({
     template: Ember.Handlebars.compile(
         '<label> \
             {{#if content.hideable}} \
