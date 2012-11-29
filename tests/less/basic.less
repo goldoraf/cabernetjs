@@ -27,43 +27,49 @@ div.datagrid table {
 
         th {
             background: url(../../images/table-th-separator.png) 0px center no-repeat;
-            text-align: center;
-            padding: 5px;
+            text-align: left;
+            padding: 0px;
             color: @darkBlue;
+            vertical-align: middle;
+            padding: 0;
+            height: 27px;
 
             &.cell-0 {
                 background: none;   
             }
 
             &.options {
-                width: 15px;
+                width: 10px;
             }
 
             a.sortlink {
+                line-height: 12px;
                 color: @darkBlue;
                 font-weight: 500;
-                padding-left: 10px;
                 display: inline-block;
+                padding-left: 5px;
             }
 
-            &.headerSortUp {
-               a.sortlink {
-                  background: url(../../images/sort.png) no-repeat  left 3px transparent;
-               }
+            &.headerSortUp div.header-wrapper {
+                background: url(../../images/sortup.png) 90% center no-repeat;
             }
-            &.headerSortDown {
-              a.sortlink {
-                  background: url(../../images/sort.png) no-repeat  left -10px transparent;
-                }
+            &.headerSortDown div.header-wrapper {
+                background: url(../../images/sortdown.png) 90% center no-repeat;
+            }
+
+            div.header-wrapper {
+                position: relative;
             }
 
             div.filter {
-                float: right;
                 display: inline-block;
-                padding: 0 10px;
+                float: right;
             }
 
             a.filterlink {
+                position: absolute;
+                top: 0;
+                right: 5px;
                 margin: 0;
                 text-indent: -5000px;
                 display: inline-block;

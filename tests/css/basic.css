@@ -2769,34 +2769,43 @@ div.datagrid table thead {
 }
 div.datagrid table thead th {
   background: url(../../images/table-th-separator.png) 0px center no-repeat;
-  text-align: center;
-  padding: 5px;
+  text-align: left;
+  padding: 0px;
   color: #00517e;
+  vertical-align: middle;
+  padding: 0;
+  height: 27px;
 }
 div.datagrid table thead th.cell-0 {
   background: none;
 }
 div.datagrid table thead th.options {
-  width: 15px;
+  width: 10px;
 }
 div.datagrid table thead th a.sortlink {
+  line-height: 12px;
   color: #00517e;
   font-weight: 500;
-  padding-left: 10px;
   display: inline-block;
+  padding-left: 5px;
 }
-div.datagrid table thead th.headerSortUp a.sortlink {
-  background: url(../../images/sort.png) no-repeat left 3px transparent;
+div.datagrid table thead th.headerSortUp div.header-wrapper {
+  background: url(../../images/sortup.png) 90% center no-repeat;
 }
-div.datagrid table thead th.headerSortDown a.sortlink {
-  background: url(../../images/sort.png) no-repeat left -10px transparent;
+div.datagrid table thead th.headerSortDown div.header-wrapper {
+  background: url(../../images/sortdown.png) 90% center no-repeat;
+}
+div.datagrid table thead th div.header-wrapper {
+  position: relative;
 }
 div.datagrid table thead th div.filter {
-  float: right;
   display: inline-block;
-  padding: 0 10px;
+  float: right;
 }
 div.datagrid table thead th a.filterlink {
+  position: absolute;
+  top: 0;
+  right: 5px;
   margin: 0;
   text-indent: -5000px;
   display: inline-block;
