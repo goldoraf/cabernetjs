@@ -19,21 +19,31 @@ Cabernet.Popover = Ember.View.extend({
         if (popover.is(':visible')) {
             $('div.popover.active').removeClass('active').hide();
             popover.addClass('active');
-            var params = this.getPositionParams(popover);
-            popover.position({
-                of: this.positionRelativeTo(),
-                my : params.my,
-                at: params.at,
-                offset: params.offset
-            });
-            if (this.get('withArrow') && params.arrowLeft !== undefined) popover.children('div.arrow').css('left', params.arrowLeft);
+            
+            this.reposition();
+            var that = this;
+            this.$().parents('th').on('resize', function() { that.reposition(); });
             
             popover.bind('clickoutside', function(e) {
                 $(this).removeClass('active').hide().unbind('clickoutside');
             });
         } else {
             popover.removeClass('active').hide().unbind('clickoutside');
+            var that = this;
+            this.$().parents('th').off('resize', function() { that.reposition(); });
         }
+    },
+
+    reposition: function() {
+        var popover = this.$('div.popover');
+        var params = this.getPositionParams(popover);
+        popover.position({
+            of: this.positionRelativeTo(),
+            my : params.my,
+            at: params.at,
+            offset: params.offset
+        });
+        if (this.get('withArrow') && params.arrowLeft !== undefined) popover.children('div.arrow').css('left', params.arrowLeft);
     },
 
     positionRelativeTo: function() {
