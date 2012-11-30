@@ -24,6 +24,16 @@ Cabernet.DatagridView = Ember.View.extend({
         </table></div>'
     ),
 
+    getObjectFromCell: function($cell) {
+        var index = this.$("tbody tr").index($cell.parents("tr"));
+        return this.get("controller").get("displayedData").objectAt(index);
+    },
+
+    getColumnFromCell: function($cell) {
+        var index = this.$("tbody tr").index($cell.parents("tr"));
+        return this.get("controller").get("displayedColumns").objectAt(index);
+    },
+
     editablePlugin: function() {
         this.$("td.editable").on("saveCell", $.proxy(function(e, oldValue, newValue) {
             var $cell = $(e.target);
@@ -34,7 +44,6 @@ Cabernet.DatagridView = Ember.View.extend({
                 success: function() {},
                 error: function(msg) {
                     e.stopPropagation(); // be sure no other event is going to break or callback
-                    console.log("propagation stoped");
                     $cell.data("value", oldValue);
                     $cell.trigger("dblclick");
                     $cell.addClass("error");
