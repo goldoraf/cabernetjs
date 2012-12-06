@@ -33,6 +33,16 @@ Cabernet.Datagrid = Ember.View.extend({
                         </th> \
                     </tr> \
                 </thead> \
+                <tfoot> \
+                    {{#if hasSumableColumns}} \
+                        <tr> \
+                            {{#each sum in computedSums}} \
+                                <th>{{sum}}</th> \
+                            {{/each}} \
+                            <th /> \
+                        </tr> \
+                    {{/if}} \
+                </tfoot> \
                 <tbody /> \
             </table> \
         '),
@@ -91,6 +101,18 @@ Cabernet.Datagrid = Ember.View.extend({
         //if (this.shouldPersistParams()) this.persistFilters();
     }.observes('appliedFilters.@each'),
 
+    hasSumableColumns: function() {
+        return this.get('displayedColumns').filterProperty('sumable').get('length') !== 0;
+    }.property('displayedColumns.@each.sumable'),
+
+    computedSums: function() {
+        var sums = [];
+        this.get('displayedColumns').forEach(function(column) {
+            sums.push(column.sumable ? this.computeSum(column.get('name')) : '');
+        }, this);
+        return sums;
+    }.property('displayedColumns', 'displayedData'),
+
     init: function() {
         this._super();
 
@@ -125,11 +147,13 @@ Cabernet.Datagrid = Ember.View.extend({
             this.$('tbody').replaceWith(this.get('emptyTemplate')({ 
                 columnCount: this.get('displayedColumns').get('length')
             }));
-        } else
+        } else {
             this.$('tbody').replaceWith(this.get('gridTemplate')({ data: this.get('displayedData') }));
+
             // Workaround for the element:first css selector
             this.$("tbody tr:first").addClass("row-0");
             this.$("tr > td:eq(0), tr > th:eq(0)").addClass("cell-0");
+        }
     },
 
     emptyTemplate: function() {
@@ -225,6 +249,10 @@ Cabernet.Datagrid = Ember.View.extend({
         this.setCurrentSort(col, dir);
     },
 
+    computeSum: function(columnName) {
+        return this.get('displayedData').mapProperty(columnName).reduce(function(previous, current) { return previous + current; });
+    },
+
     generateTSV: function() {
         var contents = '';
         var keys = [];
@@ -307,6 +335,7 @@ Cabernet.Datagrid.Column = Ember.Object.extend({
     filterable: true,
     filter: null,
     hideable: true,
+    sumable: false,
 
     sortClass: function() {
         var sortDir = this.get('sort');

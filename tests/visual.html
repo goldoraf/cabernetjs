@@ -46,44 +46,51 @@
                     Test.store = Syrah.Store.create({});
 
                     var data = [
-                        {firstname: 'John', lastname: 'Doe', city: 'New York', admin: true},
-                        {firstname: 'Jane', lastname: 'Doe', city: 'Los Angeles', admin: true},
-                        {firstname: 'Jack', lastname: 'Ryan', city: 'Washington', admin: false},
-                        {firstname: 'Jack', lastname: 'Bauer', city: 'Los Angeles', admin: false},
+                        {
+                            title: "Apocalypse Now",
+                            director: "Francis Ford Coppola",
+                            releaseDate: "1979-08-15",
+                            budget: 31.5,
+                            palmeDor: true,
+                            pic: "http://upload.wikimedia.org/wikipedia/en/thumb/a/ac/Apocnow.jpg/215px-Apocnow.jpg"
+                        },
+                        {
+                            title: "The good, the bad and the ugly",
+                            director: "Sergio Leone",
+                            releaseDate: "1966-12-15",
+                            budget: 1.2,
+                            palmeDor: false,
+                            pic: "http://upload.wikimedia.org/wikipedia/en/thumb/4/45/Good_the_bad_and_the_ugly_poster.jpg/220px-Good_the_bad_and_the_ugly_poster.jpg"
+                        },
+                        {
+                            title: "Pulp Fiction",
+                            director: "Quentin Tarantino",
+                            releaseDate: "1994-10-14",
+                            budget: 8.5,
+                            palmeDor: true,
+                            pic: "http://upload.wikimedia.org/wikipedia/en/thumb/8/82/Pulp_Fiction_cover.jpg/215px-Pulp_Fiction_cover.jpg"
+                        }
                     ];
 
-                    /*var data = [];
-                    for (var i=1; i<=100; i++) {
-                        data.push({firstname: 'John'+i, lastname: 'Doe', city: 'New York'})
-                    }*/
-
-                    var contacts = Test.store.loadMany(Test.Contact, Ember.A([]), data);
-
                     var grid = Cabernet.Datagrid.create({
-                        data: contacts,
-                        modelType: Test.Contact,
-                        defaultSort: '-lastname',
+                        data: data,
+                        defaultSort: '-title',
                         sessionBucket: 'test',
-                        columnsClassNames: { lastname: 'bold' },
+                        columns: [
+                            { name: 'title', label: 'Title' },
+                            { name: 'director', label: 'Director' },
+                            { name: 'releaseDate', label: 'Release date', type: Date },
+                            { name: 'budget', label: 'Budget (M$)', type: Number, sumable: true },
+                            { name: 'palmeDor', label: 'Palme d\'or', type: Boolean },
+                            { name: 'pic', label: '', filterable: false, sortable: false }
+                        ],
+                        columnsClassNames: { title: 'bold' },
                         custom: {
-                            firstname: '<a href="#">{{this.firstname}}</a>'
+                            pic: '<img height="40" src="{{this.pic}}" />'
                         }
                     });
                     grid.appendTo('#content');
                 }
-            });
-
-            Test.Contact = Syrah.Model.define({
-                firstname: String,
-                lastname: String,
-                city: String,
-                admin: Boolean
-            });
-
-            Test.Contact.reopen({
-                fullname: function() {
-                    return this.get('firstname') + ' ' + this.get('lastname');
-                }.property('firstname', 'lastname')
             });
         </script>
     </body>

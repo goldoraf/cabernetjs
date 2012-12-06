@@ -2820,6 +2820,27 @@ div.datagrid table thead th a.filterlink:hover {
 div.datagrid table thead th a.filterlink.active {
   background-position: center -32px;
 }
+div.datagrid table tfoot {
+  background-color: #b9d6e6;
+  background-repeat: repeat-x;
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#e2edf4), to(#b9d6e6));
+  background-image: -moz-linear-gradient(top, #e2edf4, #b9d6e6);
+  background-image: -ms-linear-gradient(top, #e2edf4, #b9d6e6);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #e2edf4), color-stop(100%, #b9d6e6));
+  background-image: -webkit-linear-gradient(top, #e2edf4, #b9d6e6);
+  background-image: -o-linear-gradient(top, #e2edf4, #b9d6e6);
+  background-image: linear-gradient(top, #e2edf4, #b9d6e6);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e2edf4', endColorstr='#b9d6e6', GradientType=0);
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  border-color: #b9d6e6 #b9d6e6 #81b5d2;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+}
+div.datagrid table tfoot th {
+  border-right: 1px solid white;
+  border-left: 1px solid #d1e2ed;
+  border-bottom: 1px solid #d1e2ed;
+  border-top: 1px solid white;
+}
 div.datagrid table td {
   padding: 5px;
   border-right: 1px solid white;

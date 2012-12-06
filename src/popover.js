@@ -11,26 +11,33 @@ Cabernet.Popover = Ember.View.extend({
         return this._super();
     },
 
-    toggle: function(e) {
-        if (e) e.stopPropagation();
-
+    toggle: function(e) {console.log('toggle');
+        //if (e.view !== undefined) e.stopImmediatePropagation();
+        if (e.type == 'clickoutside' || $('div.popover.active').length == 0) {
+            e.stopPropagation();
+            console.log('stoppropa called');
+        }
+                
+        console.log(e, e.view, this);
         var popover = this.$('div.popover');
         popover.toggle();
         if (popover.is(':visible')) {
-            $('div.popover.active').removeClass('active').hide();
             popover.addClass('active');
             
             this.reposition();
             var that = this;
-            this.$().parents('th').on('resize', function() { that.reposition(); });
+            //this.$().parents('th').on('resize', function() { that.reposition(); });*/
             
-            popover.bind('clickoutside', function(e) {
-                $(this).removeClass('active').hide().unbind('clickoutside');
+            popover.bind('clickoutside', function(e) {console.log("clickoutside");
+                that.toggle(e);
+                //$(this).removeClass('active').hide().unbind('clickoutside');
             });
+            
         } else {
-            popover.removeClass('active').hide().unbind('clickoutside');
-            var that = this;
-            this.$().parents('th').off('resize', function() { that.reposition(); });
+            popover.removeClass('active');
+            popover.unbind('clickoutside');
+            /*var that = this;
+            this.$().parents('th').off('resize', function() { that.reposition(); });*/
         }
     },
 
