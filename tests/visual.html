@@ -9,6 +9,7 @@
         <script src="vendor/jquery.ba-resize.js"></script>
 		<script src="vendor/jquery-ui-1.9.1.custom.min.js"></script>
         <script src="vendor/ZeroClipboard.js"></script>
+        <script src="vendor/accounting.js"></script>
 		<script src="vendor/ember-0.9.8.js"></script>
 		<script src="vendor/syrah.js"></script>
         <script src="vendor/twitter-bootstrap-1.4.0/js/bootstrap-twipsy.js"></script>
@@ -50,7 +51,7 @@
                             title: "Apocalypse Now",
                             director: "Francis Ford Coppola",
                             releaseDate: "1979-08-15",
-                            budget: 31.5,
+                            budget: 31500000,
                             palmeDor: true,
                             pic: "http://upload.wikimedia.org/wikipedia/en/thumb/a/ac/Apocnow.jpg/215px-Apocnow.jpg"
                         },
@@ -58,7 +59,7 @@
                             title: "The good, the bad and the ugly",
                             director: "Sergio Leone",
                             releaseDate: "1966-12-15",
-                            budget: 1.2,
+                            budget: 1200000,
                             palmeDor: false,
                             pic: "http://upload.wikimedia.org/wikipedia/en/thumb/4/45/Good_the_bad_and_the_ugly_poster.jpg/220px-Good_the_bad_and_the_ugly_poster.jpg"
                         },
@@ -66,7 +67,7 @@
                             title: "Pulp Fiction",
                             director: "Quentin Tarantino",
                             releaseDate: "1994-10-14",
-                            budget: 8.5,
+                            budget: 8500000,
                             palmeDor: true,
                             pic: "http://upload.wikimedia.org/wikipedia/en/thumb/8/82/Pulp_Fiction_cover.jpg/215px-Pulp_Fiction_cover.jpg"
                         }
@@ -80,7 +81,7 @@
                             { name: 'title', label: 'Title' },
                             { name: 'director', label: 'Director' },
                             { name: 'releaseDate', label: 'Release date', type: Date },
-                            { name: 'budget', label: 'Budget (M$)', type: Number, sumable: true },
+                            { name: 'budget', label: 'Budget', type: Number, sumable: true, format: accounting.formatMoney, classNames: 'red' },
                             { name: 'palmeDor', label: 'Palme d\'or', type: Boolean },
                             { name: 'pic', label: '', filterable: false, sortable: false }
                         ],

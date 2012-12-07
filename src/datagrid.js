@@ -37,7 +37,7 @@ Cabernet.Datagrid = Ember.View.extend({
                     {{#if hasSumableColumns}} \
                         <tr> \
                             {{#each sum in computedSums}} \
-                                <th>{{sum}}</th> \
+                                <th {{bindAttr class="sum.css"}}>{{sum.value}}</th> \
                             {{/each}} \
                             <th /> \
                         </tr> \
@@ -55,7 +55,7 @@ Cabernet.Datagrid = Ember.View.extend({
     sessionBucket: null,
 
     classNames: ['datagrid'],
-    columnsClassNames: {},
+    columnsClassNames: null,
     displayedData: [],
     clipClient: null,
 
@@ -106,12 +106,25 @@ Cabernet.Datagrid = Ember.View.extend({
     }.property('displayedColumns.@each.sumable'),
 
     computedSums: function() {
-        var sums = [];
+        var sum, sums = [];
         this.get('displayedColumns').forEach(function(column) {
-            sums.push(column.sumable ? this.computeSum(column.get('name')) : '');
+            if (!column.get('sumable')) sums.push({ css: column.get('classNames'), value: ''});
+            else {
+                sum = this.computeSum(column.get('name'));
+                if (column.get('format')) sum = column.get('format')(sum);
+                sums.push({ css: column.get('classNames'), value: sum});
+            }
         }, this);
         return sums;
     }.property('displayedColumns', 'displayedData'),
+
+    hasFormatableColumns: function() {
+        return this.get('columnsForDisplay').filterProperty('format').get('length') !== 0;
+    }.property('columnsForDisplay.@each.format').cacheable(),
+
+    formatableColumns: function() {
+        return this.get('displayedColumns').filterProperty('format');
+    }.property('displayedColumns'),
 
     init: function() {
         this._super();
@@ -148,7 +161,7 @@ Cabernet.Datagrid = Ember.View.extend({
                 columnCount: this.get('displayedColumns').get('length')
             }));
         } else {
-            this.$('tbody').replaceWith(this.get('gridTemplate')({ data: this.get('displayedData') }));
+            this.$('tbody').replaceWith(this.get('gridTemplate')({ data: this.applyFormatting(this.get('displayedData')) }));
 
             // Workaround for the element:first css selector
             this.$("tbody tr:first").addClass("row-0");
@@ -162,13 +175,12 @@ Cabernet.Datagrid = Ember.View.extend({
 
     gridTemplate: function() {
         var custom, inner, css, html = [],
-            cssClasses = this.get('columnsClassNames'),
             columnCount = this.get('displayedColumns').get('length');
         
         this.get('displayedColumns').forEach(function(col, index) {
             custom = this.getCustomDisplay(col.name);
             inner = (custom !== null) ? custom : '{{this.'+col.name+'}}';
-            css = (cssClasses[col.name] !== undefined) ? ' class="'+cssClasses[col.name]+'"' : '';
+            css = (!Ember.empty(col.get('classNames'))) ? ' class="'+col.get('classNames')+'"' : '';
             if (col.get('displayed') === true || col.get('hideable') === false) 
                 html.push('<td'+css+(index === (columnCount - 1) ? ' colspan="2">' : '>')+inner+'</td>');
         }, this);
@@ -234,6 +246,18 @@ Cabernet.Datagrid = Ember.View.extend({
     applyFilters: function(data) {
         this.get('appliedFilters').forEach(function(filter) {
             data = filter.apply(data);
+        });
+        return data;
+    },
+
+    applyFormatting: function(data) {
+        if (!this.get('hasFormatableColumns')) return data;
+        var formatableColumns = this.get('formatableColumns');
+        if (formatableColumns.get('length') === 0) return data;
+        data.forEach(function(row) {
+            formatableColumns.forEach(function(col) {
+                row[col.get('name')] = col.get('format')(row[col.get('name')]);
+            });
         });
         return data;
     },
@@ -308,6 +332,13 @@ Cabernet.Datagrid = Ember.View.extend({
         this.get('columns').forEach(function(column) {
             cols.pushObject(Cabernet.Datagrid.Column.createFromOptions(column, data));
         });
+
+        Ember.deprecate("'columnsClassNames' option is deprecated. Use 'classNames' option per column instead.", this.get('columnsClassNames') === null);
+        if (this.get('columnsClassNames') !== null) {
+            var classNames = this.get('columnsClassNames');
+            for (var colName in classNames) cols.findProperty('name', colName).set('classNames', classNames[colName]);
+        }
+
         return cols;
     },
 
@@ -336,6 +367,8 @@ Cabernet.Datagrid.Column = Ember.Object.extend({
     filter: null,
     hideable: true,
     sumable: false,
+    format: false,
+    classNames: '',
 
     sortClass: function() {
         var sortDir = this.get('sort');
