@@ -11,14 +11,11 @@ Cabernet.Popover = Ember.View.extend({
         return this._super();
     },
 
-    toggle: function(e) {console.log('toggle');
-        //if (e.view !== undefined) e.stopImmediatePropagation();
+    toggle: function(e) {
         if (e.type == 'clickoutside' || $('div.popover.active').length == 0) {
             e.stopPropagation();
-            console.log('stoppropa called');
         }
-                
-        console.log(e, e.view, this);
+        
         var popover = this.$('div.popover');
         popover.toggle();
         if (popover.is(':visible')) {
@@ -26,9 +23,9 @@ Cabernet.Popover = Ember.View.extend({
             
             this.reposition();
             var that = this;
-            //this.$().parents('th').on('resize', function() { that.reposition(); });*/
+            //this.$().parents('th').on('resize', function() { that.reposition(); });
             
-            popover.bind('clickoutside', function(e) {console.log("clickoutside");
+            popover.bind('clickoutside', function(e) {
                 that.toggle(e);
                 //$(this).removeClass('active').hide().unbind('clickoutside');
             });
