@@ -274,7 +274,10 @@ Cabernet.Datagrid = Ember.View.extend({
     },
 
     computeSum: function(columnName) {
-        return this.get('displayedData').mapProperty(columnName).reduce(function(previous, current) { return previous + current; });
+        return this.get('displayedData').mapProperty(columnName).reduce(function(previous, current) { 
+            if (previous === undefined) return current; // Because IE is a bitch...
+            return previous + current; 
+        });
     },
 
     generateTSV: function() {
