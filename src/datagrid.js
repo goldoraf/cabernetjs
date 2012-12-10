@@ -107,10 +107,11 @@ Cabernet.Datagrid = Ember.View.extend({
     }.observes('appliedFilters.@each'),
 
     hasSumableColumns: function() {
-        return this.get('displayedColumns').filterProperty('sumable').get('length') !== 0;
-    }.property('displayedColumns.@each.sumable'),
+        return this.get('displayedData').get('length') !== 0 && this.get('displayedColumns').filterProperty('sumable').get('length') !== 0;
+    }.property('displayedColumns.@each.sumable', 'displayedData'),
 
     computedSums: function() {
+        if (this.get('displayedData').get('length') === 0) return [];
         var sum, sums = [];
         this.get('displayedColumns').forEach(function(column) {
             if (!column.get('sumable')) sums.push({ css: column.get('classNames'), value: ''});
@@ -160,7 +161,6 @@ Cabernet.Datagrid = Ember.View.extend({
         this.addObserver('displayedData', function displayedDataChanged() {
             this.renderGrid();
         });
-
     },
 
     didInsertElement: function() {
@@ -351,7 +351,7 @@ Cabernet.Datagrid = Ember.View.extend({
             cols.pushObject(Cabernet.Datagrid.Column.createFromOptions(column, data));
         });
 
-        Ember.deprecate("'columnsClassNames' option is deprecated. Use 'classNames' option per column instead.", this.get('columnsClassNames') === null);
+        Ember.warn("'columnsClassNames' option is deprecated. Use 'classNames' option per column instead.", this.get('columnsClassNames') === null);
         if (this.get('columnsClassNames') !== null) {
             var classNames = this.get('columnsClassNames');
             for (var colName in classNames) cols.findProperty('name', colName).set('classNames', classNames[colName]);
@@ -428,6 +428,11 @@ Cabernet.Datagrid.Column.reopenClass({
             }
             if (typeof filterOpts === 'string') filterOpts = { type: filterOpts };
             filterOpts.column = options.name;
+
+            if (options.type === Date || filterOpts.type == 'daterange') {
+                Ember.warn("Column '" + options.name + "' has been defined as of Date type and/or 'daterange' filter but the data provided seems not to be of Date type. " +
+                    "Filtering and sorting may not behave properly", data.get('firstObject')[options.name] instanceof Date);
+            }
             
             options.filter = Cabernet.Datagrid.Filter.createFromOptions(filterOpts, data);
         } 
@@ -565,12 +570,13 @@ Cabernet.Datagrid.DaterangeFilter = Cabernet.Datagrid.Filter.extend({
         else this.set('value', [this.get('selectedMin'), this.get('selectedMax')]);
     }.observes('selectedMin', 'selectedMax'),
 
-    apply: function(data) {
-        var value, 
-            min = !Ember.empty(this.get('value')[0]) ? moment(this.get('value')[0]).unix() : null,
-            max = !Ember.empty(this.get('value')[1]) ? moment(this.get('value')[1]).unix() : null;
-        return data.filter(function(item) {
-            value = moment(this.getValueFor(item)).unix();
+    apply: function(data) {console.log(this.get('value'));
+        var v, value, 
+            min = !Ember.empty(this.get('value')[0]) ? this.get('value')[0].getTime() : null,
+            max = !Ember.empty(this.get('value')[1]) ? this.get('value')[1].getTime() : null;
+        return data.filter(function(item, index) {
+            v = this.getValueFor(item);
+            value = v instanceof Date ? v.getTime() : v;
             return (min === null || value >= min) && (max === null || value <= max);
         }, this);
     },
@@ -655,11 +661,14 @@ Cabernet.Datagrid.RangeFilterView = Cabernet.Datagrid.FilterView.extend({
 });
 
 Cabernet.Datagrid.DaterangeFilterView = Cabernet.Datagrid.FilterView.extend({
-    contentTemplate: '<p>{{t "cabernet.datagrid.fromDate"}} {{view Ember.TextField classNames="min-date" valueBinding="filter.selectedMin"}} \
-        {{t "cabernet.datagrid.toDate"}} {{view Ember.TextField classNames="max-date" valueBinding="filter.selectedMax"}}</p>',
+    /*contentTemplate: '<p>{{t "cabernet.datagrid.fromDate"}} {{view Ember.TextField classNames="min-date" valueBinding="filter.selectedMin"}} \
+        {{t "cabernet.datagrid.toDate"}} {{view Ember.TextField classNames="max-date" valueBinding="filter.selectedMax"}}</p>',*/
+    contentTemplate: '<p>{{t "cabernet.datagrid.fromDate"}} <input type="text" class="min-date" /> \
+        {{t "cabernet.datagrid.toDate"}} <input type="text" class="max-date" /></p>',
 
     didInsertElement: function() {
-        var minDateInput = this.$('input.min-date'),
+        var that = this,
+            minDateInput = this.$('input.min-date'),
             maxDateInput = this.$('input.max-date');
         minDateInput.datepicker({
             defaultDate: "+1w",
@@ -669,6 +678,9 @@ Cabernet.Datagrid.DaterangeFilterView = Cabernet.Datagrid.FilterView.extend({
             dateFormat: 'yy-mm-dd',
             onClose: function(selectedDate) {
                 maxDateInput.datepicker("option", "minDate", selectedDate);
+            },
+            onSelect: function() {
+                that.get('filter').set('selectedMin', minDateInput.datepicker('getDate'));
             }
         });
         maxDateInput.datepicker({
@@ -679,6 +691,9 @@ Cabernet.Datagrid.DaterangeFilterView = Cabernet.Datagrid.FilterView.extend({
             dateFormat: 'yy-mm-dd',
             onClose: function(selectedDate) {
                 minDateInput.datepicker("option", "maxDate", selectedDate);
+            },
+            onSelect: function() {
+                that.get('filter').set('selectedMax', maxDateInput.datepicker('getDate'));
             }
         });
     }
