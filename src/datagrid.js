@@ -57,9 +57,10 @@ Cabernet.Datagrid = Ember.View.extend({
     custom: {},
     defaultSort: null,
     sessionBucket: null,
+    columnsClassNames: null,
+    copyToClipboardEnabled: true,
 
     classNames: ['datagrid'],
-    columnsClassNames: null,
     displayedData: [],
     clipClient: null,
 
@@ -134,6 +135,13 @@ Cabernet.Datagrid = Ember.View.extend({
         this._super();
 
         this.setI18nStrings();
+
+        if (this.get('copyToClipboardEnabled')) {
+            Ember.warn(
+                'Cabernet uses ZeroClipboard for copy-to-clipboard feature, but it was not found. Make sure you included the dependency.',
+                window.ZeroClipboard !== undefined
+            );
+        }
         
         this.addObserver('displayedColumns', function displayedColumnsChanged() {
             this.saveParam('displayedColumns', this.get('displayedColumns').mapProperty('name'));
@@ -720,14 +728,17 @@ Cabernet.Datagrid.OptionsView = Cabernet.Popover.extend({
     placement: 'below left',
     withArrow: false,
     linkTemplate: '<a class="toggle" {{action "toggle"}}>{{t "cabernet.datagrid.options"}}</a>',
-    contentTemplate: '<div class="clipboard-wrapper" style="position:relative"> \
+    contentTemplate: '{{#if parentView.copyToClipboardEnabled}} \
+                        <div class="clipboard-wrapper" style="position:relative"> \
                             <div class="clipboard-button">{{t "cabernet.datagrid.copyToClipboard"}}</div> \
                         </div> \
                         <hr /> \
+                        {{/if}} \
                         {{view Ember.CollectionView tagName="ul" class="inputs-list" \
                         itemViewClass="Cabernet.Datagrid.ColumnpickerElement" contentBinding="columns"}}',
 
     didInsertElement: function() {
+        if (!this.get('parentView').get('copyToClipboardEnabled') || window.ZeroClipboard === undefined) return;
         var clipClient = new ZeroClipboard.Client();
         clipClient.setText('');
         clipClient.setHandCursor(true);
@@ -744,6 +755,7 @@ Cabernet.Datagrid.OptionsView = Cabernet.Popover.extend({
 
     toggle: function(e) {
         this._super(e);
+        if (!this.get('parentView').get('copyToClipboardEnabled') || window.ZeroClipboard === undefined) return;
         var popover = this.$('div.popover'),
             clipClient = this.get('clipClient');
         if (popover.is(':visible') && !clipClient.glued) {
