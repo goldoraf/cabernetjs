@@ -2776,7 +2776,8 @@ div.datagrid table thead th {
   padding: 0px;
   color: #00517e;
   vertical-align: middle;
-  padding: 0;
+  padding-left: 5px;
+  font-weight: 500;
   height: 27px;
 }
 div.datagrid table thead th.cell-0 {
@@ -2788,9 +2789,7 @@ div.datagrid table thead th.options {
 div.datagrid table thead th a.sortlink {
   line-height: 12px;
   color: #00517e;
-  font-weight: 500;
   display: inline-block;
-  padding-left: 5px;
 }
 div.datagrid table thead th.headerSortUp div.header-wrapper {
   background: url(../../images/sortup.png) 90% center no-repeat;

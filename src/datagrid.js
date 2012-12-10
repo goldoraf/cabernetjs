@@ -7,7 +7,11 @@ Cabernet.Datagrid = Ember.View.extend({
                         {{#each column in displayedColumns}} \
                             <th {{bindAttr class="column.sortClass" }}>\
                                 <div class="header-wrapper"> \
-                                <a class="sortlink" {{action onSort context="column.name"}}>{{column.label}}</a> \
+                                {{#if column.sortable}} \
+                                    <a class="sortlink" {{action onSort context="column.name"}}>{{column.label}}</a> \
+                                {{else}} \
+                                    {{column.label}} \
+                                {{/if}} \
                                 {{#if column.filterable}} \
                                     {{#if column.filter.isText}} \
                                         {{view Cabernet.Datagrid.TextFilterView filterBinding="column.filter"}} \
@@ -372,6 +376,7 @@ Cabernet.Datagrid.Column = Ember.Object.extend({
     filterable: true,
     filter: null,
     hideable: true,
+    sortable: true,
     sumable: false,
     format: false,
     classNames: '',
