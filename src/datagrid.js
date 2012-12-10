@@ -299,7 +299,7 @@ Cabernet.Datagrid = Ember.View.extend({
         var contents = '';
         var keys = [];
         this.get('displayedColumns').forEach(function(column, index) {
-            keys.push(column.get('name'));
+            keys.push(column.get('label'));
         });
 
         var datas = this.get('displayedData').toArray();
