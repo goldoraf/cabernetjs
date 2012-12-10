@@ -254,12 +254,15 @@ Cabernet.Datagrid = Ember.View.extend({
         if (!this.get('hasFormatableColumns')) return data;
         var formatableColumns = this.get('formatableColumns');
         if (formatableColumns.get('length') === 0) return data;
+        var ret = [];
         data.forEach(function(row) {
+            rowCopy = Ember.copy(row);
             formatableColumns.forEach(function(col) {
-                row[col.get('name')] = col.get('format')(row[col.get('name')]);
+                rowCopy[col.get('name')] = col.get('format')(rowCopy[col.get('name')]);
             });
+            ret.push(rowCopy);
         });
-        return data;
+        return ret;
     },
 
     setInitialSort: function(initialSort) {
@@ -274,7 +277,7 @@ Cabernet.Datagrid = Ember.View.extend({
     },
 
     computeSum: function(columnName) {
-        return this.get('displayedData').mapProperty(columnName).reduce(function(previous, current) { 
+        return this.get('displayedData').mapProperty(columnName).reduce(function(previous, current) {
             if (previous === undefined) return current; // Because IE is a bitch...
             return previous + current; 
         });
