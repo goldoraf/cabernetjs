@@ -38,7 +38,7 @@ Cabernet.Datagrid = Ember.View.extend({
                     </tr> \
                 </thead> \
                 <tfoot> \
-                    {{footer}} \
+                    {{{footer}}} \
                 </tfoot> \
                 <tbody /> \
             </table> \
@@ -125,18 +125,18 @@ Cabernet.Datagrid = Ember.View.extend({
         return this.get('displayedColumns').filterProperty('format');
     }.property('displayedColumns'),
 
-    footerTemplate: Ember.Handlebars.compile(
-                    '{{#if hasSumableColumns}} \
-                        <tr> \
-                            {{#each sum in computedSums}} \
-                                <th {{bindAttr class="sum.css"}}>{{sum.value}}</th> \
-                            {{/each}} \
-                            <th /> \
-                        </tr> \
-                    {{/if}}'),
+    footerTemplate: Cabernet.Handlebars.compile(
+        '{{#if hasSumableColumns}} \
+             <tr> \
+             {{#list computedSums}} \
+                 <th {{bindAttr class="css"}}>{{value}}</th> \
+             {{/list}} \
+             <th /> \
+         </tr> \
+         {{/if}}'),
 
     footer: function () {
-        return this.get('footerTemplate')(this);
+        return this.footerTemplate(this);
     }.property('computedSums'),
 
     init: function() {
