@@ -125,18 +125,34 @@ Cabernet.Datagrid = Ember.View.extend({
         return this.get('displayedColumns').filterProperty('format');
     }.property('displayedColumns'),
 
-    footerTemplate: Cabernet.Handlebars.compile(
-        '{{#if hasSumableColumns}} \
-             <tr> \
-             {{#list computedSums}} \
-                 <th {{bindAttr class="css"}}>{{value}}</th> \
-             {{/list}} \
-             <th /> \
-         </tr> \
-         {{/if}}'),
+    footerTitle: 'Total:',
 
     footer: function () {
-        return this.footerTemplate(this);
+        var colspan = 0, colspanNotFound = true, colspanEnd,
+            resultStr, result = [];
+
+        if (this.get('hasSumableColumns')) {
+
+            this.get('computedSums').forEach(function(sum, index) {
+                if (sum.value === '') {
+                    if (colspanNotFound) {
+                        colspan++;
+                    }
+                } else {
+                    colspanNotFound = false;
+                    result.push(sum);
+                }
+            }, this);
+            resultStr = '<th colspan="'+colspan+'" class="footer-title">'+this.get('footerTitle')+'</th>';
+            for (var i=0 ; i < result.length ; i++) {
+                resultStr = resultStr + '<th class="'+result[i].css+'">'+result[i].value+'</th>';
+            }
+            colspanEnd = 1 + this.get('displayedColumns').get('length') - result.length - colspan;
+            resultStr = resultStr+'<th colspan="'+colspanEnd+'"></th>';
+            return '<tr class="foot">'+resultStr+'</tr>';
+        } else {
+            return '';
+        }
     }.property('computedSums'),
 
     init: function() {
@@ -273,7 +289,7 @@ Cabernet.Datagrid = Ember.View.extend({
         if (!this.get('hasFormatableColumns')) return data;
         var formatableColumns = this.get('formatableColumns');
         if (formatableColumns.get('length') === 0) return data;
-        var ret = [];
+        var ret = [], rowCopy;
         data.forEach(function(row) {
             rowCopy = Ember.copy(row);
             formatableColumns.forEach(function(col) {
