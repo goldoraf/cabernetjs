@@ -12,7 +12,7 @@ Cabernet.Popover = Ember.View.extend({
     },
 
     toggle: function(e) {
-        if (e.type == 'clickoutside' || $('div.popover.active').length == 0) {
+        if (e !== undefined && e.type == 'clickoutside' || $('div.popover.active').length == 0) {
             e.stopPropagation();
         }
         
