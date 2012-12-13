@@ -137,12 +137,19 @@ Cabernet.Datagrid = Ember.View.extend({
                 if (sum.value === '') {
                     if (colspanNotFound) {
                         colspan++;
+                    } else {
+                        result.push({value:''});
                     }
                 } else {
                     colspanNotFound = false;
                     result.push(sum);
                 }
             }, this);
+
+            while(result[result.length - 1].value === '') {
+                result.pop();
+            }
+
             resultStr = '<th colspan="'+colspan+'" class="footer-title">'+this.get('footerTitle')+'</th>';
             for (var i=0 ; i < result.length ; i++) {
                 resultStr = resultStr + '<th class="'+result[i].css+'">'+result[i].value+'</th>';
