@@ -20,21 +20,23 @@
                     {{else}} \
                         {{column.label}} \
                     {{/if}} \
-                    {{#if column.filterable}} \
-                        {{#if column.filter.isText}} \
-                            {{view Cabernet.Datagrid.TextFilterView filterBinding="column.filter"}} \
-                        {{/if}} \
-                        {{#if column.filter.isPick}} \
-                            {{view Cabernet.Datagrid.PickFilterView filterBinding="column.filter"}} \
-                        {{/if}} \
-                        {{#if column.filter.isRange}} \
-                            {{view Cabernet.Datagrid.RangeFilterView filterBinding="column.filter"}} \
-                        {{/if}} \
-                        {{#if column.filter.isDaterange}} \
-                            {{view Cabernet.Datagrid.DaterangeFilterView filterBinding="column.filter"}} \
-                        {{/if}} \
-                        {{#if column.filter.isBoolean}} \
-                            {{view Cabernet.Datagrid.BooleanFilterView filterBinding="column.filter"}} \
+                    {{#if view.filterable}} \
+                        {{#if column.filterable}} \
+                            {{#if column.filter.isText}} \
+                                {{view Cabernet.Datagrid.TextFilterView filterBinding="column.filter"}} \
+                            {{/if}} \
+                            {{#if column.filter.isPick}} \
+                                {{view Cabernet.Datagrid.PickFilterView filterBinding="column.filter"}} \
+                            {{/if}} \
+                            {{#if column.filter.isRange}} \
+                                {{view Cabernet.Datagrid.RangeFilterView filterBinding="column.filter"}} \
+                            {{/if}} \
+                            {{#if column.filter.isDaterange}} \
+                                {{view Cabernet.Datagrid.DaterangeFilterView filterBinding="column.filter"}} \
+                            {{/if}} \
+                            {{#if column.filter.isBoolean}} \
+                                {{view Cabernet.Datagrid.BooleanFilterView filterBinding="column.filter"}} \
+                            {{/if}} \
                         {{/if}} \
                     {{/if}} \
                     </div> \
@@ -62,7 +64,9 @@
     defaultSort: null,
     sessionBucket: null,
     columnsClassNames: null,
+    filterable: true,
     copyToClipboardEnabled: true,
+    columnPickerEnabled: true,
 
     classNames: ['datagrid'],
     displayedData: [],
@@ -784,8 +788,10 @@ Cabernet.Datagrid.OptionsView = Cabernet.Popover.extend({
                         </div> \
                         <hr /> \
                         {{/if}} \
-                        {{view Ember.CollectionView tagName="ul" class="inputs-list" \
-                        itemViewClass="Cabernet.Datagrid.ColumnpickerElement" contentBinding="columns"}}',
+                        {{#if parentView.columnPickerEnabled}} \
+                            {{view Ember.CollectionView tagName="ul" class="inputs-list" \
+                            itemViewClass="Cabernet.Datagrid.ColumnpickerElement" contentBinding="columns"}} \
+                        {{/if}}',
 
     didInsertElement: function() {
         if (!this.get('parentView').get('copyToClipboardEnabled') || window.ZeroClipboard === undefined) return;
