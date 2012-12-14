@@ -178,7 +178,7 @@
     renderGrid: function() {
         if (this.get('displayedData').get('length') === 0) {
             this.$('tbody').replaceWith(this.get('emptyTemplate')({ 
-                columnCount: this.get('displayedColumns').get('length')
+                columnCount: this.get('displayedColumns').get('length') + 1
             }));
         } else {
             this.$('tbody').replaceWith(this.get('gridTemplate')({ data: this.applyFormatting(this.get('displayedData')) }));
@@ -455,7 +455,7 @@ Cabernet.Datagrid.Column.reopenClass({
 
             if (options.type === Date || filterOpts.type == 'daterange') {
                 Ember.warn("Column '" + options.name + "' has been defined as of Date type and/or 'daterange' filter but the data provided seems not to be of Date type. " +
-                    "Filtering and sorting may not behave properly", data.get('firstObject')[options.name] instanceof Date);
+                    "Filtering and sorting may not behave properly", !Ember.empty(data) && data.get('firstObject')[options.name] instanceof Date);
             }
             
             options.filter = Cabernet.Datagrid.Filter.createFromOptions(filterOpts, data);
