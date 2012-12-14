@@ -1,48 +1,59 @@
-Cabernet.Datagrid = Ember.View.extend({
+ Cabernet.Datagrid = Ember.View.extend({
     
-    template: Ember.Handlebars.compile(
-        '<table> \
-                <thead> \
-                    <tr> \
-                        {{#each column in displayedColumns}} \
-                            <th {{bindAttr class="column.sortClass" }}>\
-                                <div class="header-wrapper"> \
-                                {{#if column.sortable}} \
-                                    <a class="sortlink" {{action onSort context="column.name"}}>{{column.label}}</a> \
-                                {{else}} \
-                                    {{column.label}} \
-                                {{/if}} \
-                                {{#if column.filterable}} \
-                                    {{#if column.filter.isText}} \
-                                        {{view Cabernet.Datagrid.TextFilterView filterBinding="column.filter"}} \
-                                    {{/if}} \
-                                    {{#if column.filter.isPick}} \
-                                        {{view Cabernet.Datagrid.PickFilterView filterBinding="column.filter"}} \
-                                    {{/if}} \
-                                    {{#if column.filter.isRange}} \
-                                        {{view Cabernet.Datagrid.RangeFilterView filterBinding="column.filter"}} \
-                                    {{/if}} \
-                                    {{#if column.filter.isDaterange}} \
-                                        {{view Cabernet.Datagrid.DaterangeFilterView filterBinding="column.filter"}} \
-                                    {{/if}} \
-                                    {{#if column.filter.isBoolean}} \
-                                        {{view Cabernet.Datagrid.BooleanFilterView filterBinding="column.filter"}} \
-                                    {{/if}} \
-                                {{/if}} \
-                                </div> \
-                            </th> \
-                        {{/each}} \
-                        <th class="options"> \
-                            {{view Cabernet.Datagrid.OptionsView columnsBinding="columnsForDisplay"}}\
-                        </th> \
-                    </tr> \
-                </thead> \
-                <tfoot> \
-                    {{{footer}}} \
-                </tfoot> \
+    template: function() {
+        return Ember.Handlebars.compile(
+            '<table> \
+                <thead>' + this.get('headerTemplate') + '</thead> \
+                <tfoot>' + this.get('footerTemplate') + '</tfoot> \
                 <tbody /> \
-            </table> \
-        '),
+            </table>'
+        );
+    }.property('headerTemplate', 'footerTemplate').cacheable(),
+
+    headerTemplate:
+        '<tr> \
+            {{#each column in displayedColumns}} \
+                <th {{bindAttr class="column.sortClass" }}>\
+                    <div class="header-wrapper"> \
+                    {{#if column.sortable}} \
+                        <a class="sortlink" {{action onSort context="column.name"}}>{{column.label}}</a> \
+                    {{else}} \
+                        {{column.label}} \
+                    {{/if}} \
+                    {{#if column.filterable}} \
+                        {{#if column.filter.isText}} \
+                            {{view Cabernet.Datagrid.TextFilterView filterBinding="column.filter"}} \
+                        {{/if}} \
+                        {{#if column.filter.isPick}} \
+                            {{view Cabernet.Datagrid.PickFilterView filterBinding="column.filter"}} \
+                        {{/if}} \
+                        {{#if column.filter.isRange}} \
+                            {{view Cabernet.Datagrid.RangeFilterView filterBinding="column.filter"}} \
+                        {{/if}} \
+                        {{#if column.filter.isDaterange}} \
+                            {{view Cabernet.Datagrid.DaterangeFilterView filterBinding="column.filter"}} \
+                        {{/if}} \
+                        {{#if column.filter.isBoolean}} \
+                            {{view Cabernet.Datagrid.BooleanFilterView filterBinding="column.filter"}} \
+                        {{/if}} \
+                    {{/if}} \
+                    </div> \
+                </th> \
+            {{/each}} \
+            <th class="options"> \
+                {{view Cabernet.Datagrid.OptionsView columnsBinding="columnsForDisplay"}}\
+            </th> \
+        </tr>',
+
+    footerTemplate: 
+        '{{#if hasSumableColumns}} \
+            <tr> \
+                {{#each sum in computedSums}} \
+                    <th {{bindAttr class="sum.css"}}>{{sum.value}}</th> \
+                {{/each}} \
+                <th /> \
+            </tr> \
+        {{/if}}',
 
     data: [],
     modelType: null,
@@ -124,43 +135,6 @@ Cabernet.Datagrid = Ember.View.extend({
     formatableColumns: function() {
         return this.get('displayedColumns').filterProperty('format');
     }.property('displayedColumns'),
-
-    footerTitle: 'Total:',
-
-    footer: function () {
-        var colspan = 0, colspanNotFound = true, colspanEnd,
-            resultStr, result = [];
-
-        if (this.get('hasSumableColumns')) {
-
-            this.get('computedSums').forEach(function(sum, index) {
-                if (sum.value === '') {
-                    if (colspanNotFound) {
-                        colspan++;
-                    } else {
-                        result.push({value:''});
-                    }
-                } else {
-                    colspanNotFound = false;
-                    result.push(sum);
-                }
-            }, this);
-
-            while(result[result.length - 1].value === '') {
-                result.pop();
-            }
-
-            resultStr = '<th colspan="'+colspan+'" class="footer-title">'+this.get('footerTitle')+'</th>';
-            for (var i=0 ; i < result.length ; i++) {
-                resultStr = resultStr + '<th class="'+result[i].css+'">'+result[i].value+'</th>';
-            }
-            colspanEnd = 1 + this.get('displayedColumns').get('length') - result.length - colspan;
-            resultStr = resultStr+'<th colspan="'+colspanEnd+'"></th>';
-            return '<tr class="foot">'+resultStr+'</tr>';
-        } else {
-            return '';
-        }
-    }.property('computedSums'),
 
     init: function() {
         this._super();
@@ -396,11 +370,6 @@ Cabernet.Datagrid = Ember.View.extend({
             }
             cols.pushObject(col);
         }, this);
-
-        /*var cols = [], data = this.get('data');
-        this.get('columns').forEach(function(column) {
-            cols.pushObject(Cabernet.Datagrid.Column.createFromOptions(column, data));
-        });*/
 
         Ember.warn("'columnsClassNames' option is deprecated. Use 'classNames' option per column instead.", this.get('columnsClassNames') === null);
         if (this.get('columnsClassNames') !== null) {
