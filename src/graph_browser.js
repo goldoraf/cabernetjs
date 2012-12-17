@@ -6,6 +6,12 @@ Cabernet.GraphBrowser = Ember.View.extend({
     itemTemplates: {},
     itemFormTemplates: {},
 
+    STRINGS: {
+        'cabernet.graph_browser.add': 'Add',
+        'cabernet.graph_browser.save': 'Save',
+        'cabernet.graph_browser.delete': 'Delete'
+    },
+
     collections: function() {
         return this.get('hierarchy').map(function(type) {
             return this.getTypeName(type) + 's';
@@ -21,7 +27,7 @@ Cabernet.GraphBrowser = Ember.View.extend({
                                 {{#view Cabernet.GraphBrowserAddView collection="'+ collection +'" classNames="bottom-form form-inline"}} \
                                     <form>'
                                     + this.getFormTemplateFor(collection) +
-                                    '<button class="btn primary" {{action "addItem"}}>+</button> \
+                                    '<button class="btn primary" {{action "addItem"}}>{{t "cabernet.graph_browser.add"}}</button> \
                                     </form> \
                                 {{/view}} \
                                 <ul class="unstyled items-list"> \
@@ -30,8 +36,8 @@ Cabernet.GraphBrowser = Ember.View.extend({
                                             {{#if editMode}} \
                                                 {{#view Cabernet.GraphBrowserItemFormView collection="'+ collection +'" itemBinding="item"}}'
                                                     + this.getFormTemplateFor(collection) +
-                                                    '<button class="btn primary" {{action "saveItem"}}>Ok</button> \
-                                                    <button class="btn danger" {{action "destroyItem"}}>-</button> \
+                                                    '<button class="btn primary" {{action "saveItem"}}>{{t "cabernet.graph_browser.save"}}</button> \
+                                                    <button class="btn danger" {{action "destroyItem"}}>{{t "cabernet.graph_browser.delete"}}</button> \
                                                 {{/view}} \
                                             {{else}}'
                                                 + this.getTemplateFor(collection) +
@@ -47,6 +53,7 @@ Cabernet.GraphBrowser = Ember.View.extend({
 
     init: function() {
         this._super();
+        this.setI18nStrings();
         var firstLevelColl = this.get('collections').get('firstObject');
         this.get('displayed').set(firstLevelColl, this.get('data'));
     },
@@ -134,6 +141,13 @@ Cabernet.GraphBrowser = Ember.View.extend({
         var parts = type.toString().split(".");
         var name = parts[parts.length - 1];
         return name.underscore();
+    },
+
+    setI18nStrings: function() {
+        var strings = this.get('STRINGS');
+        for (var k in strings) {
+            Cabernet.I18n.addMessage(k, strings[k]);
+        }
     }
 });
 
