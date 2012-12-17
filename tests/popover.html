@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Popover test</title>
+        <meta charset="utf-8">
+		<script src="vendor/jquery-1.7.1.min.js"></script>
+		<script src="vendor/jquery.ba-outside-events.js"></script>
+        <script src="vendor/jquery.ba-resize.js"></script>
+		<script src="vendor/jquery-ui-1.9.1.custom.min.js"></script>
+		<script src="vendor/ember-0.9.8.js"></script>
+        <script src="vendor/twitter-bootstrap-1.4.0/js/bootstrap-twipsy.js"></script>
+        <script src="vendor/twitter-bootstrap-1.4.0/js/bootstrap-popover.js"></script>
+        <script src="../dist/cabernet.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/basic.css"/>
+        <link rel="stylesheet" type="text/css" href="css/jquery-ui-1.9.1.custom.min.css"/>
+    </head>
+    <body>
+		<div class="container-fluid" id="main">
+            <div id="content">
+			    <h1>
+			        Popover Tests
+			    </h1>
+            </div>
+        </div>
+        
+		<script>
+            Test = Ember.Application.create({
+                ready: function() {
+                    ['right', 'below', 'above', 'left', 'below right', 'above right'].forEach(function(placement) {
+                        var popover = Cabernet.Popover.create({
+                            linkText: "Popover " + placement,
+                            contentTemplate: "<p>Lorem ipsum</p>",
+                            placement: placement
+                        });
+                        popover.appendTo('#content');
+                    });
+                }
+            });
+        </script>
+    </body>
+</html>

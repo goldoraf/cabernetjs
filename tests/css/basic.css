@@ -2931,3 +2931,26 @@ div.popover.below .arrow:after {
   left: -9px;
   top: 1px;
 }
+div.graph-browser {
+  border: 1px solid #ccc;
+}
+div.graph-browser .span3 {
+  border-right: 1px solid #ddd;
+  position: relative;
+  margin: 0;
+}
+div.graph-browser .span3:last-child {
+  border-right: none;
+}
+div.graph-browser h2 {
+  border-bottom: 1px solid #ccc;
+  padding-left: 5px;
+}
+div.graph-browser ul.items-list li {
+  padding: 2px 5px;
+  border-bottom: 1px solid #ddd;
+}
+div.graph-browser ul.items-list li.selected {
+  font-weight: 500;
+  background: #cccccc url('../../images/play.png') center right no-repeat;
+}

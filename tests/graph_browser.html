@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>GraphBrowser test</title>
+        <meta charset="utf-8">
+        <script src="vendor/jquery-1.7.1.min.js"></script>
+        <script src="vendor/jquery.ba-outside-events.js"></script>
+        <script src="vendor/jquery.ba-resize.js"></script>
+        <script src="vendor/jquery-ui-1.9.1.custom.min.js"></script>
+        <script src="vendor/ember-0.9.8.js"></script>
+        <script src="vendor/syrah.js"></script>
+        <script src="vendor/twitter-bootstrap-1.4.0/js/bootstrap-twipsy.js"></script>
+        <script src="vendor/twitter-bootstrap-1.4.0/js/bootstrap-popover.js"></script>
+        <script src="../dist/cabernet.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/basic.css"/>
+        <link rel="stylesheet" type="text/css" href="css/jquery-ui-1.9.1.custom.min.css"/>
+    </head>
+    <body>
+        <div class="container-fluid" id="main">
+            <div id="content">
+                <h1>
+                    GraphBrowser Test
+                </h1>
+            </div>
+        </div>
+        
+        <script>
+            Test = Ember.Application.create({
+                ready: function() {
+                    var addressbooks = [], data = JSON.parse(localStorage.getItem('demo_graph'));
+                    if (Ember.empty(data)) {
+                        data = [
+                            {
+                                name: 'My contacts',
+                                contacts: [
+                                    {
+                                        firstname: 'John',
+                                        lastname: 'Doe',
+                                        phones: [
+                                            { type: 'mobile', number: '+123456789' },
+                                            { type: 'home', number: '+987654321' }
+                                        ]
+                                    },
+                                    {
+                                        firstname: 'Jane',
+                                        lastname: 'Doe',
+                                        phones: [
+                                            { type: 'home', number: '+987654321' }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                name: 'Other contacts',
+                                contacts: [
+                                    {
+                                        firstname: 'Jack',
+                                        lastname: 'Bauer',
+                                        phones: [
+                                            { type: 'mobile', number: '+555777555' },
+                                            { type: 'ctu', number: '+911' }
+                                        ]
+                                    },
+                                    {
+                                        firstname: 'Bruce',
+                                        lastname: 'Wayne',
+                                        phones: [
+                                            { type: 'pro', number: '+987654321' },
+                                            { type: 'batcave', number: '+111111111' }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ];
+                    }
+                    var marshaller = Syrah.JSONMarshaller.create();
+                    data.forEach(function(json) {
+                        addressbooks.push(marshaller.unmarshall(json, Test.Addressbook.create()));
+                    });
+
+                    var browser = Cabernet.GraphBrowser.create({
+                        data: addressbooks,
+                        hierarchy: ['Test.Addressbook', 'Test.Contact', 'Test.Phone'],
+                        itemTemplates: {
+                            'Test.Contact': '{{item.firstname}} {{item.lastname}}',
+                            'Test.Phone': '{{item.type}}: {{item.number}}'
+                        },
+                        itemFormTemplates: {
+                            'Test.Contact': '<input type="text" name="firstname" /><input type="text" name="lastname" />',
+                            'Test.Phone': '<select name="type"><option>mobile</option><option>home</option></select><input type="text" name="number" />'
+                        },
+
+                        addItem: function(collection, data) {
+                            this._super(collection, data);
+                            this.persist();
+                        },
+
+                        saveItem: function(collection, item, data) {
+                            this._super(collection, item, data);
+                            this.persist();
+                        },
+
+                        destroyItem: function(collection, item) {
+                            this._super(collection, item);
+                            this.persist();
+                        },
+
+                        persist: function() {
+                            var data = [];
+                            var marshaller = Syrah.JSONMarshaller.create();
+                            this.get('data').forEach(function(item) {
+                                data.push(marshaller.marshall(item, { embedded: ['contacts', 'contacts.phones'] }));
+                            });
+                            localStorage.setItem('demo_graph', JSON.stringify(data));
+                        }
+                    });
+                    browser.appendTo('#content');
+                }
+            });
+
+            Test.Addressbook = Syrah.Model.define({
+                name: String,
+                contacts: {
+                    type: Syrah.HasMany,
+                    itemType: "Test.Contact"
+                }
+            });
+
+            Test.Contact = Syrah.Model.define({
+                firstname: String,
+                lastname: String,
+                phones: {
+                    type: Syrah.HasMany,
+                    itemType: "Test.Phone"
+                }
+            });
+
+            Test.Phone = Syrah.Model.define({
+                number: String,
+                type: String
+            });
+        </script>
+    </body>
+</html>
