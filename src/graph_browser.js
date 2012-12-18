@@ -155,11 +155,12 @@ Cabernet.GraphBrowserAddView = Ember.View.extend({
     collection: null,
 
     addItem: function(e) {
-        var data = {};
-        this.$(':input').serializeArray().forEach(function(item) {
-            data[item.name] = item.value;
-        });
-        this.get('parentView').addItem(this.get('collection'), data);
+        
+        var formData = extractDataFromForm(this);
+
+        if(formData.isEmpty) return;
+
+        this.get('parentView').addItem(this.get('collection'), formData.data);
 
         this.$(':input').val(function(index, value) {
             return '';
@@ -199,11 +200,11 @@ Cabernet.GraphBrowserItemFormView = Ember.View.extend({
     },
 
     saveItem: function() {
-        var data = {};
-        this.$(':input').serializeArray().forEach(function(item) {
-            data[item.name] = item.value;
-        });
-        this.get('parentView').get('parentView').saveItem(this.get('collection'), this.get('item'), data);
+        var formData = extractDataFromForm(this);
+
+        if(!formData.isEmpty) {
+            this.get('parentView').get('parentView').saveItem(this.get('collection'), this.get('item'), formData.data);
+        }
         this.get('parentView').set('editMode', false);
     },
 
@@ -241,3 +242,18 @@ Cabernet.GraphBrowserItemFormView = Ember.View.extend({
         return item.getProperties(ret);
     }
 });
+
+var extractDataFromForm = function(form) {
+    var data = {};
+    var isEmpty = true;
+    form.$(':input').serializeArray().forEach(function(item) {
+        data[item.name] = $.trim(item.value);
+        if(data[item.name] != '') {
+            isEmpty = false;
+        }
+    });
+    return {
+        "isEmpty": isEmpty,
+        "data": data
+    };
+}
