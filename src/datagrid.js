@@ -408,6 +408,7 @@ Cabernet.Datagrid.Column = Ember.Object.extend({
     filterable: true,
     filter: null,
     hideable: true,
+    hiddenInColumnPicker: false,
     sortable: true,
     sumable: false,
     format: false,
@@ -824,12 +825,14 @@ Cabernet.Datagrid.OptionsView = Cabernet.Popover.extend({
 Cabernet.Datagrid.ColumnpickerElement = Ember.View.extend({
     template: Ember.Handlebars.compile(
         '<label> \
+        {{#unless content.hiddenInColumnPicker}} \
             {{#if content.hideable}} \
                 {{view Ember.Checkbox checkedBinding="content.displayed"}} \
             {{else}} \
                 {{view Ember.Checkbox checkedBinding="content.displayed" disabled="disabled"}} \
             {{/if}} \
             <span>{{content.label}}</span> \
+        {{/unless}} \
         </label>'
     )
 });

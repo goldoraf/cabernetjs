@@ -77,7 +77,7 @@
                         defaultSort: '-title',
                         sessionBucket: 'test',
                         columns: [
-                            { name: 'title', label: 'Title' },
+                            { name: 'title', label: 'Title', hideable:false, hiddenInColumnPicker:true },
                             { name: 'director', label: 'Director' },
                             { name: 'releaseDate', label: 'Release date', type: Date },
                             { name: 'budget', label: 'Budget', type: Number, sumable: true, format: accounting.formatMoney, classNames: 'red' },
