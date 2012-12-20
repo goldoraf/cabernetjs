@@ -460,6 +460,8 @@ Cabernet.Datagrid.Column.reopenClass({
                 Ember.warn("Column '" + options.name + "' has been defined as of Date type and/or 'daterange' filter but the data provided seems not to be of Date type. " +
                     "Filtering and sorting may not behave properly", !Ember.empty(data) && data.get('firstObject')[options.name] instanceof Date);
             }
+
+            if (options.format) filterOpts.format = options.format;
             
             options.filter = Cabernet.Datagrid.Filter.createFromOptions(filterOpts, data);
         } 
@@ -471,6 +473,7 @@ Cabernet.Datagrid.Column.reopenClass({
 Cabernet.Datagrid.Filter = Ember.Object.extend({
     column: '',
     value: '',
+    format: false,
 
     isText: function() {
         return this.get('type') === 'text';
@@ -556,9 +559,19 @@ Cabernet.Datagrid.RangeFilter = Cabernet.Datagrid.Filter.extend({
         return !Ember.empty(this.get('value')) ? this.get('value')[1] : this.get('max');
     }.property('value'),
 
+    formattedSelectedMax: function() {
+        if (this.get('format') !== false) return this.get('format')(this.get('selectedMax'));
+        return this.get('selectedMax');
+    }.property('selectedMax'),
+
     selectedMin: function() {
         return !Ember.empty(this.get('value')) ? this.get('value')[0] : this.get('min');
     }.property('value'),
+
+    formattedSelectedMin: function() {
+        if (this.get('format') !== false) return this.get('format')(this.get('selectedMin'));
+        return this.get('selectedMin');
+    }.property('selectedMin'),
 
     apply: function(data) {
         var value, min = this.get('value')[0], max = this.get('value')[1];
@@ -675,8 +688,8 @@ Cabernet.Datagrid.PickFilterView = Cabernet.Datagrid.FilterView.extend({
 });
 
 Cabernet.Datagrid.RangeFilterView = Cabernet.Datagrid.FilterView.extend({
-    contentTemplate: '<p>{{t "cabernet.datagrid.fromValue"}} {{filter.selectedMin}} \
-        {{t "cabernet.datagrid.toValue"}} {{filter.selectedMax}}</p><div class="slider-range"></div>',
+    contentTemplate: '<p>{{t "cabernet.datagrid.fromValue"}} {{filter.formattedSelectedMin}} \
+        {{t "cabernet.datagrid.toValue"}} {{filter.formattedSelectedMax}}</p><div class="slider-range"></div>',
 
     applyFilter: function(value) {
         this.get('filter').set('value', value);
