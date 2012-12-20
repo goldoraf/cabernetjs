@@ -92,38 +92,41 @@
                         },
 
                         // create
-                        afterAddItem: function(collection, item) {
+                        afterAddItem: function(collection, item, queueName) {
                             this.persist(
                                 function() {
                                     $("#main #content > h1 .error").remove();
+                                    Cabernet.queueManager.clear(queueName);
                                 }, 
                                 function() {
-                                    Cabernet.queue.run("addItem", collection, item);
+                                    Cabernet.queueManager.run(queueName, collection, item);
                                     $("#main #content > h1").append("<div class='error'>Error while saving item</div>");
                                 }
                             );
                             
                         },
                         // update
-                        afterSaveItem: function(collection, item, data) {
+                        afterSaveItem: function(collection, item, data, queueName) {
                             this.persist(
                                 function() {
                                     $("#main #content > h1 .error").remove();
+                                    Cabernet.queueManager.clear(queueName);
                                 }, 
                                 function() {
-                                    Cabernet.queue.run("saveItem", collection, item);
+                                    Cabernet.queueManager.run(queueName, collection, item);
                                     $("#main #content > h1").append("<div class='error'>Error while saving item</div>");
                                 }
                             );
                         },
                         // delete
-                        afterDestroyItem: function(collection, item) {
+                        afterDestroyItem: function(collection, item, queueName) {
                             this.persistRemove(
                                 function() {
                                     $("#main #content > h1 .error").remove();
+                                    Cabernet.queueManager.clear(queueName);
                                 }, 
                                 function() {
-                                    Cabernet.queue.run("destroyItem", collection, item);
+                                    Cabernet.queueManager.run(queueName, collection, item);
                                     $("#main #content > h1").append("<div class='error'>Can't delete item</div>");
                                 }
                             );

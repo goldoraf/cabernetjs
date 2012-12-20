@@ -1,14 +1,31 @@
-Cabernet.queue = Ember.Object.create({
-    queues: [],
+Cabernet.queueManager = Ember.Object.create({
+    queues: {},
 
     getQueue: function(queueName) {
-        return this.get("queues")[queueName] || this.addQueue(queueName);
+        return this.get("queues")[queueName];
     },
 
-    addQueue: function(queueName) {
+    addQueue: function() {
         var queues = this.get("queues");
-        queues[queueName] = [];
-        return this.get("queues")[queueName];
+
+        var queueName = this.generateUniqueName();
+        var queue = [];
+
+        queues[queueName] = queue;
+
+        return {
+            name: queueName,
+            data: queues[queueName]
+        }
+    },
+
+    generateUniqueName: function() {
+        var S4 = function ()
+        {
+            return Math.floor(Math.random() * 0x10000).toString(16);
+        };
+
+        return (S4() + "-" + S4() );
     },
 
     add: function(queueName, item, context) {
@@ -27,9 +44,9 @@ Cabernet.queue = Ember.Object.create({
     },
 
     clear: function(queueName) {
-        this.get("queues")[queueName] = [];
+        var queue = this.get("queues")[queueName] = [];
+        var queue2 = this.get("queues")[queueName];
     },
-
 
     assertQueueNameIsPresent: function(queueName) {
 

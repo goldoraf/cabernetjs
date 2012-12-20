@@ -99,15 +99,14 @@ Cabernet.GraphBrowser = Ember.View.extend({
 
     // --- Add item --- //
 
-    addItem: function(collection, item) {
+    addItem: function(collection, item, queueName) {
         this.get('displayed').get(collection).pushObject(item);
-        Cabernet.queue.add("addItem", this.addItemRollback, this)
-        this.afterAddItem(collection, item);
+        Cabernet.queueManager.add(queueName, this.addItemRollback, this)
+        this.afterAddItem(collection, item, queueName);
     },
-    afterAddItem: function(collection, item) {},
+    afterAddItem: function(collection, item, queueName) {},
 
     addItemRollback: function(collection, item) {
-        console.log("rollback Graph browser");
         this.get('displayed').get(collection).removeObject(item);
     },
 
@@ -118,10 +117,11 @@ Cabernet.GraphBrowser = Ember.View.extend({
         var oldVal = item.getProperties(properties);
         item.set("oldVal", oldVal);
         item.setProperties(data);
-        Cabernet.queue.add("saveItem", this.saveItemRollback, this)
-        this.afterSaveItem(collection, item);
+        var queue = Cabernet.queueManager.addQueue();
+        Cabernet.queueManager.add(queue.name, this.saveItemRollback, this)
+        this.afterSaveItem(collection, item, queue.name);
     },
-    afterSaveItem: function(collection, item, data) {},
+    afterSaveItem: function(collection, item, data, queueName) {},
 
     saveItemRollback: function(collection, item, data) {
         item.setProperties(item.get("oldVal"));
@@ -130,13 +130,14 @@ Cabernet.GraphBrowser = Ember.View.extend({
     // --- Destroy item --- //
 
     destroyItem: function(collection, item) {
-        Cabernet.queue.add("destroyItem", this.destroyItemRollback, this)
+        var queue = Cabernet.queueManager.addQueue();
+        Cabernet.queueManager.add(queue.name, this.destroyItemRollback, this)
         this.get("displayed").get(collection).removeObject(item);
+        this.afterDestroyItem(collection, item, queue.name);
     },
-    afterDestroyItem: function(collection, item) {},
+    afterDestroyItem: function(collection, item, queueName) {},
 
     destroyItemRollback: function(collection, item) {
-        console.log("Rollback destroy item");
         this.get('displayed').get(collection).pushObject(item);
     },
 
@@ -204,15 +205,16 @@ Cabernet.GraphBrowserAddView = Ember.View.extend({
 
 
         this.set("formData", formData.data);
-        Cabernet.queue.add("addItem", this.addItemRollback, this);
+        var queue = Cabernet.queueManager.addQueue();
+        Cabernet.queueManager.add(queue.name, this.addItemRollback, this);
         parentView.addItem(
             collection,
-            item
+            item,
+            queue.name
         );
     },
 
     addItemRollback: function() {
-        console.log("rollback Graph browser add view");
         var formData = this.get("formData");
         this.$(':input').val(function(index, value) {
             return formData[index];
