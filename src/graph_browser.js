@@ -89,21 +89,55 @@ Cabernet.GraphBrowser = Ember.View.extend({
         this.emptyCollectionsFrom(childColl);
     },
 
-    addItem: function(collection, data) {
+
+    createItem: function(collection, data) {
         var modelType = this.getTypeForCollection(collection),
             newItem = Ember.getPath(modelType).create(data);
 
-        this.get('displayed').get(collection).pushObject(newItem);
+        return newItem;
     },
+
+    // --- Add item --- //
+
+    addItem: function(collection, item) {
+        this.get('displayed').get(collection).pushObject(item);
+        Cabernet.queue.add("addItem", this.addItemRollback, this)
+        this.afterAddItem(collection, item);
+    },
+    afterAddItem: function(collection, item) {},
+
+    addItemRollback: function(collection, item) {
+        console.log("rollback Graph browser");
+        this.get('displayed').get(collection).removeObject(item);
+    },
+
+    // --- Save item --- //
 
     saveItem: function(collection, item, data) {
+        var properties = _.keys(data);
+        var oldVal = item.getProperties(properties);
+        item.set("oldVal", oldVal);
         item.setProperties(data);
+        Cabernet.queue.add("saveItem", this.saveItemRollback, this)
+        this.afterSaveItem(collection, item);
+    },
+    afterSaveItem: function(collection, item, data) {},
+
+    saveItemRollback: function(collection, item, data) {
+        item.setProperties(item.get("oldVal"));
     },
 
+    // --- Destroy item --- //
+
     destroyItem: function(collection, item) {
-        this.get('displayed').get(collection).removeObject(item);
-        this.disableFormsFrom(collection);
-        this.emptyCollectionsFrom(collection);
+        Cabernet.queue.add("destroyItem", this.destroyItemRollback, this)
+        this.get("displayed").get(collection).removeObject(item);
+    },
+    afterDestroyItem: function(collection, item) {},
+
+    destroyItemRollback: function(collection, item) {
+        console.log("Rollback destroy item");
+        this.get('displayed').get(collection).pushObject(item);
     },
 
     getTypeForCollection: function(collection) {
@@ -151,19 +185,37 @@ Cabernet.GraphBrowser = Ember.View.extend({
     }
 });
 
+
 Cabernet.GraphBrowserAddView = Ember.View.extend({
     collection: null,
+    formData: null,
 
     addItem: function(e) {
-        
         var formData = extractDataFromForm(this);
-
         if(formData.isEmpty) return;
 
-        this.get('parentView').addItem(this.get('collection'), formData.data);
+        var parentView = this.get('parentView');
+        var collection = this.get('collection');
+        var item = parentView.createItem(collection, formData.data);
 
         this.$(':input').val(function(index, value) {
             return '';
+        });
+
+
+        this.set("formData", formData.data);
+        Cabernet.queue.add("addItem", this.addItemRollback, this);
+        parentView.addItem(
+            collection,
+            item
+        );
+    },
+
+    addItemRollback: function() {
+        console.log("rollback Graph browser add view");
+        var formData = this.get("formData");
+        this.$(':input').val(function(index, value) {
+            return formData[index];
         });
     },
 

@@ -91,28 +91,68 @@
                             'Test.Phone': '<select name="type"><option>mobile</option><option>home</option></select><input type="text" name="number" />'
                         },
 
-                        addItem: function(collection, data) {
-                            this._super(collection, data);
-                            this.persist();
+                        // create
+                        afterAddItem: function(collection, item) {
+                            this.persist(
+                                function() {
+                                    $("#main #content > h1 .error").remove();
+                                }, 
+                                function() {
+                                    Cabernet.queue.run("addItem", collection, item);
+                                    $("#main #content > h1").append("<div class='error'>Error while saving item</div>");
+                                }
+                            );
+                            
+                        },
+                        // update
+                        afterSaveItem: function(collection, item, data) {
+                            this.persist(
+                                function() {
+                                    $("#main #content > h1 .error").remove();
+                                }, 
+                                function() {
+                                    Cabernet.queue.run("saveItem", collection, item);
+                                    $("#main #content > h1").append("<div class='error'>Error while saving item</div>");
+                                }
+                            );
+                        },
+                        // delete
+                        afterDestroyItem: function(collection, item) {
+                            this.persistRemove(
+                                function() {
+                                    $("#main #content > h1 .error").remove();
+                                }, 
+                                function() {
+                                    Cabernet.queue.run("destroyItem", collection, item);
+                                    $("#main #content > h1").append("<div class='error'>Can't delete item</div>");
+                                }
+                            );
                         },
 
-                        saveItem: function(collection, item, data) {
-                            this._super(collection, item, data);
-                            this.persist();
+                        persistRemove: function(onSuccess, errorCallback) {
+                            if (item instanceof Test.Addressbook && item.name == "My contacts") {
+                                errorCallback();
+                            } else {
+                                this.persist();
+                            }
                         },
 
-                        destroyItem: function(collection, item) {
-                            this._super(collection, item);
-                            this.persist();
-                        },
-
-                        persist: function() {
+                        persist: function(onSuccess, errorCallback) {
                             var data = [];
+                            var hasError = false;
                             var marshaller = Syrah.JSONMarshaller.create();
                             this.get('data').forEach(function(item) {
-                                data.push(marshaller.marshall(item, { embedded: ['contacts', 'contacts.phones'] }));
-                            });
-                            localStorage.setItem('demo_graph', JSON.stringify(data));
+                                if (item instanceof Test.Addressbook && item.name == "toto") {
+                                    errorCallback();
+                                    hasError = true;
+                                } else {
+                                    data.push(marshaller.marshall(item, { embedded: ['contacts', 'contacts.phones'] }));
+                                }
+                            }, this);
+                            if (!hasError) {
+                                localStorage.setItem('demo_graph', JSON.stringify(data));
+                                onSuccess();
+                            }
                         }
                     });
                     browser.appendTo('#content');
