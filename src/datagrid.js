@@ -611,8 +611,8 @@ Cabernet.Datagrid.DaterangeFilter = Cabernet.Datagrid.Filter.extend({
     },
 
     hydrateValue: function(value) {
-        if (!Ember.empty(value[0])) value[0] = new Date(value[0]);
-        if (!Ember.empty(value[1])) value[1] = new Date(value[1]);
+        if (!Ember.empty(value[0])) value[0] = new Date(Date.parse(value[0]));
+        if (!Ember.empty(value[1])) value[1] = new Date(Date.parse(value[1]));
         return value;
     },
 

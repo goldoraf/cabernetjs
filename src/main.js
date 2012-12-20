@@ -1,4 +1,5 @@
 require("core");
+require("compatibility");
 require("handlebars");
 require("popover");
 require("datagrid");
