@@ -688,7 +688,7 @@ Cabernet.Datagrid.RangeFilterView = Cabernet.Datagrid.FilterView.extend({
             range: true,
             min: this.get('filter').get('min'),
             max: this.get('filter').get('max'),
-            values: [this.get('filter').get('min'), this.get('filter').get('max')],
+            values: [this.get('filter').get('selectedMin'), this.get('filter').get('selectedMax')],
             step: this.get('filter').get('step'),
             slide: function(event, ui) {
                 that.get('filter').set('value', ui.values);
