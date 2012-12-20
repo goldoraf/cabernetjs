@@ -34,13 +34,15 @@ Cabernet.GraphBrowser = Ember.View.extend({
                                     {{#each item in displayed.'+ collection +'}} \
                                         {{#view Cabernet.GraphBrowserItemView collection="'+ collection +'" itemBinding="item"}} \
                                             {{#if editMode}} \
-                                                {{#view Cabernet.GraphBrowserItemFormView collection="'+ collection +'" itemBinding="item"}}'
-                                                    + this.getFormTemplateFor(collection) +
-                                                    '<button class="btn primary" {{action "saveItem"}}>{{t "cabernet.graph_browser.save"}}</button> \
-                                                    <button class="btn danger" {{action "destroyItem"}}>{{t "cabernet.graph_browser.delete"}}</button> \
+                                                {{#view Cabernet.GraphBrowserItemFormView collection="'+ collection +'" itemBinding="item"}} \
+                                                    <form>'
+                                                        + this.getFormTemplateFor(collection) +
+                                                        '<button class="btn primary" {{action "saveItem"}}>{{t "cabernet.graph_browser.save"}}</button> \
+                                                        <button class="btn danger" {{action "destroyItem"}}>{{t "cabernet.graph_browser.delete"}}</button> \
+                                                    </form> \
                                                 {{/view}} \
                                             {{else}}'
-                                                + this.getTemplateFor(collection) +
+                                                    + this.getTemplateFor(collection) +
                                             '{{/if}} \
                                         {{/view}} \
                                     {{/each}} \
@@ -132,13 +134,22 @@ Cabernet.GraphBrowser = Ember.View.extend({
     destroyItem: function(collection, item) {
         var queue = Cabernet.queueManager.addQueue();
         Cabernet.queueManager.add(queue.name, this.destroyItemRollback, this)
+        var position = this.get("displayed").get(collection).indexOf(item);
+        item.set("oldPosition", position);
         this.get("displayed").get(collection).removeObject(item);
         this.afterDestroyItem(collection, item, queue.name);
     },
     afterDestroyItem: function(collection, item, queueName) {},
 
     destroyItemRollback: function(collection, item) {
-        this.get('displayed').get(collection).pushObject(item);
+        var position = item.get("oldPosition");
+        var col = this.get('displayed').get(collection);
+        if (position < col.get("length")) {
+            this.get('displayed').get(collection).insertAt(position, item);
+        } else  {
+            this.get('displayed').get(collection).pushObject(item);
+        }
+        item.set("oldPosition", null);
     },
 
     getTypeForCollection: function(collection) {
@@ -251,9 +262,20 @@ Cabernet.GraphBrowserItemFormView = Ember.View.extend({
 
     didInsertElement: function() {
         this.populateForm();
+        var parentView = this.get("parentView");
+        this.$("form").on("clickoutside", function(e) {
+            parentView.set("editMode", false);
+        });
     },
 
-    saveItem: function() {
+    keyPress: function(e) {
+        if (e.keyCode == 27) {
+            this.get("parentView").set("editMode", false);
+        }
+    },
+
+    saveItem: function(e) {
+        e.preventDefault();
         var formData = extractDataFromForm(this);
 
         if(!formData.isEmpty) {
