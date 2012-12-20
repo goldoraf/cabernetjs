@@ -269,10 +269,10 @@ test("Filter datas by daterange", function () {
 
     var grid = Cabernet.Datagrid.create({
         data:[
-            {"daterangeColumn":"2012-01-01"},
-            {"daterangeColumn":"2012-02-01"},
-            {"daterangeColumn":"2012-04-30"},
-            {"daterangeColumn":"2012-07-01"}
+            {"daterangeColumn":new Date("2012-01-01")},
+            {"daterangeColumn":new Date("2012-02-01")},
+            {"daterangeColumn":new Date("2012-04-30")},
+            {"daterangeColumn":new Date("2012-07-01")}
         ],
         columns:[
             { name:'daterangeColumn', filter:{ type:'daterange' }}
@@ -284,24 +284,24 @@ test("Filter datas by daterange", function () {
     var filter = grid.get('filters')[0];
 
     // Filter by min and max date values
-    filter.set('value', ["2012-01-01", "2012-06-01"]);
+    filter.set('value', [new Date("2012-01-01"), new Date("2012-06-01")]);
     equal(grid.get('data').get('length'), 4); // unchanged
     equal(grid.get('displayedData').get('length'), 3);
-    equal(grid.get('displayedData')[0].daterangeColumn, "2012-01-01");
-    equal(grid.get('displayedData')[1].daterangeColumn, "2012-02-01");
-    equal(grid.get('displayedData')[2].daterangeColumn, "2012-04-30");
+    equal(grid.get('displayedData')[0].daterangeColumn.getTime(), new Date("2012-01-01").getTime());
+    equal(grid.get('displayedData')[1].daterangeColumn.getTime(), new Date("2012-02-01").getTime());
+    equal(grid.get('displayedData')[2].daterangeColumn.getTime(), new Date("2012-04-30").getTime());
 
     // Filter by min date value
-    filter.set('value', ["2012-03-01", null]);
+    filter.set('value', [new Date("2012-03-01"), null]);
     equal(grid.get('displayedData').get('length'), 2);
-    equal(grid.get('displayedData')[0].daterangeColumn, "2012-04-30");
-    equal(grid.get('displayedData')[1].daterangeColumn, "2012-07-01");
+    equal(grid.get('displayedData')[0].daterangeColumn.getTime(), new Date("2012-04-30").getTime());
+    equal(grid.get('displayedData')[1].daterangeColumn.getTime(), new Date("2012-07-01").getTime());
 
     // Filter by max date value
-    filter.set('value', [null, "2012-03-01"]);
+    filter.set('value', [null, new Date("2012-03-01")]);
     equal(grid.get('displayedData').get('length'), 2);
-    equal(grid.get('displayedData')[0].daterangeColumn, "2012-01-01");
-    equal(grid.get('displayedData')[1].daterangeColumn, "2012-02-01");
+    equal(grid.get('displayedData')[0].daterangeColumn.getTime(), new Date("2012-01-01").getTime());
+    equal(grid.get('displayedData')[1].daterangeColumn.getTime(), new Date("2012-02-01").getTime());
 
 });
 
