@@ -256,6 +256,8 @@
 
             aValue = Ember.get(a, columnName);
             bValue = Ember.get(b, columnName);
+            if (aValue instanceof Date) aValue = aValue.getTime();
+            if (bValue instanceof Date) bValue = bValue.getTime();
             ret = Ember.compare(aValue, bValue);
             return ret;
         });
