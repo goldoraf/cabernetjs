@@ -796,6 +796,7 @@ Cabernet.Datagrid.BooleanFilterView = Cabernet.Datagrid.FilterView.extend({
 Cabernet.Datagrid.OptionsView = Cabernet.Popover.extend({
     classNames: ['options'],
     placement: 'below left',
+    collision: 'none flip',
     withArrow: false,
     linkTemplate: '<a class="toggle" {{action "toggle"}}>{{t "cabernet.datagrid.options"}}</a>',
     contentTemplate: '{{#if parentView.copyToClipboardEnabled}} \

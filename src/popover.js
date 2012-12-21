@@ -4,6 +4,7 @@ Cabernet.Popover = Ember.View.extend({
     linkTemplate: null,
     contentTemplate: '',
     placement: 'below',
+    collision: 'flip',
     withArrow: true,
 
     init: function() {
@@ -45,7 +46,8 @@ Cabernet.Popover = Ember.View.extend({
             of: this.positionRelativeTo(),
             my : params.my,
             at: params.at,
-            offset: params.offset
+            offset: params.offset,
+            collision: this.get('collision')
         });
         if (this.get('withArrow') && params.arrowLeft !== undefined) popover.children('div.arrow').css('left', params.arrowLeft);
     },
@@ -79,7 +81,7 @@ Cabernet.Popover = Ember.View.extend({
             'above': { my: 'bottom', at: 'center', offset: '0' },
             'left': { my: 'right', at: 'left', offset: '0' },
             'below right': { my: 'left top', at: 'center bottom', offset: '0', arrowLeft: '20px' },
-            'below left' : { my: 'right top', at: 'right bottom', offset: '20 0', arrowLeft: width - 20 + 'px' },
+            'below left' : { my: 'right top', at: 'right bottom', offset: '0', arrowLeft: width - 20 + 'px' },
             'above right': { my: 'left bottom', at: 'center top', offset: '0', arrowLeft: '20px' }
         }
         return params[this.get('placement')];
