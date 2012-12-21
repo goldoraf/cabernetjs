@@ -27,7 +27,7 @@ Cabernet.GraphBrowser = Ember.View.extend({
                                 {{#view Cabernet.GraphBrowserAddView collection="'+ collection +'" classNames="bottom-form form-inline"}} \
                                     <form>'
                                         + this.getFormTemplateFor(collection) +
-                                        '<button class="btn primary"}>{{t "cabernet.graph_browser.add"}}</button> \
+                                        '<button class="btn add">{{t "cabernet.graph_browser.add"}}</button> \
                                     </form> \
                                 {{/view}} \
                                 <ul class="unstyled items-list"> \
@@ -37,8 +37,8 @@ Cabernet.GraphBrowser = Ember.View.extend({
                                                 {{#view Cabernet.GraphBrowserItemFormView collection="'+ collection +'" itemBinding="item"}} \
                                                     <form>'
                                                         + this.getFormTemplateFor(collection) +
-                                                        '<button class="btn primary" {{action "saveItem"}}>{{t "cabernet.graph_browser.save"}}</button> \
-                                                        <button class="btn danger" {{action "destroyItem"}}>{{t "cabernet.graph_browser.delete"}}</button> \
+                                                        '<button class="btn save" {{action "saveItem"}}>{{t "cabernet.graph_browser.save"}}</button> \
+                                                        <button class="btn remove" {{action "destroyItem"}}>{{t "cabernet.graph_browser.delete"}}</button> \
                                                     </form> \
                                                 {{/view}} \
                                             {{else}}'
@@ -279,7 +279,7 @@ Cabernet.GraphBrowserItemFormView = Ember.View.extend({
     },
 
     submit: function(e) {
-        this.saveItem(e); 
+        this.saveItem(e);
         return false;
     },
 
