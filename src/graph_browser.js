@@ -26,8 +26,8 @@ Cabernet.GraphBrowser = Ember.View.extend({
                                 <h2>'+ collection +'</h2> \
                                 {{#view Cabernet.GraphBrowserAddView collection="'+ collection +'" classNames="bottom-form form-inline"}} \
                                     <form>'
-                                    + this.getFormTemplateFor(collection) +
-                                    '<button class="btn primary" {{action "addItem"}}>{{t "cabernet.graph_browser.add"}}</button> \
+                                        + this.getFormTemplateFor(collection) +
+                                        '<button class="btn primary"}>{{t "cabernet.graph_browser.add"}}</button> \
                                     </form> \
                                 {{/view}} \
                                 <ul class="unstyled items-list"> \
@@ -137,6 +137,8 @@ Cabernet.GraphBrowser = Ember.View.extend({
         var position = this.get("displayed").get(collection).indexOf(item);
         item.set("oldPosition", position);
         this.get("displayed").get(collection).removeObject(item);
+        this.disableFormsFrom(collection);
+        this.emptyCollectionsFrom(collection);
         this.afterDestroyItem(collection, item, queue.name);
     },
     afterDestroyItem: function(collection, item, queueName) {},
@@ -202,6 +204,15 @@ Cabernet.GraphBrowserAddView = Ember.View.extend({
     collection: null,
     formData: null,
 
+    didInsertElement: function() {
+       // this.$(":input:visible:first").focus();
+    },
+
+    submit: function(e) {
+        e.preventDefault();
+        this.addItem(e);
+    },
+
     addItem: function(e) {
         var formData = extractDataFromForm(this);
         if(formData.isEmpty) return;
@@ -230,12 +241,6 @@ Cabernet.GraphBrowserAddView = Ember.View.extend({
         this.$(':input').val(function(index, value) {
             return formData[index];
         });
-    },
-
-    // Necessary for IE (and the form tag too) ; 
-    // without this, when the user types 'Return', a call to 'addItem' is made but not to the right view... 
-    didInsertElement: function() {
-        this.$('form').submit(function(e) { return false; })
     }
 });
 
@@ -266,6 +271,16 @@ Cabernet.GraphBrowserItemFormView = Ember.View.extend({
         this.$("form").on("clickoutside", function(e) {
             parentView.set("editMode", false);
         });
+        this.$(":input:visible:first").focus();
+    },
+
+    willDestroyElement: function() {
+        this.$("form").unbind("clickoutside");
+    },
+
+    submit: function(e) {
+        this.saveItem(e); 
+        return false;
     },
 
     keyPress: function(e) {

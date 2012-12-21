@@ -120,7 +120,7 @@
                         },
                         // delete
                         afterDestroyItem: function(collection, item, queueName) {
-                            this.persistRemove(
+                            this.persistRemove(item, 
                                 function() {
                                     $("#main #content > h1 .error").remove();
                                     Cabernet.queueManager.clear(queueName);
@@ -132,11 +132,11 @@
                             );
                         },
 
-                        persistRemove: function(onSuccess, errorCallback) {
+                        persistRemove: function(item, onSuccess, errorCallback) {
                             if (item instanceof Test.Addressbook && item.name == "My contacts") {
                                 errorCallback();
                             } else {
-                                this.persist();
+                                this.persist(onSuccess);
                             }
                         },
 
