@@ -256,6 +256,8 @@
 
             aValue = Ember.get(a, columnName);
             bValue = Ember.get(b, columnName);
+            if (aValue instanceof Date) aValue = aValue.getTime();
+            if (bValue instanceof Date) bValue = bValue.getTime();
             ret = Ember.compare(aValue, bValue);
             return ret;
         });
@@ -458,6 +460,8 @@ Cabernet.Datagrid.Column.reopenClass({
                 Ember.warn("Column '" + options.name + "' has been defined as of Date type and/or 'daterange' filter but the data provided seems not to be of Date type. " +
                     "Filtering and sorting may not behave properly", !Ember.empty(data) && data.get('firstObject')[options.name] instanceof Date);
             }
+
+            if (options.format) filterOpts.format = options.format;
             
             options.filter = Cabernet.Datagrid.Filter.createFromOptions(filterOpts, data);
         } 
@@ -469,6 +473,7 @@ Cabernet.Datagrid.Column.reopenClass({
 Cabernet.Datagrid.Filter = Ember.Object.extend({
     column: '',
     value: '',
+    format: false,
 
     isText: function() {
         return this.get('type') === 'text';
@@ -554,9 +559,19 @@ Cabernet.Datagrid.RangeFilter = Cabernet.Datagrid.Filter.extend({
         return !Ember.empty(this.get('value')) ? this.get('value')[1] : this.get('max');
     }.property('value'),
 
+    formattedSelectedMax: function() {
+        if (this.get('format') !== false) return this.get('format')(this.get('selectedMax'));
+        return this.get('selectedMax');
+    }.property('selectedMax'),
+
     selectedMin: function() {
         return !Ember.empty(this.get('value')) ? this.get('value')[0] : this.get('min');
     }.property('value'),
+
+    formattedSelectedMin: function() {
+        if (this.get('format') !== false) return this.get('format')(this.get('selectedMin'));
+        return this.get('selectedMin');
+    }.property('selectedMin'),
 
     apply: function(data) {
         var value, min = this.get('value')[0], max = this.get('value')[1];
@@ -611,8 +626,8 @@ Cabernet.Datagrid.DaterangeFilter = Cabernet.Datagrid.Filter.extend({
     },
 
     hydrateValue: function(value) {
-        if (!Ember.empty(value[0])) value[0] = new Date(value[0]);
-        if (!Ember.empty(value[1])) value[1] = new Date(value[1]);
+        if (!Ember.empty(value[0])) value[0] = new Date(Date.parse(value[0]));
+        if (!Ember.empty(value[1])) value[1] = new Date(Date.parse(value[1]));
         return value;
     },
 
@@ -673,8 +688,8 @@ Cabernet.Datagrid.PickFilterView = Cabernet.Datagrid.FilterView.extend({
 });
 
 Cabernet.Datagrid.RangeFilterView = Cabernet.Datagrid.FilterView.extend({
-    contentTemplate: '<p>{{t "cabernet.datagrid.fromValue"}} {{filter.selectedMin}} \
-        {{t "cabernet.datagrid.toValue"}} {{filter.selectedMax}}</p><div class="slider-range"></div>',
+    contentTemplate: '<p>{{t "cabernet.datagrid.fromValue"}} {{filter.formattedSelectedMin}} \
+        {{t "cabernet.datagrid.toValue"}} {{filter.formattedSelectedMax}}</p><div class="slider-range"></div>',
 
     applyFilter: function(value) {
         this.get('filter').set('value', value);
@@ -686,7 +701,7 @@ Cabernet.Datagrid.RangeFilterView = Cabernet.Datagrid.FilterView.extend({
             range: true,
             min: this.get('filter').get('min'),
             max: this.get('filter').get('max'),
-            values: [this.get('filter').get('min'), this.get('filter').get('max')],
+            values: [this.get('filter').get('selectedMin'), this.get('filter').get('selectedMax')],
             step: this.get('filter').get('step'),
             slide: function(event, ui) {
                 that.get('filter').set('value', ui.values);
@@ -781,6 +796,7 @@ Cabernet.Datagrid.BooleanFilterView = Cabernet.Datagrid.FilterView.extend({
 Cabernet.Datagrid.OptionsView = Cabernet.Popover.extend({
     classNames: ['options'],
     placement: 'below left',
+    collision: 'none flip',
     withArrow: false,
     linkTemplate: '<a class="toggle" {{action "toggle"}}>{{t "cabernet.datagrid.options"}}</a>',
     contentTemplate: '{{#if parentView.copyToClipboardEnabled}} \
