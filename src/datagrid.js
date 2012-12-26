@@ -2,17 +2,18 @@
     
     template: function() {
         return Ember.Handlebars.compile(
-            '<table> \
-                <thead>' + this.get('headerTemplate') + '</thead> \
-                <tfoot>' + this.get('footerTemplate') + '</tfoot> \
-                <tbody /> \
+            '<table>\
+                {{{colgroup}}}\
+                <thead>' + this.get('headerTemplate') + '</thead>\
+                <tfoot>' + this.get('footerTemplate') + '</tfoot>\
+                <tbody />\
             </table>'
         );
     }.property('headerTemplate', 'footerTemplate').cacheable(),
 
     headerTemplate:
         '<tr> \
-            {{#each column in displayedColumns}} \
+            {{#each column in columnsForDisplay}} \
                 <th {{bindAttr class="column.sortClass" }}>\
                     <div class="header-wrapper"> \
                     {{#if column.sortable}} \
@@ -57,6 +58,10 @@
             </tr> \
         {{/if}}',
 
+    colgroup: function() {
+        return '<colgroup>' + '<col/>'.repeat(this.get('columnsForDisplay').get('length')) + '</colgroup>';
+    }.property(),
+
     data: [],
     modelType: null,
     columns: null,
@@ -90,17 +95,13 @@
     }.property().cacheable(),
 
     displayedColumns: function() {
-        return this.get('columnsForDisplay').filter(function(columnForDisplay) {
-            if (columnForDisplay.get('hideable') === true)
-                return columnForDisplay.get('displayed');
-            return true;
-        });
+        return this.get('columnsForDisplay').filterProperty('displayed');
     }.property('columnsForDisplay.@each.displayed'),
 
     filters: function() {
-        return this.get('columnsForDisplay').map(function(columnForDisplay) {
-            if (columnForDisplay.get('filterable') === true)
-                return columnForDisplay.get('filter');
+        return this.get('columnsForDisplay').map(function(column) {
+            if (column.get('filterable') === true)
+                return column.get('filter');
             return null;
         }).without(null);
     }.property('columnsForDisplay.@each.filter'),
@@ -115,13 +116,13 @@
     }.observes('appliedFilters.@each'),
 
     hasSumableColumns: function() {
-        return this.get('displayedData').get('length') !== 0 && this.get('displayedColumns').filterProperty('sumable').get('length') !== 0;
-    }.property('displayedColumns.@each.sumable', 'displayedData'),
+        return this.get('displayedData').get('length') !== 0 && this.get('columnsForDisplay').filterProperty('sumable').get('length') !== 0;
+    }.property('columnsForDisplay.@each.sumable', 'displayedData'),
 
     computedSums: function() {
         if (this.get('displayedData').get('length') === 0) return [];
         var sum, sums = [];
-        this.get('displayedColumns').forEach(function(column) {
+        this.get('columnsForDisplay').forEach(function(column) {
             if (!column.get('sumable')) sums.push({ css: column.get('classNames'), value: ''});
             else {
                 sum = this.computeSum(column.get('name'));
@@ -130,15 +131,15 @@
             }
         }, this);
         return sums;
-    }.property('displayedColumns', 'displayedData'),
+    }.property('columnsForDisplay', 'displayedData'),
 
     hasFormatableColumns: function() {
         return this.get('columnsForDisplay').filterProperty('format').get('length') !== 0;
     }.property('columnsForDisplay.@each.format').cacheable(),
 
     formatableColumns: function() {
-        return this.get('displayedColumns').filterProperty('format');
-    }.property('displayedColumns'),
+        return this.get('columnsForDisplay').filterProperty('format');
+    }.property('columnsForDisplay'),
 
     init: function() {
         this._super();
@@ -151,11 +152,6 @@
                 window.ZeroClipboard !== undefined
             );
         }
-        
-        this.addObserver('displayedColumns', function displayedColumnsChanged() {
-            this.saveParam('displayedColumns', this.get('displayedColumns').mapProperty('name'));
-            this.renderGrid();
-        });
 
         var initialSort = this.get('defaultSort');
         if (this.shouldPersistParams()) {
@@ -173,12 +169,15 @@
 
     didInsertElement: function() {
         this.renderGrid();
+        this.fixColumnsWidth();
+        this.initColumnResizing();
+        this.initColumnHiding();
     },
 
     renderGrid: function() {
         if (this.get('displayedData').get('length') === 0) {
             this.$('tbody').replaceWith(this.get('emptyTemplate')({ 
-                columnCount: this.get('displayedColumns').get('length') + 1
+                columnCount: this.get('columnsForDisplay').get('length') + 1
             }));
         } else {
             this.$('tbody').replaceWith(this.get('gridTemplate')({ data: this.applyFormatting(this.get('displayedData')) }));
@@ -195,9 +194,9 @@
 
     gridTemplate: function() {
         var custom, inner, css, html = [],
-            columnCount = this.get('displayedColumns').get('length');
+            columnCount = this.get('columnsForDisplay').get('length');
         
-        this.get('displayedColumns').forEach(function(col, index) {
+        this.get('columnsForDisplay').forEach(function(col, index) {
             custom = this.getCustomDisplay(col.name);
             inner = (custom !== null) ? custom : '{{this.'+col.name+'}}';
             css = (!Ember.empty(col.get('classNames'))) ? ' class="'+col.get('classNames')+'"' : '';
@@ -206,7 +205,7 @@
         }, this);
         
         return Cabernet.Handlebars.compile('<tbody>{{#list data}}<tr>'+html.join('')+'</tr>{{/list}}</tbody>');
-    }.property('displayedColumns').cacheable(),
+    }.property('columnsForDisplay').cacheable(),
 
     getCustomDisplay: function(columnName) {
         if (!this.get('custom').hasOwnProperty(columnName)) return null;
@@ -215,6 +214,80 @@
 
     refreshDisplayedData: function() {
         this.set('displayedData', this.applySort(this.applyFilters(this.get('data'))));
+    },
+
+    fixColumnsWidth: function() {
+        var col, table = this.$('table');
+        this.$('thead th').each(function(index) {
+            col = table.find("colgroup > col:nth-child(" + (index + 1) + ")");
+            col.css('width', $(this).width()+'px');
+        });
+        this.$('table').css('tableLayout', 'fixed')
+    },
+
+    initColumnResizing: function() {
+        var table = this.$('table');
+        this.$('div.header-wrapper').each(function(index) {
+            $(this).resizable({
+         handles: "e",
+
+         // set correct COL element and original size
+         start: function(event, ui) {
+           var colIndex = index + 1;
+           colElement = table.find("colgroup > col:nth-child(" +
+             colIndex + ")");
+
+          // get col width (faster than .width() on IE)
+          colWidth = parseInt(colElement.get(0).style.width, 10);
+          originalSize = ui.size.width;
+         },
+
+         // set COL width
+         resize: function(event, ui) {
+           var resizeDelta = ui.size.width - originalSize;
+
+           var newColWidth = colWidth + resizeDelta;
+           colElement.width(newColWidth);
+
+           // height must be set in order to prevent IE9 to set wrong height
+           //$(this).css("height", "auto");
+         }
+        });
+});
+    },
+
+    initColumnHiding: function() {
+        if (this.shouldPersistParams()) {
+            var previouslyDisplayed = this.retrieveParam('displayedColumns');
+            if (!Ember.none(previouslyDisplayed)) {
+                this.get('columnsForDisplay').forEach(function(col) {
+                    if (!previouslyDisplayed.contains(col.get('name'))) {
+                        col.set('displayed', false);
+                    }
+                });
+            }
+        }
+        this.addObserver('displayedColumns', function displayedColumnsChanged() {
+            this.saveParam('displayedColumns', this.get('displayedColumns').mapProperty('name'));
+        });
+    },
+
+    toggleColumn: function(columnName) {
+        var index = this.getColumnIndex(columnName);
+        this.$('td:nth-child('+(index+1)+')').toggle();
+        this.$('th:eq('+index+')').toggle();
+        this.$('tfoot th:eq('+index+')').toggle();
+    },
+
+    getColumnIndex: function(columnName) {
+        var colIndex;
+        this.get('columnsForDisplay').forEach(function(col, index) {
+            if (col.get('name') == columnName) {
+                colIndex = index;
+                return;
+            }
+        });
+        return colIndex;
     },
 
     onSort: function(event) {
@@ -308,7 +381,7 @@
     generateTSV: function() {
         var contents = '';
         var keys = [];
-        this.get('displayedColumns').forEach(function(column, index) {
+        this.get('columnsForDisplay').forEach(function(column, index) {
             keys.push(column.get('label'));
         });
 
@@ -317,7 +390,7 @@
             var row = datas[rowIndex];
             var values = [];
 
-            this.get('displayedColumns').forEach(function(column, index) {
+            this.get('columnsForDisplay').forEach(function(column, index) {
                 var item = Ember.get(row, column.get('name'));
                 values.push(item);
             });
@@ -361,15 +434,11 @@
         }
 
         var col, jsonValue, cols = [], data = this.get('data'), colsDef = this.get('columns'),
-            previouslyDisplayed = this.shouldPersistParams() ? this.retrieveParam('displayedColumns') : null,
             appliedFilters  = this.shouldPersistParams() ? this.retrieveParam('filters') : null,
             previouslyFiltered = !Ember.none(appliedFilters) ? appliedFilters.mapProperty('column') : null;
 
         colsDef.forEach(function(column) {
-            col = Cabernet.Datagrid.Column.createFromOptions(column, data);
-            if (!Ember.none(previouslyDisplayed) && !previouslyDisplayed.contains(col.get('name'))) {
-                col.set('displayed', false);
-            }
+            col = Cabernet.Datagrid.Column.createFromOptions(this, column, data);
             if (!Ember.none(previouslyFiltered) && previouslyFiltered.contains(col.get('name'))) {
                 jsonValue = appliedFilters.findProperty('column', col.get('name')).value;
                 col.get('filter').set('value', col.get('filter').hydrateValue(jsonValue));
@@ -415,6 +484,11 @@ Cabernet.Datagrid.Column = Ember.Object.extend({
     sumable: false,
     format: false,
     classNames: '',
+    controller: null,
+
+    displayedChanged: function() {
+        this.get('controller').toggleColumn(this.get('name'));
+    }.observes('displayed'),
 
     sortClass: function() {
         var sortDir = this.get('sort');
@@ -425,7 +499,7 @@ Cabernet.Datagrid.Column = Ember.Object.extend({
 });
 
 Cabernet.Datagrid.Column.reopenClass({
-    createFromOptions: function(options, data) {
+    createFromOptions: function(controller, options, data) {
         if (typeof options === 'string') options = { name: options };
         Ember.assert("Column objects must have a 'name' property", options.hasOwnProperty('name'));
 
@@ -464,7 +538,9 @@ Cabernet.Datagrid.Column.reopenClass({
             if (options.format) filterOpts.format = options.format;
             
             options.filter = Cabernet.Datagrid.Filter.createFromOptions(filterOpts, data);
-        } 
+        }
+
+        options.controller = controller;
 
         return this.create(options);
     }
