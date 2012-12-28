@@ -72,6 +72,7 @@
     filterable: true,
     copyToClipboardEnabled: true,
     columnPickerEnabled: true,
+    resizableColumns: false,
 
     classNames: ['datagrid'],
     displayedData: [],
@@ -172,6 +173,18 @@
         this.fixColumnsWidth();
         this.initColumnResizing();
         this.initColumnHiding();
+        
+        /*var that = this;
+        this.$('thead > tr').sortable({
+            axis: 'x',
+            cursor: 'pointer',
+            helper: 'clone',
+            containment: 'parent',
+            placeholder: 'ui-state-highlight',
+            scroll: true,
+            tolerance: 'pointer',
+            update: that.onColumnSort
+        });*/
     },
 
     renderGrid: function() {
@@ -226,34 +239,36 @@
     },
 
     initColumnResizing: function() {
+        if (this.get('resizableColumns') === false) return;
+
         var table = this.$('table');
         this.$('div.header-wrapper').each(function(index) {
             $(this).resizable({
-         handles: "e",
+                handles: "e",
 
-         // set correct COL element and original size
-         start: function(event, ui) {
-           var colIndex = index + 1;
-           colElement = table.find("colgroup > col:nth-child(" +
-             colIndex + ")");
+                // set correct COL element and original size
+                start: function(event, ui) {
+                    var colIndex = index + 1;
+                    colElement = table.find("colgroup > col:nth-child(" +
+                    colIndex + ")");
 
-          // get col width (faster than .width() on IE)
-          colWidth = parseInt(colElement.get(0).style.width, 10);
-          originalSize = ui.size.width;
-         },
+                    // get col width (faster than .width() on IE)
+                    colWidth = parseInt(colElement.get(0).style.width, 10);
+                    originalSize = ui.size.width;
+                },
 
-         // set COL width
-         resize: function(event, ui) {
-           var resizeDelta = ui.size.width - originalSize;
+                // set COL width
+                resize: function(event, ui) {
+                    var resizeDelta = ui.size.width - originalSize;
 
-           var newColWidth = colWidth + resizeDelta;
-           colElement.width(newColWidth);
+                    var newColWidth = colWidth + resizeDelta;
+                    colElement.width(newColWidth);
 
-           // height must be set in order to prevent IE9 to set wrong height
-           //$(this).css("height", "auto");
-         }
+                    // height must be set in order to prevent IE9 to set wrong height
+                    //$(this).css("height", "auto");
+                }
+            });
         });
-});
     },
 
     initColumnHiding: function() {
