@@ -21,13 +21,18 @@ Cabernet.GraphBrowser = Ember.View.extend({
     template: function() {
         return Ember.Handlebars.compile(
             '<div class="row">'
-                + (this.get('collections').map(function(collection) {
-                    return '<div class="span4 '+ collection +'"> \
+                + (this.get('collections').map(function(collection, index, collections) {
+
+                    var c = "graph-browser-column ";
+                    if (index == collections.get("length") -1) c += " column-last";
+                    if (index == 0) c += " column-first";
+
+                    return '<div class="span4 ' + c + " " + collection +'"> \
                                 <h2>'+ collection +'</h2> \
                                 {{#view Cabernet.GraphBrowserAddView collection="'+ collection +'" classNames="bottom-form form-inline"}} \
                                     <form>'
                                         + this.getFormTemplateFor(collection) +
-                                        '<button class="btn primary"}>{{t "cabernet.graph_browser.add"}}</button> \
+                                        '<button class="btn add">{{t "cabernet.graph_browser.add"}}</button> \
                                     </form> \
                                 {{/view}} \
                                 <ul class="unstyled items-list"> \
@@ -37,13 +42,15 @@ Cabernet.GraphBrowser = Ember.View.extend({
                                                 {{#view Cabernet.GraphBrowserItemFormView collection="'+ collection +'" itemBinding="item"}} \
                                                     <form>'
                                                         + this.getFormTemplateFor(collection) +
-                                                        '<button class="btn primary" {{action "saveItem"}}>{{t "cabernet.graph_browser.save"}}</button> \
-                                                        <button class="btn danger" {{action "destroyItem"}}>{{t "cabernet.graph_browser.delete"}}</button> \
+                                                        '<button class="btn save" {{action "saveItem"}}>{{t "cabernet.graph_browser.save"}}</button> \
+                                                        <button class="btn remove" {{action "destroyItem"}}>{{t "cabernet.graph_browser.delete"}}</button> \
+                                                        <span class="item-icon"></span> \
                                                     </form> \
                                                 {{/view}} \
                                             {{else}}'
                                                     + this.getTemplateFor(collection) +
-                                            '{{/if}} \
+                                                '<span class="item-icon"></span> \
+                                            {{/if}} \
                                         {{/view}} \
                                     {{/each}} \
                                 </ul> \
@@ -89,6 +96,7 @@ Cabernet.GraphBrowser = Ember.View.extend({
         this.getAddFormNodes(childColl).attr('disabled', false);
         this.disableFormsFrom(childColl);
         this.emptyCollectionsFrom(childColl);
+        this.getAddFormNodes(childColl).first().focus();
     },
 
 
@@ -279,7 +287,7 @@ Cabernet.GraphBrowserItemFormView = Ember.View.extend({
     },
 
     submit: function(e) {
-        this.saveItem(e); 
+        this.saveItem(e);
         return false;
     },
 
