@@ -3,8 +3,8 @@ Cabernet.GraphBrowser = Ember.View.extend({
     hierarchy: [],
     displayed: Ember.Object.create(),
     classNames: ['graph-browser', 'container-fluid'],
-    itemTemplates: {},
-    itemFormTemplates: {},
+    itemTemplates: null,
+    itemFormTemplates: null,
 
     STRINGS: {
         'cabernet.graph_browser.add': 'Add',
@@ -13,42 +13,46 @@ Cabernet.GraphBrowser = Ember.View.extend({
     },
 
     collections: function() {
-        return this.get('hierarchy').map(function(type) {
-            return this.getTypeName(type) + 's';
-        }, this);
+        return this.get('expandedHierarchy').map(function(coll) {
+            return coll.get('name');
+        });
+    }.property('expandedHierarchy').cacheable(),
+
+    expandedHierarchy: function() {
+        return this.expandHierarchy();
     }.property('hierarchy').cacheable(),
 
     template: function() {
         return Ember.Handlebars.compile(
             '<div class="row">'
-                + (this.get('collections').map(function(collection, index, collections) {
+                + (this.get('expandedHierarchy').map(function(collection, index, collections) {
 
                     var c = "graph-browser-column ";
                     if (index == collections.get("length") -1) c += " column-last";
                     if (index == 0) c += " column-first";
 
-                    return '<div class="span4 ' + c + " " + collection +'"> \
-                                <h2>'+ collection +'</h2> \
-                                {{#view Cabernet.GraphBrowserAddView collection="'+ collection +'" classNames="bottom-form form-inline"}} \
+                    return '<div class="span4 ' + c + " " + collection.get('name') +'"> \
+                                <h2>'+ collection.get('label') +'</h2> \
+                                {{#view Cabernet.GraphBrowserAddView collection="'+ collection.get('name') +'" classNames="bottom-form form-inline"}} \
                                     <form>'
-                                        + this.getFormTemplateFor(collection) +
+                                        + collection.get('formTemplate') +
                                         '<button class="btn add">{{t "cabernet.graph_browser.add"}}</button> \
                                     </form> \
                                 {{/view}} \
                                 <ul class="unstyled items-list"> \
-                                    {{#each item in displayed.'+ collection +'}} \
-                                        {{#view Cabernet.GraphBrowserItemView collection="'+ collection +'" itemBinding="item"}} \
+                                    {{#each item in displayed.'+ collection.get('name') +'}} \
+                                        {{#view Cabernet.GraphBrowserItemView collection="'+ collection.get('name') +'" itemBinding="item"}} \
                                             {{#if editMode}} \
-                                                {{#view Cabernet.GraphBrowserItemFormView collection="'+ collection +'" itemBinding="item"}} \
+                                                {{#view Cabernet.GraphBrowserItemFormView collection="'+ collection.get('name') +'" itemBinding="item"}} \
                                                     <form>'
-                                                        + this.getFormTemplateFor(collection) +
+                                                        + collection.get('formTemplate') +
                                                         '<button class="btn save" {{action "saveItem"}}>{{t "cabernet.graph_browser.save"}}</button> \
                                                         <button class="btn remove" {{action "destroyItem"}}>{{t "cabernet.graph_browser.delete"}}</button> \
                                                         <span class="item-icon"></span> \
                                                     </form> \
                                                 {{/view}} \
                                             {{else}}'
-                                                    + this.getTemplateFor(collection) +
+                                                    + collection.get('template') +
                                                 '<span class="item-icon"></span> \
                                             {{/if}} \
                                         {{/view}} \
@@ -63,24 +67,40 @@ Cabernet.GraphBrowser = Ember.View.extend({
     init: function() {
         this._super();
         this.setI18nStrings();
+
         var firstLevelColl = this.get('collections').get('firstObject');
         this.get('displayed').set(firstLevelColl, this.get('data'));
     },
 
+    expandHierarchy: function() {
+        var collections = [];
+        this.get('hierarchy').forEach(function(options, index) {
+            if (typeof options === 'string') options = { model: options };
+            Ember.assert("Hierarchy objects must have a 'model' property", options.hasOwnProperty('model'));
+            
+            options.name = options.name || this.getTypeName(options.model) + 's';
+            options.label = options.label || Cabernet.I18n.translate(options.name);
+            //if (index > 0) ... we set previous collection's relation property
+
+            collections.pushObject(Cabernet.GraphBrowserCollection.create(options));
+        }, this);
+
+        Ember.warn("'itemTemplates' option is deprecated. Use 'template' option per hierarchy object instead.", this.get('itemTemplates') === null);
+        if (this.get('itemTemplates') !== null) {
+            var templates = this.get('itemTemplates');
+            for (var model in templates) collections.findProperty('model', model).set('template', templates[model]);
+        }
+        Ember.warn("'itemFormTemplates' option is deprecated. Use 'formTemplate' option per hierarchy object instead.", this.get('itemFormTemplates') === null);
+        if (this.get('itemFormTemplates') !== null) {
+            var templates = this.get('itemFormTemplates');
+            for (var model in templates) collections.findProperty('model', model).set('formTemplate', templates[model]);
+        }
+
+        return collections;
+    },
+
     didInsertElement: function() {
         this.disableFormsFrom(this.get('collections').get('firstObject'));
-    },
-
-    getTemplateFor: function(collection) {
-        var type = this.getTypeForCollection(collection);
-        if (this.get('itemTemplates').hasOwnProperty(type)) return this.get('itemTemplates')[type];
-        return '{{item.name}}';
-    },
-
-    getFormTemplateFor: function(collection) {
-        var type = this.getTypeForCollection(collection);
-        if (this.get('itemFormTemplates').hasOwnProperty(type)) return this.get('itemFormTemplates')[type];
-        return '<input type="text" name="name" value="" />';
     },
 
     unselectAll: function(collection) {
@@ -98,7 +118,6 @@ Cabernet.GraphBrowser = Ember.View.extend({
         this.emptyCollectionsFrom(childColl);
         this.getAddFormNodes(childColl).first().focus();
     },
-
 
     createItem: function(collection, data) {
         var modelType = this.getTypeForCollection(collection),
@@ -207,6 +226,13 @@ Cabernet.GraphBrowser = Ember.View.extend({
     }
 });
 
+Cabernet.GraphBrowserCollection = Ember.Object.extend({
+    name: null,
+    label: null,
+    model: null,
+    template: '{{item.name}}',
+    formTemplate: '<input type="text" name="name" value="" />'
+});
 
 Cabernet.GraphBrowserAddView = Ember.View.extend({
     collection: null,

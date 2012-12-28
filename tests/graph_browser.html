@@ -81,15 +81,36 @@
 
                     var browser = Cabernet.GraphBrowser.create({
                         data: addressbooks,
-                        hierarchy: ['Test.Addressbook', 'Test.Contact', 'Test.Phone'],
-                        itemTemplates: {
+                        //hierarchy: ['Test.Addressbook', 'Test.Contact', 'Test.Phone'],
+                        hierarchy: [
+                            {
+                                name: 'addressbooks',
+                                model: 'Test.Addressbook',
+                                label: 'Carnet d\'adresses'
+                            },
+                            {
+                                name: 'contacts',
+                                model: 'Test.Contact',
+                                label: 'Contacts',
+                                template: '{{item.firstname}} {{item.lastname}}',
+                                formTemplate: '<input type="text" name="firstname" /><input type="text" name="lastname" />'
+                            },
+                            {
+                                name: 'phones',
+                                model: 'Test.Phone',
+                                label: 'Téléphones',
+                                template: '{{item.type}}: {{item.number}}',
+                                formTemplate: '<select name="type"><option>mobile</option><option>home</option></select><input type="text" name="number" />'
+                            }
+                        ],
+                        /*itemTemplates: {
                             'Test.Contact': '{{item.firstname}} {{item.lastname}}',
                             'Test.Phone': '{{item.type}}: {{item.number}}'
                         },
                         itemFormTemplates: {
                             'Test.Contact': '<input type="text" name="firstname" /><input type="text" name="lastname" />',
                             'Test.Phone': '<select name="type"><option>mobile</option><option>home</option></select><input type="text" name="number" />'
-                        },
+                        },*/
 
                         // create
                         afterAddItem: function(collection, item, queueName) {
