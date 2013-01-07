@@ -368,7 +368,7 @@
         data.forEach(function(row) {
             rowCopy = Ember.copy(row);
             formatableColumns.forEach(function(col) {
-                rowCopy[col.get('name')] = col.get('format')(rowCopy[col.get('name')]);
+                rowCopy[col.get('name')] = col.get('format')(rowCopy[col.get('name')], rowCopy);
             });
             ret.push(rowCopy);
         });
