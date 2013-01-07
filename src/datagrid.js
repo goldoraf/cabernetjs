@@ -43,7 +43,7 @@
                     </div> \
                 </th> \
             {{/each}} \
-            <th class="options"> \
+            <th class="options last-cell"> \
                 {{view Cabernet.Datagrid.OptionsView columnsBinding="columnsForDisplay"}}\
             </th> \
         </tr>',
@@ -54,7 +54,7 @@
                 {{#each sum in computedSums}} \
                     <th {{bindAttr class="sum.css"}}>{{sum.value}}</th> \
                 {{/each}} \
-                <th /> \
+                <th class="last-cell"></td> \
             </tr> \
         {{/if}}',
 
@@ -213,9 +213,10 @@
             custom = this.getCustomDisplay(col.name);
             inner = (custom !== null) ? custom : '{{this.'+col.name+'}}';
             css = (!Ember.empty(col.get('classNames'))) ? ' class="'+col.get('classNames')+'"' : '';
-            if (col.get('displayed') === true || col.get('hideable') === false) 
-                html.push('<td'+css+(index === (columnCount - 1) ? ' colspan="2">' : '>')+inner+'</td>');
+            if (col.get('displayed') === true || col.get('hideable') === false)
+                html.push('<td'+css+'>'+inner+'</td>');
         }, this);
+        html.push('<td class="last-cell"></td>');
         
         return Cabernet.Handlebars.compile('<tbody>{{#list data}}<tr>'+html.join('')+'</tr>{{/list}}</tbody>');
     }.property('columnsForDisplay').cacheable(),
