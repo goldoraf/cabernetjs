@@ -182,7 +182,7 @@ Cabernet.GraphBrowser = Ember.View.extend({
     },
 
     getTypeForCollection: function(collection) {
-        return this.get('hierarchy').objectAt(this.get('collections').indexOf(collection));
+        return this.get('expandedHierarchy').objectAt(this.get('collections').indexOf(collection)).get('model');
     },
 
     disableFormsFrom: function(collection) {
