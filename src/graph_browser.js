@@ -116,7 +116,6 @@ Cabernet.GraphBrowser = Ember.View.extend({
         this.getAddFormNodes(childColl).attr('disabled', false);
         this.disableFormsFrom(childColl);
         this.emptyCollectionsFrom(childColl);
-        this.getAddFormNodes(childColl).first().focus();
     },
 
     createItem: function(collection, data) {
