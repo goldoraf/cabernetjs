@@ -73,6 +73,7 @@
     copyToClipboardEnabled: true,
     columnPickerEnabled: true,
     resizableColumns: false,
+    widthFixedColumns: true,
 
     classNames: ['datagrid'],
     displayedData: [],
@@ -231,6 +232,8 @@
     },
 
     fixColumnsWidth: function() {
+        if (this.get('widthFixedColumns') === false) return;
+
         var col, table = this.$('table');
         this.$('thead th').each(function(index) {
             col = table.find("colgroup > col:nth-child(" + (index + 1) + ")");
