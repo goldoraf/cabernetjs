@@ -7,7 +7,15 @@
                 <thead>' + this.get('headerTemplate') + '</thead>\
                 <tfoot>' + this.get('footerTemplate') + '</tfoot>\
                 <tbody />\
-            </table>'
+            </table>\
+            <div class="datagrid-options">\
+                {{#if copyToClipboardEnabled}}\
+                    {{view Cabernet.Datagrid.ClipboardView}}\
+                {{/if}}\
+                {{#if columnPickerEnabled}}\
+                    {{view Cabernet.Datagrid.ColumnpickerView columnsBinding="columnsForDisplay"}}\
+                {{/if}}\
+            </div>'
         );
     }.property('headerTemplate', 'footerTemplate').cacheable(),
 
@@ -43,9 +51,6 @@
                     </div> \
                 </th> \
             {{/each}} \
-            <th class="options last-cell"> \
-                {{view Cabernet.Datagrid.OptionsView columnsBinding="columnsForDisplay"}}\
-            </th> \
         </tr>',
 
     footerTemplate: 
@@ -54,7 +59,6 @@
                 {{#each sum in computedSums}} \
                     <th {{bindAttr class="sum.css"}}>{{sum.value}}</th> \
                 {{/each}} \
-                <th class="last-cell"></td> \
             </tr> \
         {{/if}}',
 
@@ -217,7 +221,6 @@
             if (col.get('displayed') === true || col.get('hideable') === false)
                 html.push('<td'+css+'>'+inner+'</td>');
         }, this);
-        html.push('<td class="last-cell"></td>');
         
         return Cabernet.Handlebars.compile('<tbody>{{#list data}}<tr>'+html.join('')+'</tr>{{/list}}</tbody>');
     }.property('columnsForDisplay').cacheable(),
@@ -276,6 +279,10 @@
     },
 
     initColumnHiding: function() {
+        this.get('columnsForDisplay').filterProperty('displayed', false).forEach(function(col) {
+            this.toggleColumn(col.get('name'));
+        }, this);
+
         if (this.shouldPersistParams()) {
             var previouslyDisplayed = this.retrieveParam('displayedColumns');
             if (!Ember.none(previouslyDisplayed)) {
@@ -888,30 +895,20 @@ Cabernet.Datagrid.BooleanFilterView = Cabernet.Datagrid.FilterView.extend({
     }
 });
 
-Cabernet.Datagrid.OptionsView = Cabernet.Popover.extend({
-    classNames: ['options'],
-    placement: 'below left',
-    collision: 'none flip',
-    withArrow: false,
-    linkTemplate: '<a class="toggle" {{action "toggle"}}>{{t "cabernet.datagrid.options"}}</a>',
-    contentTemplate: '{{#if parentView.copyToClipboardEnabled}} \
-                        <div class="clipboard-wrapper" style="position:relative"> \
-                            <div class="clipboard-button">{{t "cabernet.datagrid.copyToClipboard"}}</div> \
-                        </div> \
-                        <hr /> \
-                        {{/if}} \
-                        {{#if parentView.columnPickerEnabled}} \
-                            {{view Ember.CollectionView tagName="ul" class="inputs-list" \
-                            itemViewClass="Cabernet.Datagrid.ColumnpickerElement" contentBinding="columns"}} \
-                        {{/if}}',
+Cabernet.Datagrid.ClipboardView = Ember.View.extend({
+    classNames: ['clipboard'],
+    template: Ember.Handlebars.compile(
+        '<div class="clipboard-wrapper" style="position:relative"> \
+            <div class="clipboard-button">{{t "cabernet.datagrid.copyToClipboard"}}</div> \
+        </div>'
+    ),
 
     didInsertElement: function() {
-        if (!this.get('parentView').get('copyToClipboardEnabled') || window.ZeroClipboard === undefined) return;
         var clipClient = new ZeroClipboard.Client();
         clipClient.setText('');
         clipClient.setHandCursor(true);
         clipClient.setCSSEffects(true);
-        clipClient.glued = false;
+        clipClient.glue(this.$('div.clipboard-button').get(0), this.$('div.clipboard-wrapper').get(0));
 
         this.set('clipClient', clipClient);
 
@@ -919,18 +916,17 @@ Cabernet.Datagrid.OptionsView = Cabernet.Popover.extend({
         this.get('clipClient').addEventListener('mouseDown', function(client) {
             that.get('clipClient').setText(that.get('parentView').generateTSV());
         });
-    },
-
-    toggle: function(e) {
-        this._super(e);
-        if (!this.get('parentView').get('copyToClipboardEnabled') || window.ZeroClipboard === undefined) return;
-        var popover = this.$('div.popover'),
-            clipClient = this.get('clipClient');
-        if (popover.is(':visible') && !clipClient.glued) {
-            clipClient.glue(this.$('div.clipboard-button').get(0), this.$('div.clipboard-wrapper').get(0));
-            clipClient.glued = true;
-        }
     }
+});
+
+Cabernet.Datagrid.ColumnpickerView = Cabernet.Popover.extend({
+    classNames: ['columnpicker'],
+    placement: 'above right',
+    collision: 'none flip',
+    withArrow: false,
+    linkTemplate: '<a class="toggle" {{action "toggle"}}>{{t "cabernet.datagrid.options"}}</a>',
+    contentTemplate: '{{view Ember.CollectionView tagName="ul" class="inputs-list"\
+                            itemViewClass="Cabernet.Datagrid.ColumnpickerElement" contentBinding="columns"}}'
 });
 
 Cabernet.Datagrid.ColumnpickerElement = Ember.View.extend({

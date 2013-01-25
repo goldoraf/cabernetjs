@@ -92,13 +92,8 @@ div.datagrid table {
     }
 
     tfoot {
-        .gradientBar(@startGradient, @endGradient);
-
         th {
-            border-right: 1px solid white;
-            border-left: 1px solid #d1e2ed;
-            border-bottom: 1px solid #d1e2ed;
-            border-top: 1px solid white;
+            border: 1px solid #d1e2ed;
         }
     }
     
@@ -131,40 +126,28 @@ div.datagrid table {
     }
 }
 
-div.datagrid div.options {
-    display:inline-block;
-    float: right;
-    margin: 1px 0 1px 1px;
+div.datagrid div.datagrid-options {
+    .gradientBar(@startGradient, @endGradient);
+    padding: 5px;
 
-    hr {
-        border: none;
-        background-color: #ccc;
-        color: #ccc;
-        height: 1px;
-        margin: 7px 0;
-    }
-
-    div.clipboard-button {
-        color: @darkBlue;
-        cursor: pointer;
-        text-align: left;
-
-        &:hover {
-            text-decoration: underline;
-        }
+    div.clipboard, div.columnpicker {
+        display: inline-block;
+        padding-right: 5px;
+        background: url(../../images/table-th-separator.png) right center no-repeat;
     }
     
-    a.toggle {
-        .iconLink(url(../../images/options.png));
-        height: 10px;
-        width: 25px;
+    div.clipboard-button {
+        cursor: pointer;
+        .iconLink(url(../../images/page_paste.png));
+        height: 16px;
+        width: 16px;
+    }
+    
+    div.columnpicker a.toggle {
+        .iconLink(url(../../images/application_view_columns.png));
+        height: 16px;
+        width: 16px;
         margin: 0;
-        
-        background-position: top center;
-        
-        &:hover {
-            background-position: bottom center;
-        }
     }
 }
 
