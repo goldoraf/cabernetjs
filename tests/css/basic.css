@@ -2868,7 +2868,6 @@ div.datagrid div.datagrid-options div.columnpicker {
 }
 div.datagrid div.datagrid-options div.clipboard-button {
   cursor: pointer;
-  text-align: left;
   text-indent: -5000px;
   display: inline-block;
   width: 20px;

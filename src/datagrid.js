@@ -218,8 +218,7 @@
             custom = this.getCustomDisplay(col.name);
             inner = (custom !== null) ? custom : '{{this.'+col.name+'}}';
             css = (!Ember.empty(col.get('classNames'))) ? ' class="'+col.get('classNames')+'"' : '';
-            if (col.get('displayed') === true || col.get('hideable') === false)
-                html.push('<td'+css+'>'+inner+'</td>');
+            html.push('<td'+css+'>'+inner+'</td>');
         }, this);
         
         return Cabernet.Handlebars.compile('<tbody>{{#list data}}<tr>'+html.join('')+'</tr>{{/list}}</tbody>');
