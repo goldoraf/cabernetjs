@@ -402,7 +402,7 @@
     computeSum: function(columnName) {
         return this.get('displayedData').mapProperty(columnName).reduce(function(previous, current) {
             if (previous === undefined) return current; // Because IE is a bitch...
-            return previous + current; 
+            return previous + current;
         });
     },
 
@@ -564,7 +564,7 @@ Cabernet.Datagrid.Column.reopenClass({
             }
 
             if (options.format) filterOpts.format = options.format;
-            
+
             options.filter = Cabernet.Datagrid.Filter.createFromOptions(filterOpts, data);
         }
 
@@ -644,7 +644,7 @@ Cabernet.Datagrid.PickFilter = Cabernet.Datagrid.Filter.extend({
     },
 
     applied: function() {
-        return Ember.isArray(this.get('value')) 
+        return Ember.isArray(this.get('value'))
             && this.get('values').get('length') != this.get('value').get('length');
     }.property('value')
 });
@@ -658,7 +658,7 @@ Cabernet.Datagrid.PickFilter.reopenClass({
 
 Cabernet.Datagrid.RangeFilter = Cabernet.Datagrid.Filter.extend({
     type: 'range',
-    
+
     selectedMax: function() {
         return !Ember.empty(this.get('value')) ? this.get('value')[1] : this.get('max');
     }.property('value'),
@@ -689,7 +689,7 @@ Cabernet.Datagrid.RangeFilter = Cabernet.Datagrid.Filter.extend({
             if (!Ember.empty(max)) {
                 isValueCorrect = (isValueCorrect && value <= max);
             }
-            
+
             return isValueCorrect;
         }, this);
     },
@@ -719,7 +719,7 @@ Cabernet.Datagrid.DaterangeFilter = Cabernet.Datagrid.Filter.extend({
     }.observes('selectedMin', 'selectedMax'),
 
     apply: function(data) {
-        var v, value, 
+        var v, value,
             min = !Ember.empty(this.get('value')[0]) ? this.get('value')[0].getTime() : null,
             max = !Ember.empty(this.get('value')[1]) ? this.get('value')[1].getTime() : null;
         return data.filter(function(item, index) {
@@ -777,8 +777,8 @@ Cabernet.Datagrid.PickFilterView = Cabernet.Datagrid.FilterView.extend({
 
     distinctValues: function() {
         var distinct = [];
-        this.get('filter').get('values').forEach(function(v) { 
-            distinct.pushObject(Ember.Object.create({ value: v, checked: true })); 
+        this.get('filter').get('values').forEach(function(v) {
+            distinct.pushObject(Ember.Object.create({ value: v, checked: true }));
         });
         return distinct;
     }.property().cacheable(),
