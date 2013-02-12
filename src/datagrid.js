@@ -2,7 +2,7 @@
     
     template: function() {
         return Ember.Handlebars.compile(
-            '<table>\
+            '<table class="dg-table">\
                 {{{colgroup}}}\
                 <thead>' + this.get('headerTemplate') + '</thead>\
                 <tfoot>' + this.get('footerTemplate') + '</tfoot>\
@@ -22,32 +22,35 @@
     headerTemplate:
         '<tr> \
             {{#each column in columnsForDisplay}} \
-                <th {{bindAttr class="column.sortClass" }}>\
-                    <div class="header-wrapper"> \
-                    {{#if column.sortable}} \
-                        <a class="sortlink" {{action onSort context="column.name"}}>{{column.label}}</a> \
-                    {{else}} \
-                        {{column.label}} \
-                    {{/if}} \
-                    {{#if view.filterable}} \
-                        {{#if column.filterable}} \
-                            {{#if column.filter.isText}} \
-                                {{view Cabernet.Datagrid.TextFilterView filterBinding="column.filter"}} \
+                <th>\
+                    <div {{bindAttr class=":dg-table-header view.filterable:dg-filterable column.sortable:dg-sortable"}}> \
+                        {{#if column.sortable}} \
+                            <a class="sortlink" {{action onSort context="column.name"}}>{{column.label}}</a> \
+                            <span {{bindAttr class="column.sortClass :dg-header-widget :icon-sort" }}></span>\
+                        {{else}} \
+                            {{column.label}} \
+                        {{/if}}\
+                        <div class="dg-header-widget icon-filter-wrapper">\
+                            {{#if view.filterable}} \
+                                {{#if column.filterable}} \
+                                    {{#if column.filter.isText}} \
+                                        {{view Cabernet.Datagrid.TextFilterView filterBinding="column.filter"}} \
+                                    {{/if}} \
+                                    {{#if column.filter.isPick}} \
+                                        {{view Cabernet.Datagrid.PickFilterView filterBinding="column.filter"}} \
+                                    {{/if}} \
+                                    {{#if column.filter.isRange}} \
+                                        {{view Cabernet.Datagrid.RangeFilterView filterBinding="column.filter"}} \
+                                    {{/if}} \
+                                    {{#if column.filter.isDaterange}} \
+                                        {{view Cabernet.Datagrid.DaterangeFilterView filterBinding="column.filter"}} \
+                                    {{/if}} \
+                                    {{#if column.filter.isBoolean}} \
+                                        {{view Cabernet.Datagrid.BooleanFilterView filterBinding="column.filter"}} \
+                                    {{/if}} \
+                                {{/if}} \
                             {{/if}} \
-                            {{#if column.filter.isPick}} \
-                                {{view Cabernet.Datagrid.PickFilterView filterBinding="column.filter"}} \
-                            {{/if}} \
-                            {{#if column.filter.isRange}} \
-                                {{view Cabernet.Datagrid.RangeFilterView filterBinding="column.filter"}} \
-                            {{/if}} \
-                            {{#if column.filter.isDaterange}} \
-                                {{view Cabernet.Datagrid.DaterangeFilterView filterBinding="column.filter"}} \
-                            {{/if}} \
-                            {{#if column.filter.isBoolean}} \
-                                {{view Cabernet.Datagrid.BooleanFilterView filterBinding="column.filter"}} \
-                            {{/if}} \
-                        {{/if}} \
-                    {{/if}} \
+                        </div>\
                     </div> \
                 </th> \
             {{/each}} \
@@ -517,9 +520,7 @@ Cabernet.Datagrid.Column = Ember.Object.extend({
 
     sortClass: function() {
         var sortDir = this.get('sort');
-        if (sortDir === 'up') return 'headerSortUp';
-        if (sortDir === 'down') return 'headerSortDown';
-        return '';
+        return sortDir;
     }.property('sort')
 });
 
