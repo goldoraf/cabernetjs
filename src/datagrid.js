@@ -419,7 +419,9 @@
             var values = [];
 
             this.get('columnsForDisplay').forEach(function(column, index) {
-                var item = Ember.get(row, column.get('name'));
+                var item = Ember.get(row, column.get('name')),
+                    format = column.get('format');
+                if (format) item = format(item, row);
                 values.push(item);
             });
             contents += values.join("\t") + "\r\n";
