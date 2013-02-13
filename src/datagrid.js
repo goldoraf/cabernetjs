@@ -207,6 +207,11 @@
             this.$("tbody tr:first").addClass("row-0");
             this.$("tr > td:eq(0), tr > th:eq(0)").addClass("cell-0");
         }
+        this.didRenderGrid();
+    },
+
+    didRenderGrid: function() {
+
     },
 
     emptyTemplate: function() {
