@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="Cabernet" default="build" basedir=".">
+
+    <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml" />
+
+    <target name="check-project-version" unless="project.version">
+        <fail message="Missing property 'project.version'" />
+    </target>
+
+    <target name="sonar-js">
+        <property name="sonar.sources" value="src,tests/src" />
+        <property name="sonar.host.url" value="http://192.168.1.107:9000" />
+        <property name="sonar.language" value="js" />
+        <property name="sonar.projectName" value="${ant.project.name}" />
+        <sonar:sonar key="inativ:${ant.project.name}" version="${project.version}" xmlns:sonar="antlib:org.sonar.ant" />
+    </target>
+
+    <target name="run-sonar-js" depends="check-project-version, sonar-js" />
+
+</project>

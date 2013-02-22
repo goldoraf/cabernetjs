@@ -4,3 +4,6 @@
 tmp/*
 dist/*
 tests/test*.html
+.sonar/
+sonar-project.properties
+
