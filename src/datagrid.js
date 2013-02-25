@@ -10,7 +10,7 @@
             </table>\
             <div class="datagrid-options">\
                 {{#if copyToClipboardEnabled}}\
-                    {{view Cabernet.Datagrid.ClipboardView}}\
+                    {{view Cabernet.Datagrid.ClipboardView gridBinding="this"}}\
                 {{/if}}\
                 {{#if columnPickerEnabled}}\
                     {{view Cabernet.Datagrid.ColumnpickerView columnsBinding="columnsForDisplay"}}\
@@ -502,7 +502,9 @@
         for (var k in strings) {
             Cabernet.I18n.addMessage(k, strings[k]);
         }
-    }
+    },
+
+    onClipboardClick: Ember.K
 });
 
 Cabernet.Datagrid.Column = Ember.Object.extend({
@@ -922,6 +924,7 @@ Cabernet.Datagrid.ClipboardView = Ember.View.extend({
         var that = this;
         this.get('clipClient').addEventListener('mouseDown', function(client) {
             that.get('clipClient').setText(that.get('parentView').generateTSV());
+            that.get('grid').onClipboardClick();
         });
     }
 });
