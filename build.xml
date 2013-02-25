@@ -10,6 +10,7 @@
 
     <target name="sonar-js">
         <property name="sonar.sources" value="src,tests/src" />
+	<property name="sonar.exclusions" value="underscore.js" />
         <property name="sonar.host.url" value="http://192.168.1.107:9000" />
         <property name="sonar.language" value="js" />
         <property name="sonar.projectName" value="${ant.project.name}" />
