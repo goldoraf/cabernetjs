@@ -26,7 +26,9 @@
                     <div {{bindAttr class=":dg-table-header view.filterable:dg-filterable column.sortable:dg-sortable"}}> \
                         {{#if column.sortable}} \
                             <a class="sortlink" {{action onSort context="column.name"}}>{{column.label}}</a> \
-                            <span {{bindAttr class="column.sortClass :dg-header-widget :icon-sort" }}></span>\
+                            <div class="dg-header-widget icon-sort-wrapper">\
+                                <span {{bindAttr class="column.sortClass :dg-header-widget :icon-sort" }}></span>\
+                            </div> \
                         {{else}} \
                             {{column.label}} \
                         {{/if}}\
