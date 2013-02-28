@@ -350,7 +350,7 @@
         var column = this.get('columnsForDisplay').findProperty('name', columnName);
         if (direction === undefined) {
             var actualSort = column.get('sort'),
-                direction  = (actualSort === 'down') ? 'up' : 'down';
+              direction  = (actualSort === 'up') ? 'down' : 'up';
         }
         this.get('columnsForDisplay').setEach('sort', false);
         column.set('sort', direction);
