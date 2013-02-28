@@ -269,10 +269,10 @@ test("Filter datas by daterange", function () {
 
     var grid = Cabernet.Datagrid.create({
         data:[
-            {"daterangeColumn":new Date("2012-01-01")},
-            {"daterangeColumn":new Date("2012-02-01")},
-            {"daterangeColumn":new Date("2012-04-30")},
-            {"daterangeColumn":new Date("2012-07-01")}
+            {"daterangeColumn":new Date(2012, 01, 01)},
+            {"daterangeColumn":new Date(2012, 02, 01)},
+            {"daterangeColumn":new Date(2012, 04, 30)},
+            {"daterangeColumn":new Date(2012, 07, 01)}
         ],
         columns:[
             { name:'daterangeColumn', filter:{ type:'daterange' }}
@@ -284,24 +284,24 @@ test("Filter datas by daterange", function () {
     var filter = grid.get('filters')[0];
 
     // Filter by min and max date values
-    filter.set('value', [new Date("2012-01-01"), new Date("2012-06-01")]);
+    filter.set('value', [new Date(2012, 01, 01), new Date(2012, 06, 01)]);
     equal(grid.get('data').get('length'), 4); // unchanged
     equal(grid.get('displayedData').get('length'), 3);
-    equal(grid.get('displayedData')[0].daterangeColumn.getTime(), new Date("2012-01-01").getTime());
-    equal(grid.get('displayedData')[1].daterangeColumn.getTime(), new Date("2012-02-01").getTime());
-    equal(grid.get('displayedData')[2].daterangeColumn.getTime(), new Date("2012-04-30").getTime());
+    equal(grid.get('displayedData')[0].daterangeColumn.getTime(), new Date(2012, 01, 01).getTime());
+    equal(grid.get('displayedData')[1].daterangeColumn.getTime(), new Date(2012, 02, 01).getTime());
+    equal(grid.get('displayedData')[2].daterangeColumn.getTime(), new Date(2012, 04, 30).getTime());
 
     // Filter by min date value
-    filter.set('value', [new Date("2012-03-01"), null]);
+    filter.set('value', [new Date(2012, 03, 01), null]);
     equal(grid.get('displayedData').get('length'), 2);
-    equal(grid.get('displayedData')[0].daterangeColumn.getTime(), new Date("2012-04-30").getTime());
-    equal(grid.get('displayedData')[1].daterangeColumn.getTime(), new Date("2012-07-01").getTime());
+    equal(grid.get('displayedData')[0].daterangeColumn.getTime(), new Date(2012, 04, 30).getTime());
+    equal(grid.get('displayedData')[1].daterangeColumn.getTime(), new Date(2012, 07, 01).getTime());
 
     // Filter by max date value
-    filter.set('value', [null, new Date("2012-03-01")]);
+    filter.set('value', [null, new Date(2012, 03, 01)]);
     equal(grid.get('displayedData').get('length'), 2);
-    equal(grid.get('displayedData')[0].daterangeColumn.getTime(), new Date("2012-01-01").getTime());
-    equal(grid.get('displayedData')[1].daterangeColumn.getTime(), new Date("2012-02-01").getTime());
+    equal(grid.get('displayedData')[0].daterangeColumn.getTime(), new Date(2012, 01, 01).getTime());
+    equal(grid.get('displayedData')[1].daterangeColumn.getTime(), new Date(2012, 02, 01).getTime());
 
 });
 
@@ -437,4 +437,54 @@ test("Copy grid content to TSV", function () {
             + "3\t2012-07-01\t50\ttest too\t10\r\n";
 
     equal(content, expectedContent);
+});
+
+test("Filters on columns hidden by default", function () {
+
+  var grid = Cabernet.Datagrid.create({
+    data:[{
+        simpleShown: 'a1',
+        simpleHidden: 'a2'
+      },
+      {
+        simpleShown: 'b1',
+        simpleHidden: 'b2'
+      }
+    ],
+    columns:['simpleShown',
+      { name:'simpleHidden', displayed: false}
+    ]
+  });
+  equal(grid.get('displayedColumns').get('length'), 1);
+  equal(grid.get('displayedData').get('length'), 2);
+
+  grid.get('filters')[0].set('value', 'a');
+
+  equal(grid.get('displayedColumns').get('length'), 1);
+  equal(grid.get('displayedData').get('length'), 1);
+
+  grid.get('filters')[0].set('value', '');
+
+  equal(grid.get('displayedColumns').get('length'), 1);
+  equal(grid.get('displayedData').get('length'), 2)
+});
+
+test("Display/hide columns hidden by default", function () {
+
+  var grid = Cabernet.Datagrid.create({
+    data:[],
+    columns:[  'First',
+      {name:'Second', displayed:false},
+      'Third']
+  });
+  equal(grid.get('columnsForDisplay').get('length'), 3);
+  equal(grid.get('displayedColumns').get('length'), 2);
+
+  // Hide non hideable column
+  grid.get('columnsForDisplay')[1].set('displayed', true);
+  equal(grid.get('displayedColumns').get('length'), 3);
+
+  // Hide hideable column
+  grid.get('columnsForDisplay')[1].set('displayed', false); // Yes we can
+  equal(grid.get('displayedColumns').get('length'), 2);
 });

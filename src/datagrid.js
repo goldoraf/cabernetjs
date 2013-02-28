@@ -106,7 +106,9 @@
     }.property().cacheable(),
 
     displayedColumns: function() {
-        return this.get('columnsForDisplay').filterProperty('displayed');
+        return this.get('columnsForDisplay').filter(function(col) {
+          return col.get('displayed') || ! col.get('hideable');
+        });
     }.property('columnsForDisplay.@each.displayed'),
 
     filters: function() {
@@ -175,6 +177,9 @@
 
         this.addObserver('displayedData', function displayedDataChanged() {
             this.renderGrid();
+            this.get('columnsForDisplay').filterProperty('displayed', false).forEach(function(col) {
+              this.toggleColumnCells(this.getColumnIndex(col.get('name')));
+            }, this);
         });
     },
 
@@ -307,12 +312,19 @@
         });
     },
 
-    toggleColumn: function(columnName) {
-        var index = this.getColumnIndex(columnName);
-        this.$('td:nth-child('+(index+1)+')').toggle();
-        this.$('th:eq('+index+')').toggle();
-        this.$('tfoot th:eq('+index+')').toggle();
-    },
+   toggleColumn: function(columnName) {
+     var index = this.getColumnIndex(columnName);
+     this.toggleColumnHeaders(index);
+     this.toggleColumnCells(index);
+   },
+
+   toggleColumnHeaders: function(index) {
+     this.$('th:eq('+index+')').toggle();
+   },
+
+   toggleColumnCells: function(index) {
+     this.$('td:nth-child('+(index+1)+')').toggle();
+   },
 
     getColumnIndex: function(columnName) {
         var colIndex;
@@ -526,7 +538,9 @@ Cabernet.Datagrid.Column = Ember.Object.extend({
     controller: null,
 
     displayedChanged: function() {
+      if(this.get('hideable')) {
         this.get('controller').toggleColumn(this.get('name'));
+      }
     }.observes('displayed'),
 
     sortClass: function() {
