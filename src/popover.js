@@ -50,6 +50,33 @@ Cabernet.Popover = Ember.View.extend({
             collision: this.get('collision')
         });
         if (this.get('withArrow') && params.arrowLeft !== undefined) popover.children('div.arrow').css('left', params.arrowLeft);
+
+        // Be sure that after repositioning the popover, it fit in the viewport
+        var datagridRightOffset = ($(window).width() - (popover.parents(".datagrid").offset().left + popover.parents(".datagrid").outerWidth()));
+        var popoverRightOffset = ($(window).width() - (popover.offset().left + popover.outerWidth()));
+        var popoverOffset = popover.offset();
+        popoverOffset.right = popoverRightOffset;
+        var datagridOffset = popover.parents(".datagrid").offset();
+        datagridOffset.right = datagridRightOffset;
+
+
+        var reposition = false;
+        var newPlacement;
+        if (popoverOffset.left < datagridOffset.left) {
+            newPlacement  = "below right";
+            reposition = true;
+        } else if (popoverOffset.top < datagridOffset.top ) {
+            newPlacement = "below";
+            reposition = true;
+        } else if (popoverOffset.right < datagridOffset.right) {
+            newPlacement = "below left";
+            reposition = true;
+        }
+
+        if (reposition) {
+            this.set("placement", newPlacement);
+            this.reposition();
+        }
     },
 
     positionRelativeTo: function() {
@@ -74,7 +101,7 @@ Cabernet.Popover = Ember.View.extend({
     },
 
     getPositionParams: function(popoverElt) {
-        var width = popoverElt.css('width').replace(/px/, '');
+        var width = popoverElt.width();
         var params = {
             'right': { my: 'left', at: 'right', offset: '0' },
             'below': { my: 'top', at: 'bottom', offset: '0' },
