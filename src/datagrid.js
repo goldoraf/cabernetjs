@@ -1,5 +1,5 @@
  Cabernet.Datagrid = Ember.View.extend({
-    
+
     template: function() {
         return Ember.Handlebars.compile(
             '<table class="dg-table">\
@@ -58,7 +58,7 @@
             {{/each}} \
         </tr>',
 
-    footerTemplate: 
+    footerTemplate:
         '{{#if hasSumableColumns}} \
             <tr> \
                 {{#each sum in computedSums}} \
@@ -188,7 +188,7 @@
         this.fixColumnsWidth();
         this.initColumnResizing();
         this.initColumnHiding();
-        
+
         /*var that = this;
         this.$('thead > tr').sortable({
             axis: 'x',
@@ -204,7 +204,7 @@
 
     renderGrid: function() {
         if (this.get('displayedData').get('length') === 0) {
-            this.$('tbody').replaceWith(this.get('emptyTemplate')({ 
+            this.$('tbody').replaceWith(this.get('emptyTemplate')({
                 columnCount: this.get('columnsForDisplay').get('length') + 1
             }));
         } else {
@@ -228,14 +228,14 @@
     gridTemplate: function() {
         var custom, inner, css, html = [],
             columnCount = this.get('columnsForDisplay').get('length');
-        
+
         this.get('columnsForDisplay').forEach(function(col, index) {
             custom = this.getCustomDisplay(col.name);
             inner = (custom !== null) ? custom : '{{this.'+col.name+'}}';
             css = (!Ember.empty(col.get('classNames'))) ? ' class="'+col.get('classNames')+'"' : '';
             html.push('<td'+css+'>'+inner+'</td>');
         }, this);
-        
+
         return Cabernet.Handlebars.compile('<tbody>{{#list data}}<tr>'+html.join('')+'</tr>{{/list}}</tbody>');
     }.property('columnsForDisplay').cacheable(),
 
@@ -367,10 +367,10 @@
     applySort: function(data) {
         var sortColumn = this.getCurrentSortColumn();
         if (Ember.none(sortColumn)) return data;
-        
+
         var columnName = sortColumn.get('name'),
             direction  = sortColumn.get('sort');
-        
+
         var sorted = data.toArray().sort(function(a, b) {
             var aValue, bValue, ret = 0;
 
@@ -732,13 +732,15 @@ Cabernet.Datagrid.RangeFilter.reopenClass({
 });
 
 Cabernet.Datagrid.DaterangeFilter = Cabernet.Datagrid.Filter.extend({
-    type: 'datarange',
-    selectedMin: '',
-    selectedMax: '',
+    type: 'daterange',
+    selectedMin: null,
+    selectedMax: null,
 
     selectedDatesChanged: function() {
-        if (Ember.empty(this.get('selectedMin')) && Ember.empty(this.get('selectedMax'))) this.set('value', '');
-        else this.set('value', [this.get('selectedMin'), this.get('selectedMax')]);
+        if ( Ember.empty(this.get('selectedMin')) && Ember.empty(this.get('selectedMax')) )
+            this.set('value', null);
+        else
+            this.set('value', [this.get('selectedMin'), this.get('selectedMax')]);
     }.observes('selectedMin', 'selectedMax'),
 
     apply: function(data) {
@@ -747,7 +749,19 @@ Cabernet.Datagrid.DaterangeFilter = Cabernet.Datagrid.Filter.extend({
             max = !Ember.empty(this.get('value')[1]) ? this.get('value')[1].getTime() : null;
         return data.filter(function(item, index) {
             v = this.getValueFor(item);
-            value = v instanceof Date ? v.getTime() : v;
+            if (v === undefined)
+                return false;
+
+            if(v instanceof Date)
+                value = v.getTime();
+            else {
+                if (/^[0-9]*$/.test(v)) { // Check if it is a Number
+                    value = v;
+                } else {
+                    var dat = new Date(Date.parse(v));
+                    value = dat instanceof Date ? dat.getTime() : v;
+                }
+            }
             return (min === null || value >= min) && (max === null || value <= max);
         }, this);
     },
@@ -759,7 +773,8 @@ Cabernet.Datagrid.DaterangeFilter = Cabernet.Datagrid.Filter.extend({
     },
 
     applied: function() {
-        return Ember.isArray(this.get('value'));
+            return Ember.isArray(this.get('value'))
+                && ( !Ember.empty(this.get('value')[0]) || !Ember.empty(this.get('value')[1]));
     }.property('value')
 });
 
@@ -838,25 +853,28 @@ Cabernet.Datagrid.RangeFilterView = Cabernet.Datagrid.FilterView.extend({
 });
 
 Cabernet.Datagrid.DaterangeFilterView = Cabernet.Datagrid.FilterView.extend({
-    contentTemplate: '<p>{{t "cabernet.datagrid.fromDate"}} <input type="text" class="min-date" /> \
-        {{t "cabernet.datagrid.toDate"}} <input type="text" class="max-date" /></p>',
+    contentTemplate: '<p>{{t "cabernet.datagrid.fromDate"}} <input type="text" class="min-date" {{bindAttr value="selectedMin"}} /> \
+        {{t "cabernet.datagrid.toDate"}} <input type="text" class="max-date" {{bindAttr value="selectedMax"}}/></p>',
 
     didInsertElement: function() {
         var that = this,
             minDateInput = this.$('input.min-date'),
             maxDateInput = this.$('input.max-date'),
             filterValue  = this.get('filter').get('value');
+
+        function _setMinAndMaxValue()  {
+            that.get('filter').set('selectedMin', minDateInput.datepicker('getDate') || '');
+            that.get('filter').set('selectedMax', maxDateInput.datepicker('getDate') || '');
+        }
+
         minDateInput.datepicker({
             defaultDate: "+1w",
             changeMonth: true,
             changeYear: true,
             numberOfMonths: 1,
-            dateFormat: 'yy-mm-dd',
             onClose: function(selectedDate) {
+                _setMinAndMaxValue();
                 maxDateInput.datepicker("option", "minDate", selectedDate);
-            },
-            onSelect: function() {
-                that.get('filter').set('selectedMin', minDateInput.datepicker('getDate'));
             }
         });
         if (Ember.isArray(filterValue) && !Ember.empty(filterValue[0])) {
@@ -867,12 +885,9 @@ Cabernet.Datagrid.DaterangeFilterView = Cabernet.Datagrid.FilterView.extend({
             changeMonth: true,
             changeYear: true,
             numberOfMonths: 1,
-            dateFormat: 'yy-mm-dd',
             onClose: function(selectedDate) {
+                _setMinAndMaxValue();
                 minDateInput.datepicker("option", "maxDate", selectedDate);
-            },
-            onSelect: function() {
-                that.get('filter').set('selectedMax', maxDateInput.datepicker('getDate'));
             }
         });
         if (Ember.isArray(filterValue) && !Ember.empty(filterValue[1])) {
